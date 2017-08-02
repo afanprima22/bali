@@ -10,6 +10,7 @@
     <ul class="nav nav-tabs">
         <li class="active"><a href="#list" data-toggle="tab">List Data</a></li>
         <li><a href="#form" data-toggle="tab">Form Data</a></li>
+        <li><a href="#list_retail" data-toggle="tab">List Detail Retail</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="list">
@@ -44,13 +45,11 @@
                       <div class="row">
                         <div class="col-md-6">
                           <div class="form-group">
-                            <label>Id Nota (Auto)</label>
-                            <input type="text" class="form-control i_id" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
-                          </div>
-                          <div class="form-group">
                             <label>Nama Customer</label>
-                            <select class="form-control select2" name="i_customer" id="i_customer" style="width: 100%;" onchange="get_customer(this.value)">
+                            <select class="form-control select2" name="i_customer" id="i_customer" style="width: 50%;" onchange="get_customer(this.value)">
                             </select>
+                            <a href="#customerModal" class="btn btn-info btn-xs" data-toggle="modal"><i class="glyphicon glyphicon-plus"></i>Customer</a>
+                            <input type="hidden" class="form-control i_id" name="i_id" id="i_id" value="" >
                           </div>
                           <div class="form-group">
                             <label>Alamat</label>
@@ -65,7 +64,11 @@
                             <select class="form-control select2" name="i_sales" id="i_sales" style="width: 100%;">
                             </select>
                           </div>
-                          
+                          <div class="form-group">
+                            <label>Scan Member Card</label>
+                            <input type="text" class="form-control" name="i_scan_card" id="i_scan_card" placeholder="Scan Member Card" value="" >
+                          </div>
+
                         </div>
                         <div class="col-md-6">
                           <div class="form-group">
@@ -144,16 +147,23 @@
                                       <th>Isi</th>
                                       <th>Harga</th>
                                       <th>Jumlah</th>
+                                      <th>Retail</th>
                                       <th>D Promo</th>
                                       <th>Total Harga</th>
-                                      <th>Ambil Skrg</th>
+                                      <th>Ambil Sndri</th>
                                       <th>Config</th>
                                     </tr>
                                   </thead>
                                 </table>                                
                               </div>
-                                <select class="form-control select2" name="i_item" id="i_item" style="width: 20%;" onchange="save_item(this.value)">
+                              <div class="form-group">
+                              
+                                <input type="text" style="width: 20%;" class="form-control pull-right" name="i_barcode_scan" placeholder="Scan Barcode Retail" onkeypress="if (event.keyCode == 13) { save_item(2); }">
+                              
+                                <select class="form-control select2" name="i_item" id="i_item" style="width: 20%;" onchange="save_item(1)">
                                 </select>
+                              
+                              </div>
                             </div>
                           </div>
                         </div>
@@ -166,9 +176,13 @@
                       </div>
 
                     </div>
-                </form>
+                </form> 
 
             </div>
+        </div>
+
+        <div class="tab-pane" id="list_retail">
+          <? include('nota_r.php');?>
         </div>
 
         <div style="padding-top: 50px;" class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel"
@@ -210,37 +224,68 @@
           </div>
       </div>
 
-      <div style="padding-top: 50px;" class="modal fade" id="stockModal" role="dialog" aria-labelledby="myModalLabel"
+      <div style="padding-top: 50px;" class="modal fade" id="customerModal" role="dialog" aria-labelledby="myModalLabel"
          aria-hidden="true" >
 
           <div class="modal-dialog" style="width: 50%;">
-          <form id="form_modal" role="form" action="" method="post" enctype="multipart/form-data" onkeypress="return event.keyCode != 13;">
+          <form id="formcustomer" role="form" action="" method="post" enctype="multipart/form-data" onkeypress="return event.keyCode != 13;">
               <div class="modal-content">
                   <div class="modal-header">
                       <button type="button" class="close" data-dismiss="modal">×</button>
-                      <h4>List Stock Barang</h4>
+                      <h4>Form Input Customer</h4>
                   </div>
                   <div class="modal-body">
-                      <div class="box-inner">
-                            
-                            <div class="box-content">
-                              <div class="form-group">
-                                <table width="100%" id="table4" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
-                                  <thead>
-                                    <tr>
-                                      <th>Rak</th>
-                                      <th>Barang</th>
-                                      <th>Qty</th>
-                                      <th>Qty Konversi</th>
-                                    </tr>
-                                  </thead>
-                                </table>
-                              </div>
-                            </div>
+                          <div class="box-content">
+                  <div class="row">
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>Nama Customer</label>
+                            <input type="text" class="form-control" name="i_name" id="i_name" placeholder="Masukkan Nama Customer" required="required" value="">
+                            <input type="hidden" class="form-control" name="i_id" id="i_id1" placeholder="Auto" value="" readonly="">
                           </div>
+                          <div class="form-group">
+                            <label>Alamat Customer</label>
+                            <textarea class="form-control" rows="3" placeholder="Masukkan Alamat" required="required" name="i_addres" id="i_addres"></textarea>
+                          </div>
+                          <div class="form-group">
+                            <label>Nama Toko</label>
+                            <input type="text" class="form-control" name="i_store" id="i_store" placeholder="Masukkan Nama Toko" value="" required="required">
+                          </div>
+                          <div class="form-group">
+                            <label>No Telepon</label>
+                            <input type="number" class="form-control" placeholder="Masukkan No Telepon" required="required" name="i_telp" id="i_telp" value="">
+                          </div>
+                          
+                        </div>
+                        <div class="col-md-6">
+                          <div class="form-group">
+                            <label>No NPWP</label>
+                            <input type="number" class="form-control" placeholder="Masukkan No NPWP" name="i_no_npwp" id="i_no_npwp" value="">
+                          </div>
+                          <div class="form-group">
+                            <label>Nama NPWP</label>
+                            <input type="text" class="form-control" placeholder="Masukkan Nama NPWP" name="i_name_npwp" id="i_name_npwp" value="">
+                          </div>
+                          
+                          <div class="form-group">
+                            <label>Kategori Harga</label>
+                            <select class="form-control select2" name="i_category" id="i_category" style="width: 100%;" required="required">
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label>Wilayah</label>
+                            <select class="form-control select2" name="i_city" id="i_city" style="width: 100%;" >
+                            </select>
+                          </div>
+                          
+                          
+                        </div>
+                        
+                      </div>
+                    </div>
                   </div>
                   <div class="modal-footer">
-                      <a href="#" class="btn btn-warning" data-dismiss="modal">Selesai</a>
+                      <a href="#" class="btn btn-primary" data-dismiss="modal" onclick="save_customer()">Simpan</a>
                   </div>
               </div>
           </form>
@@ -259,7 +304,9 @@
         select_list_customer();
         select_list_sales();
         select_list_nota();
-        //$.fn.modal.Constructor.prototype.enforceFocus = function() {};
+        select_list_item_price();
+        select_list_city();
+        $.fn.modal.Constructor.prototype.enforceFocus = function() {};
         document.getElementById("datepicker").value  = (date.getMonth()+ 1) + '/' + date.getDate() + '/' +  date.getFullYear();
     });
 
@@ -320,6 +367,7 @@
               {"name": "item_name"},
               {"name": "unit_name"},
               {"name": "nota_detail_qty"},
+              {"name": "nota_detail_retail"},
               {"name": "nota_detail_price"},
               {"name": "jml","orderable": false,"searchable": false},
               {"name": "nota_detail_promo"},
@@ -430,6 +478,7 @@
               document.getElementById("i_desc").value         = data.val[i].nota_desc;
               document.getElementById("i_addres").value      = data.val[i].customer_address;
               document.getElementById("i_telp").value         = data.val[i].customer_telp;
+              document.getElementById("i_scan_card").value         = data.val[i].nota_member_card;
 
               $("#i_customer").append('<option value="'+data.val[i].customer_id+'" selected>'+data.val[i].customer_name+'</option>');
               $("#i_sales").append('<option value="'+data.val[i].employee_id+'" selected>'+data.val[i].employee_name+'</option>');
@@ -598,7 +647,7 @@
         });
       }
 
-      function save_item(){
+      function save_item(type){
         var id = document.getElementById("i_id").value;
         if (id) {
           var id_new = id;
@@ -609,7 +658,7 @@
 
         $.ajax({
           type : "POST",
-          url  : '<?php echo base_url();?>nota/action_data_detail/',
+          url  : '<?php echo base_url();?>nota/action_data_detail/'+type,
           data : $( "#formall" ).serialize(),
           dataType : "json",
           success:function(data){
@@ -691,7 +740,7 @@
         search_data_detail(id_new);
     }
 
-    function get_detail_promo(value,id){
+    function get_detail_update(value,id,type){
       //alert(warehouse_id);
       var id_nota = document.getElementById("i_id").value;
         if (id_nota) {
@@ -701,8 +750,8 @@
         }
       $.ajax({
           type : "POST",
-          url  : '<?php echo base_url();?>nota/action_data_promo/',
-          data : {value:value,id:id},
+          url  : '<?php echo base_url();?>nota/get_detail_update/',
+          data : {value:value,id:id,type:type},
           dataType : "json",
           success:function(data){
             search_data_detail(id_new);
@@ -731,6 +780,116 @@
 
     }
 
+    function get_data_retail(id){
+        $("#list_retail").load("<?= site_url()?>nota/load_view_retail/"+id);
+        $('[href="#list_retail"]').tab('show');
+      }
+
+    function save_retail(){
+        //alert("test")
+        $.ajax({
+          type : "POST",
+          url  : '<?php echo base_url();?>nota/action_data_retail/',
+          data : $( "#formretail" ).serialize(),
+          dataType : "json",
+          success:function(data){
+            if(data.status=='200'){
+              reset();
+              search_data();
+              $('[href="#list"]').tab('show');
+              if (data.alert=='1') {
+                document.getElementById('create').style.display = 'block';
+                document.getElementById('update').style.display = 'none';
+                document.getElementById('delete').style.display = 'none';
+              }else if(data.alert=='2'){
+                document.getElementById('create').style.display = 'none';
+                document.getElementById('update').style.display = 'block';
+                document.getElementById('delete').style.display = 'none';
+              }
+            } 
+          }
+        });
+      }
+
+    function select_list_item_price() {
+        $('#i_category').select2({
+          placeholder: 'Pilih Barang',
+          multiple: false,
+          allowClear: true,
+          ajax: {
+            url: '<?php echo base_url();?>Item/load_data_select_item_price/',
+            dataType: 'json',
+            delay: 100,
+            cache: true,
+            data: function (params) {
+              return {
+                q: params.term, // search term
+                page: params.page
+              };
+            },
+            processResults: function (data, params) {
+              params.page = params.page || 1;
+
+              return {
+                results: data.items,
+                pagination: {
+                  more: (params.page * 30) < data.total_count
+                }
+              };
+            }
+          },
+          escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+          minimumInputLength: 1,
+          templateResult: FormatResult,
+          templateSelection: FormatSelection,
+        });
+      }
+
+      function select_list_city() {
+        $('#i_city').select2({
+          placeholder: 'Pilih Wilayah',
+          multiple: false,
+          allowClear: true,
+          ajax: {
+            url: '<?php echo base_url();?>City/load_data_select_city/',
+            dataType: 'json',
+            delay: 100,
+            cache: true,
+            data: function (params) {
+              return {
+                q: params.term, // search term
+                page: params.page
+              };
+            },
+            processResults: function (data, params) {
+              params.page = params.page || 1;
+
+              return {
+                results: data.items,
+                pagination: {
+                  more: (params.page * 30) < data.total_count
+                }
+              };
+            }
+          },
+          escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+          minimumInputLength: 1,
+          templateResult: FormatResult,
+          templateSelection: FormatSelection,
+        });
+      }
+
+      function save_customer(){
+        $.ajax({
+          type : "POST",
+          url  : '<?php echo base_url();?>Nota/action_data_customer/',
+          data : $( "#formcustomer" ).serialize(),
+          dataType : "json",
+          success:function(data){
+            
+          }
+        });
+    }
 </script>
 </body>
 </html>

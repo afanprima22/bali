@@ -91,11 +91,15 @@ class My_Model extends CI_Model {
         return $result;
     }
     
-    function update_data_table($table, $where, $data){
+    function update_data_table($table, $where = NULL, $data,$where2 = NULL){
         if ($where) {
             for ($i=0; $i<sizeof($where['data']) ; $i++) { 
                 $this->db->where($where['data'][$i]['column'],$where['data'][$i]['param']);
             }
+        }
+
+        if ($where2) {
+            $this->db->where($where2);
         }
         $this->db->update($table, $data);
         $error = $this->db->error();

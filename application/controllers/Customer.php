@@ -328,13 +328,13 @@ class Customer extends MY_Controller {
 		$join['data'][] = array(
 			'table' => 'business c',
 			'join'	=> 'c.busines_id=a.busines_id',
-			'type'	=> 'inner'
+			'type'	=> 'left'
 		);
 		//JOIN
 		$join['data'][] = array(
 			'table' => 'customer_groups d',
 			'join'	=> 'd.customer_group_id=a.customer_group_id',
-			'type'	=> 'inner'
+			'type'	=> 'left'
 		);
 		//JOIN
 		$join['data'][] = array(

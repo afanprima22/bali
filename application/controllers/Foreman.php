@@ -62,7 +62,7 @@ class Foreman extends MY_Controller {
 
 		$data = array(
 			'aplikasi'		=> 'Bali System',
-			'title_page' 	=> 'Setup Data / foreman',
+			'title_page' 	=> 'Setup Data / Mandor Gudang',
 			'title' 		=> 'Kelolah Data',
 			'mandor' 		=> $employee_name,
 			'employee_id' 	=> $employee_id,
@@ -132,7 +132,7 @@ class Foreman extends MY_Controller {
 						$val->employee_name,
 						$val->warehouse_name,
 						$val->delivery_detail_code,
-						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->foreman_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->foreman_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<button class="btn btn-info btn-xs" type="button" onclick="specifik_data('.$val->delivery_detail_id.')" '.$d.'><i class="glyphicon glyphicon-search"></i></button>'
+						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->foreman_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->foreman_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<button class="btn btn-info btn-xs" type="button" onclick="specifik_data('.$val->delivery_detail_id.')" '.$u.'><i class="glyphicon glyphicon-search"></i></button>'
 					);
 					$no++;	
 				}
@@ -202,21 +202,44 @@ class Foreman extends MY_Controller {
 			$data = $this->general_post_data();
 			$insert = $this->g_mod->insert_data_table($this->tbl, NULL, $data);
 			$foreman_id = $insert->output;
+
+			$join['data'][] = array(
+				'table' => 'delivery_details b',
+				'join'	=> 'b.delivery_detail_id=a.delivery_detail_id',
+				'type'	=> 'inner'
+			);
 			//WHERE
 			$where['data'][] = array(
-				'column' => 'delivery_detail_id',
+				'column' => 'a.delivery_detail_id',
 				'param'	 => $data['delivery_detail_id']
 			);
-			$query = $this->g_mod->select('*','delivery_sends',NULL,NULL,NULL,NULL,$where);
+			$query = $this->g_mod->select('a.*,b.delivery_detail_type','delivery_sends a',NULL,NULL,NULL,$join,$where);
+			$qty_send = 0;
+			$qty_form = 0;
 			foreach ($query->result() as $val) {
-					$data2 = array(
-						'foreman_id' => $foreman_id,
-						'delivery_send_id' => $val->delivery_send_id,
-						'foreman_detail_qty' => $this->input->post('i_qty'.$val->delivery_send_id, TRUE),
-						'user_id' => $this->user_id
-						);
-					$this->g_mod->insert_data_table('foreman_details', NULL, $data2);
+				$data2 = array(
+					'foreman_id' => $foreman_id,
+					'delivery_send_id' => $val->delivery_send_id,
+					'foreman_detail_qty' => $this->input->post('i_qty'.$val->delivery_send_id, TRUE),
+					'user_id' => $this->user_id
+					);
+				$this->g_mod->insert_data_table('foreman_details', NULL, $data2);
+				if ($val->delivery_detail_type == 1) {
+					$this->g_mod->update_data_stock('nota_detail_orders','accumulation_qty','nota_detail_order_id',-$data2['foreman_detail_qty'],$val->nota_detail_order_id);
+				}else{
+					$this->g_mod->update_data_stock('nota_detail_orders','accumulation_now','nota_detail_order_id',-$data2['foreman_detail_qty'],$val->nota_detail_order_id);
+				}
+				
+				$qty_send += $val->delivery_send_qty;
+				$qty_form += $data2['foreman_detail_qty'];
 			}
+
+			if ($qty_send != $qty_form) {
+				$data3['delivery_detail_status'] = 2;
+			}else{
+				$data3['delivery_detail_status'] = 1;
+			}
+			$this->g_mod->update_data_table('delivery_details a', $where, $data3);
 
 			if($insert->status) {
 				$response['status'] = '200';
@@ -364,7 +387,7 @@ class Foreman extends MY_Controller {
  		$foreman_id = $this->input->post('i_foreman_id', TRUE);
 
  		$tbl  = 'foreman_details a';
-		$select = 'a.*,c.item_id,c.warehouse_id,d.rack_id';
+		$select = 'a.*,c.item_id,c.warehouse_id,d.rack_id,e.item_per_unit,f.foreman_rack_id,f.foreman_rack_qty';
 		
 		//JOIN
 		$join['data'][] = array(
@@ -387,6 +410,19 @@ class Foreman extends MY_Controller {
 			'type'	=> 'inner'
 		);
 
+		//JOIN
+		$join['data'][] = array(
+			'table' => 'items e',
+			'join'	=> 'e.item_id=c.item_id',
+			'type'	=> 'inner'
+		);
+
+		$join['data'][] = array(
+			'table' => 'foreman_racks f',
+			'join'	=> 'f.foreman_detail_id=a.foreman_detail_id and f.rack_id = d.rack_id and f.item_id = e.item_id',
+			'type'	=> 'left'
+		);
+
 		//WHERE
 		$where['data'][] = array(
 			'column' => 'a.foreman_id',
@@ -398,14 +434,33 @@ class Foreman extends MY_Controller {
 			foreach ($query->result() as $val) {
 				$qty = $this->input->post('i_qty_spesifik'.$val->foreman_detail_id.$val->rack_id.$val->item_id, TRUE);
 				if ($qty) {
-					$data = array(
-						'foreman_detail_id' => $val->foreman_detail_id,
-						'rack_id'			=> $val->rack_id,
-						'item_id'			=> $val->item_id,
-						'foreman_rack_qty'	=> $qty,
-						);
+					if (!$val->foreman_rack_qty) {
+						$data = array(
+							'foreman_detail_id' => $val->foreman_detail_id,
+							'rack_id'			=> $val->rack_id,
+							'item_id'			=> $val->item_id,
+							'foreman_rack_qty'	=> $qty,
+							);
 
-					$this->g_mod->insert_data_table('foreman_racks', NULL, $data);
+						$this->g_mod->insert_data_table('foreman_racks', NULL, $data);
+
+						//stock
+						$qty_stock = $qty * $val->item_per_unit;
+						$where2 = "and item_id = $val->item_id";
+						$this->g_mod->update_data_stock('stocks','stock_qty','rack_id',$qty_stock,$val->rack_id,$where2);
+					}else{
+						$old_qty_stock 	= $val->foreman_rack_qty * $val->item_per_unit;
+						$new_qty_stock 	= $qty * $val->item_per_unit;
+
+						$qty_stock = $new_qty_stock - $old_qty_stock;
+						$where3 = "and item_id = $val->item_id";
+						$this->g_mod->update_data_stock('stocks','stock_qty','rack_id',$qty_stock,$val->rack_id,$where3);
+
+						$data2['foreman_rack_qty'] = $qty;
+						$where2 = "foreman_rack_id = $val->foreman_rack_id";
+						$this->g_mod->update_data_table('foreman_racks', NULL, $data2,$where2);
+					}
+					
 				}
 				
 			}

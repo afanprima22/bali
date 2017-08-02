@@ -44,7 +44,7 @@ class Nota extends MY_Controller {
 			'c'				=> $c
 			);
 
-		$this->open_page('nota_v', $data);
+		$this->open_page('nota/nota_v', $data);
 	}
 
 	public function load_data(){
@@ -58,7 +58,7 @@ class Nota extends MY_Controller {
 			$d = '';
 		}
 		$tbl  = 'notas a';
-		$select = 'a.*,b.customer_name,c.employee_name';
+		$select = 'a.*,b.customer_name,c.employee_name,(select sum(nota_detail_retail) from nota_details d where d.nota_id = a.nota_id) as retail';
 		//LIMIT
 		$limit = array(
 			'start'  => $this->input->get('start'),
@@ -87,6 +87,7 @@ class Nota extends MY_Controller {
 			'join'	=> 'c.employee_id=a.employee_id',
 			'type'	=> 'inner'
 		);
+		
 
 		$query_total = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,NULL);
 		$query_filter = $this->g_mod->select($select,$tbl,NULL,$where_like,$order,$join,NULL);
@@ -103,13 +104,19 @@ class Nota extends MY_Controller {
 					}elseif ($val->nota_status == 1) {
 						$status = 'Cancel';
 					}
+
+					if ($val->retail) {
+						$retail = '&nbsp;&nbsp;<button class="btn btn-info btn-xs" type="button" onclick="get_data_retail('.$val->nota_id.')" '.$u.'><i class="glyphicon glyphicon-search"></i></button>';
+					}else{
+						$retail = '';
+					}
 					$response['data'][] = array(
 						$val->nota_code,
 						$val->nota_date,
 						$val->customer_name,
 						$val->employee_name,
 						$status,
-						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->nota_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->nota_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
+						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->nota_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->nota_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'.$retail.''
 					);
 					$no++;	
 				}
@@ -199,7 +206,7 @@ class Nota extends MY_Controller {
 
 					$row = $this->g_mod->select_manual($sql);
 
-					$order = $row['qty_order'];
+					$order = $row['qty_order'] + $val->nota_detail_retail;
 					$total = $val->nota_detail_price * $order - $val->nota_detail_promo;
 
 					$response['data'][] = array(
@@ -209,7 +216,8 @@ class Nota extends MY_Controller {
 						$val->nota_detail_qty,
 						number_format($val->nota_detail_price),
 						$order,
-						'<input type="text" class="form-control money" onchange="get_detail_promo(this.value,'.$val->nota_detail_id.')" name="i_qty_order" value="'.$val->nota_detail_promo.'">',
+						'<input type="text" class="form-control" onchange="get_detail_update(this.value,'.$val->nota_detail_id.',1)" name="i_qty_retail" value="'.$val->nota_detail_retail.'">',
+						'<input type="text" class="form-control money" onchange="get_detail_update(this.value,'.$val->nota_detail_id.',2)" name="i_qty_order" value="'.$val->nota_detail_promo.'">',
 						number_format($total),
 						$row['nota_detail_order_now'],
 						'<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_detail('.$val->nota_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<a href="#myModal" class="btn btn-info btn-xs" data-toggle="modal" onclick="search_data_stock('.$val->item_id.','.$val->nota_detail_id.')"><i class="glyphicon glyphicon-search"></i></a>'
@@ -374,6 +382,7 @@ class Nota extends MY_Controller {
 					'code_referance' 		=> $val->code_referance,
 					'customer_address' 		=> $val->customer_address,
 					'customer_telp' 		=> $val->customer_telp,
+					'nota_member_card'		=> $val->nota_member_card
 				);
 			}
 
@@ -401,6 +410,17 @@ class Nota extends MY_Controller {
 		} else {
 			//INSERT
 			$data = $this->general_post_data($id);
+
+			$sql = "select a.* from employees a 
+					join users b on b.employee_id = a.employee_id
+					where b.user_id = $this->user_id";
+			$result = $this->g_mod->select_manual($sql);
+			if ($result['warehouse_id']) {
+				$data['warehouse_id'] = $result['warehouse_id'];
+			}else{
+				$data['warehouse_id'] = 1;
+			}
+			
 			//echo $data['nota_img'];
 			$insert = $this->g_mod->insert_data_table($this->tbl, NULL, $data);
 
@@ -427,12 +447,21 @@ class Nota extends MY_Controller {
 		echo json_encode($response);
 	}
 
-	public function action_data_detail(){
-		$item_id = $this->input->post('i_item');
+	public function action_data_detail($id=0){
+		
 		$customer_id = $this->input->post('i_customer');
-
-		$item 		= $this->g_mod->read_data('*', 'items', 'item_id',$item_id);
 		$customer 	= $this->g_mod->read_data('*', 'customers', 'customer_id',$customer_id);
+
+		if ($id == 1) {
+			$item_id = $this->input->post('i_item');
+			$item 		= $this->g_mod->read_data('*', 'items', 'item_id',$item_id);
+		}else{
+			$item_barcode = $this->input->post('i_barcode_scan');
+			$item 		= $this->g_mod->read_data('*', 'items', 'item_barcode',$item_barcode);
+			$data['nota_detail_retail'] 			= 1;
+		}
+		
+		
 
 		switch ($customer['category_price_id']) {
 			case '1':
@@ -456,7 +485,7 @@ class Nota extends MY_Controller {
 		}
 
 		$data['nota_id'] 			= $this->input->post('i_id');
-		$data['item_id'] 			= $item_id;
+		$data['item_id'] 			= $item['item_id'];
 		$data['nota_detail_qty'] 	= $item['item_per_unit'];
 		$data['nota_detail_price'] 	= $price;
 		$data['user_id'] 			= $this->user_id;
@@ -538,16 +567,22 @@ class Nota extends MY_Controller {
 		echo json_encode($response);
 	}
 
-	public function action_data_promo(){
+	public function get_detail_update(){
 		$value 			= $this->input->post('value');
 		$id 	= $this->input->post('id');
+		$type 	= $this->input->post('type');
 		//WHERE
 		$where['data'][] = array(
 			'column' => 'nota_detail_id',
 			'param'	 => $id
 		);
 		
-		$data['nota_detail_promo'] = $value;
+		if ($type == 1) {
+			$data['nota_detail_retail'] = $value;
+		}else{
+			$data['nota_detail_promo'] = $value;
+		}
+		
 		$update = $this->g_mod->update_data_table('nota_details', $where, $data);
 		if($update->status) {
 			$response['status'] = '200';
@@ -575,6 +610,7 @@ class Nota extends MY_Controller {
 				$data['nota_detail_qty'] 	= $val->nota_detail_qty;
 				$data['nota_detail_price'] 	= $val->nota_detail_price;
 				$data['nota_detail_promo'] 	= $val->nota_detail_promo;
+				$data['nota_detail_retail']	= $val->nota_detail_retail;
 				$data['user_id'] 			= $this->user_id;
 
 				$insert = $this->g_mod->insert_data_table('nota_details', NULL, $data);
@@ -588,7 +624,8 @@ class Nota extends MY_Controller {
 						$data2['item_id'] 					= $val2->item_id;
 						$data2['nota_detail_order_qty'] 	= $val2->nota_detail_order_qty;
 						$data2['nota_detail_order_now'] 	= $val2->nota_detail_order_now;
-						$data2['accumulation'] 				= $val2->accumulation;
+						$data2['accumulation_qty'] 			= $val2->accumulation_qty;
+						$data2['accumulation_now'] 			= $val2->accumulation_now;
 
 						$insert2 = $this->g_mod->insert_data_table('nota_detail_orders', NULL, $data2);
 					}
@@ -688,6 +725,7 @@ class Nota extends MY_Controller {
 		$data['nota_tempo'] 		= $this->format_date_day_mid($this->input->post('i_date_tempo', TRUE));
 		$data['nota_credit_card'] 	= $this->input->post('i_card', TRUE);
 		$data['nota_desc'] 			= $this->input->post('i_desc', TRUE);
+		$data['nota_member_card'] 	= $this->input->post('i_scan_card', TRUE);
 
 		$nota = $this->input->post('i_nota_id', TRUE);
 		if ($nota) {
@@ -726,6 +764,44 @@ class Nota extends MY_Controller {
 				$response['items'][] = array(
 					'id'	=> $val->nota_id,
 					'text'	=> $val->nota_code
+				);
+			}
+			$response['status'] = '200';
+		}
+
+		echo json_encode($response);
+	}
+
+	public function load_data_select_nota_detail($id){
+		//WHERE LIKE
+		$where_like['data'][] = array(
+			'column' => 'item_name',
+			'param'	 => $this->input->get('q')
+		);
+		//ORDER
+		$order['data'][] = array(
+			'column' => 'item_name',
+			'type'	 => 'ASC'
+		);
+		//Join
+		$join['data'][] = array(
+			'table' => 'items b',
+			'join'	=> 'b.item_id=a.item_id',
+			'type'	=> 'inner'
+		);
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'a.nota_id',
+			'param'	 => $id
+		);
+
+		$query = $this->g_mod->select('a.*,b.item_name','nota_details a',NULL,$where_like,$order,$join,$where);
+		$response['items'] = array();
+		if ($query<>false) {
+			foreach ($query->result() as $val) {
+				$response['items'][] = array(
+					'id'	=> $val->nota_detail_id,
+					'text'	=> $val->item_name
 				);
 			}
 			$response['status'] = '200';
@@ -774,6 +850,169 @@ class Nota extends MY_Controller {
 		echo json_encode($data);
 
 	}
+
+	public function load_view_retail($id) {
+		
+		//echo $id;
+		$tbl  = 'nota_details a';
+		$select = 'a.*,c.item_barcode,c.item_name,c.item_per_unit,d.warehouse_id';
+		
+		//JOIN
+		$join['data'][] = array(
+			'table' => 'items c',
+			'join'	=> 'c.item_id=a.item_id',
+			'type'	=> 'inner'
+		);
+
+		//JOIN
+		$join['data'][] = array(
+			'table' => 'notas d',
+			'join'	=> 'd.nota_id=a.nota_id',
+			'type'	=> 'inner'
+		);
+
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'a.nota_id',
+			'param'	 => $id
+		);	
+
+		$query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
+
+		$tbl2  = 'notas a';
+		$select2 = 'a.*,c.warehouse_name,d.customer_name';
+		
+		//JOIN
+		$join2['data'][] = array(
+			'table' => 'warehouses c',
+			'join'	=> 'c.warehouse_id=a.warehouse_id',
+			'type'	=> 'inner'
+		);
+
+		//JOIN
+		$join2['data'][] = array(
+			'table' => 'customers d',
+			'join'	=> 'd.customer_id=a.customer_id',
+			'type'	=> 'inner'
+		);
+
+		$query2 = $this->g_mod->select($select2,$tbl2,NULL,NULL,NULL,$join2,$where);
+		if ($query2<>false) {
+			foreach ($query2->result() as $val) {
+				$nota_code 				= $val->nota_code;
+				$warehouse_name 		= $val->warehouse_name;
+				$customer_name 			= $val->customer_name;
+				$nota_id 				= $val->nota_id;
+				
+			}
+		}else{
+			$nota_code 					= '';
+			$warehouse_name 			= '';
+			$customer_name 				= '';
+			$nota_id 					= '';
+		}
+		
+		$this->load->view('nota/nota_r',array('query' => $query,'nota_code' => $nota_code,'warehouse_name' => $warehouse_name,'customer_name' => $customer_name,'nota_id' => $nota_id));
+		
+			
+ 	}
+
+ 	public function action_data_retail() {
+ 		$nota_id = $this->input->post('i_nota_id', TRUE);
+
+ 		$tbl  = 'nota_details a';
+ 		$select = 'a.*,c.item_barcode,c.item_name,c.item_per_unit,d.warehouse_id,e.rack_id,f.nota_detail_retail_qty,f.nota_detail_retail_id';
+		//JOIN
+		$join['data'][] = array(
+			'table' => 'items c',
+			'join'	=> 'c.item_id=a.item_id',
+			'type'	=> 'inner'
+		);
+		$join['data'][] = array(
+			'table' => 'notas d',
+			'join'	=> 'd.nota_id=a.nota_id',
+			'type'	=> 'inner'
+		);
+		$join['data'][] = array(
+			'table' => 'racks e',
+			'join'	=> 'e.warehouse_id=d.warehouse_id',
+			'type'	=> 'inner'
+		);
+		$join['data'][] = array(
+			'table' => 'nota_detail_retails f',
+			'join'	=> 'f.nota_detail_id=a.nota_detail_id and f.rack_id = e.rack_id and f.item_id = c.item_id',
+			'type'	=> 'left'
+		);
+
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'a.nota_id',
+			'param'	 => $nota_id
+		);
+
+		$query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
+
+		if ($query<>false) {
+			foreach ($query->result() as $val) {
+				$qty = $this->input->post('i_qty_retail'.$val->nota_detail_id.$val->rack_id.$val->item_id, TRUE);
+				if ($qty) {
+
+					if (!$val->nota_detail_retail_qty) {
+						$data = array(
+							'nota_detail_id' 			=> $val->nota_detail_id,
+							'rack_id'					=> $val->rack_id,
+							'item_id'					=> $val->item_id,
+							'nota_detail_retail_qty'	=> $qty,
+							);
+
+						$this->g_mod->insert_data_table('nota_detail_retails', NULL, $data);
+
+						//stock
+						$qty_stock = $qty * $val->item_per_unit;
+						$where2 = "and item_id = $val->item_id";
+						$this->g_mod->update_data_stock('stocks','stock_qty','rack_id',$qty_stock,$val->rack_id,$where2);
+					}else{
+						$old_qty_stock 	= $val->nota_detail_retail_qty * $val->item_per_unit;
+						$new_qty_stock 	= $qty * $val->item_per_unit;
+
+						$qty_stock = $new_qty_stock - $old_qty_stock;
+						$where3 = "and item_id = $val->item_id";
+						$this->g_mod->update_data_stock('stocks','stock_qty','rack_id',$qty_stock,$val->rack_id,$where3);
+
+						$data2['nota_detail_retail_qty'] = $qty;
+						$where2 = "nota_detail_retail_id = $val->nota_detail_retail_id";
+						$this->g_mod->update_data_table('nota_detail_retails', NULL, $data2,$where2);
+
+					}
+				}
+			}
+		}
+
+		$response['status'] = 200;
+
+		echo json_encode($response);
+ 	}
+
+ 	public function action_data_customer(){
+ 		$data['customer_name'] 				= $this->input->post('i_name', TRUE);
+		$data['customer_address'] 			= $this->input->post('i_addres', TRUE);
+		$data['customer_store'] 			= $this->input->post('i_store', TRUE);
+		$data['customer_telp'] 				= $this->input->post('i_telp', TRUE);
+		$data['customer_npwp'] 				= $this->input->post('i_no_npwp', TRUE);
+		$data['customer_npwp_name'] 		= $this->input->post('i_name_npwp', TRUE);
+		$data['city_id'] 					= $this->input->post('i_city', TRUE);
+		$data['category_price_id'] 			= $this->input->post('i_category', TRUE);
+
+		$insert = $this->g_mod->insert_data_table('customers', NULL, $data);
+		if($insert->status) {
+			$response['status'] = '200';
+			$response['alert'] = '1';
+		} else {
+			$response['status'] = '204';
+		}
+
+		echo json_encode($response);
+ 	}
 
 	/* end Function */
 

@@ -76,12 +76,12 @@
                         </div>
                         <div class="col-md-6">
                           <div class="form-group">
-                            <label>Tanggal Nota</label>
+                            <label>Tanggal DO</label>
                             <div class="input-group date">
                               <div class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar"></i>
                               </div>
-                              <input type="text" class="form-control pull-right" id="datepicker" name="i_date" placeholder="Tanggal Nota" value="" required="required">
+                              <input type="text" class="form-control pull-right" id="datepicker" name="i_date" placeholder="Tanggal DO" value="" required="required">
                             </div>
                           </div>
 
@@ -152,7 +152,7 @@
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
             "order": [
-              [0, 'asc']
+              [0, 'desc']
             ],
             "iDisplayLength": 10
         });
@@ -216,6 +216,7 @@
 
     function reset2(){
       $('#i_employee option').remove();
+      $("#view_detail").load("<?= site_url()?>delivery/load_view_detail/"+ 0+"/"+ 0);
     }
 
     function delete_data(id) {
@@ -312,6 +313,21 @@
               document.getElementById("i_id").value = data.delivery_id;
               $("#view_detail").load("<?= site_url()?>delivery/load_view_detail/"+(data.delivery_id)+"/"+(data.nota_id));
               $('[href="#form"]').tab('show');
+            } 
+          }
+        });
+    }
+
+    function create_do(id){
+        $.ajax({
+          type : "POST",
+          url  : '<?php echo base_url();?>delivery/new_do_action/',
+          data :{id:id},
+          dataType : "json",
+          success:function(data){
+            if(data.status=='200'){
+              reset2();
+              $('[href="#list_do"]').tab('show');
             } 
           }
         });

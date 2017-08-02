@@ -92,7 +92,7 @@
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
             "order": [
-              [0, 'asc']
+              [3, 'desc']
             ],
             "iDisplayLength": 10
         });
@@ -129,6 +129,7 @@
           success:function(data){
             if(data.status=='200'){
               reset();
+              reset2();
               search_data();
               $('[href="#list"]').tab('show');
               if (data.alert=='1') {

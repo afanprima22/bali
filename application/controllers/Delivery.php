@@ -464,7 +464,7 @@ class Delivery extends MY_Controller {
 		
 		//echo $id;
 		$tbl  = 'deliveries a';
-		$select = 'a.*,b.delivery_detail_id,b.delivery_detail_code,b.delivery_detail_type,c.warehouse_name';
+		$select = 'a.*,b.delivery_detail_id,b.delivery_detail_code,b.delivery_detail_type,c.warehouse_name,b.delivery_detail_status';
 		//ORDER
 		$order['data'][] = array(
 			'column' => 'b.delivery_detail_type',
@@ -501,6 +501,57 @@ class Delivery extends MY_Controller {
 		$this->load->view('delivery/delivery_d',array('query' => $query));
 			
  	}
+
+ 	public function new_do_action(){
+
+ 		$id = $this->input->post('id');
+		
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'delivery_detail_id',
+			'param'	 => $id
+		);
+		$data3['delivery_detail_status'] = 3;
+		$update = $this->g_mod->update_data_table('delivery_details', $where, $data3);
+
+		$query = $this->g_mod->select('*','delivery_details',NULL,NULL,NULL,NULL,$where);
+		foreach ($query->result() as $val) {
+			$data = array(
+				'delivery_id' => $val->delivery_id, 
+				'delivery_detail_code' => $this->get_code_delivery(), 
+				'warehouse_id' => $val->warehouse_id, 
+				'delivery_detail_type' =>  $val->delivery_detail_type
+				);
+			$insert = $this->g_mod->insert_data_table('delivery_details', NULL, $data);
+			$delivery_detail_id = $insert->output;
+
+			$sql = "select a.*,b.foreman_detail_qty from delivery_sends a
+					join foreman_details b on b.delivery_send_id = a.delivery_send_id
+					where a.delivery_detail_id = $val->delivery_detail_id";
+			$query2 = $this->g_mod->select_manual_for($sql);
+			foreach ($query2->result() as $val2) {
+				$qty_sisa = $val2->delivery_send_qty - $val2->foreman_detail_qty;
+				if ($qty_sisa > 0) {
+					$data2 = array(
+						'delivery_detail_id' => $delivery_detail_id,
+						'nota_detail_order_id' => $val2->nota_detail_order_id,
+						'delivery_send_qty' => $qty_sisa
+						);
+					$this->g_mod->insert_data_table('delivery_sends', NULL, $data2);
+				}
+			}
+		}
+
+		if($update->status) {
+			$response['status'] = '200';
+			$response['alert'] = '2';
+		} else {
+			$response['status'] = '204';
+		}
+		
+		
+		echo json_encode($response);
+	}
 
 
 	/* end Function */
