@@ -62,7 +62,7 @@
                          <div class="col-md-12" id="detail_data">
                           <div class="box-inner">
                             <div class="box-header well" data-original-title="">
-                              <h2>List Detail</h2><input type="text" class="form-control" name="i_retur" id="i_retur" placeholder="Auto" readonly="">
+                              <h2>List Detail</h2><input type="hidden" class="form-control" name="i_retur" id="i_retur" placeholder="Auto" readonly="">
 <!--                               <div class="btn-group pull-right"><a href="#myModal" onclick="get_purchase_id()" class="btn-sm btn-success" data-toggle="modal" ><i class="glyphicon glyphicon-plus"> Detail</i></a></div>
  -->                            </div>
                             <div class="box-content">
@@ -71,11 +71,9 @@
                                   <thead>
                                     <tr>
                                         <td><input type="text" class="form-control" name="i_detail" id="i_detail" placeholder="Auto" value="" readonly=""></td>
-                                        <td><select class="form-control select2" onchange="retur_detail(this.value)" name="i_item" id="i_item" style="width: 85%;" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
-<!--                                         <td><input type="text" class="form-control" name="i_unit" id="i_unit" required="required" readonly onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
- -->                                        <td><input type="text" readonly="" class="form-control" name="i_qty" id="i_qty" placeholder="jumlah order" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
-<!--                                         <td><input type="text" class="form-control" name="i_desc" placeholder="keterangan" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
- -->                                        <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan Barang</button></td>
+                                        <td><select class="form-control select2" style="width: 100%;" onchange="retur_detail(this.value)" name="i_item" id="i_item" style="width: 85%;" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
+                                        <td><input type="text" readonly="" class="form-control" name="i_qty" id="i_qty" placeholder="jumlah order" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                         <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan Barang</button></td>
                                         
                                     </tr>
                                     <tr>
@@ -114,7 +112,7 @@
         search_data();
         select_list_code();
         select_list_item();
-        search_data_detail();
+        search_data_detail(0);
         $.fn.modal.Constructor.prototype.enforceFocus = function() {};
     });
 
@@ -193,7 +191,9 @@
           success:function(data){
             if(data.status=='200'){
               reset();
+              reset1()
               search_data();
+              search_data_detail(0);
               $('[href="#list"]').tab('show');
               if (data.alert=='1') {
                 document.getElementById('create').style.display = 'block';
@@ -223,8 +223,8 @@
               $("#i_code").append('<option value="'+data.val[i].purchase_id+'" selected>'+data.val[i].purchase_code+'</option>');
               document.getElementById("datepicker").value           = data.val[i].retur_supplier_date;
 
+              search_data_detail(data.val[i].retur_supplier_id);
         get_retur_supplier_id();
-              search_data_detail(data.val[i].purchase_id);
               /* $("#i_item").append('<option value="'+data.val[i].item_clas_name+'" selected></option>');*/
             }
           }
@@ -262,7 +262,6 @@
         }else{
           var id_new = 0;
         }
-        var id1 =document.getElementById("i_id").value;
         //alert(id);
 
         $.ajax({
@@ -272,10 +271,22 @@
           dataType : "json",
           success:function(data){
             if(data.status=='200'){
+              reset2()
               search_data_detail(id_new);
             } 
           }
         });
+      }
+
+      function reset1(){
+        $('input[name="i_id"]').val("");
+        $("#i_code option").remove("");
+        $('input[name="i_date"]').val("");
+      }
+      function reset2(){
+        $('input[name="i_detail"]').val("");
+        $("#i_item option").remove("");
+        $('input[name="i_qty"]').val("");
       }
 
       function search_data_detail(id) { 
@@ -315,9 +326,8 @@
             $('input[name="i_retur"]').val(retur_supplier_id);
             for(var i=0; i<data.val.length;i++){
               $('input[name="i_detail"]').val(data.val[i].retur_supplier_detail_id);
-              $('input[name="i_item"]').val(data.val[i].item_name);
-/*              $("#i_item").append('<option value="'+data.val[i]item_id+'" selected>'+data.val[i]item_name+'</option>');
-*/              $('input[name="i_qty"]').val(data.val[i].retur_supplier_detail_qty);
+              $("#i_item").append('<option value="'+data.val[i].purchase_detail_id+'" selected>'+data.val[i].item_name+'</option>');
+              $('input[name="i_qty"]').val(data.val[i].retur_supplier_detail_qty);
 
             }
           }
@@ -327,7 +337,7 @@
 
 
       function delete_data_detail(id_detail) {
-        var id = document.getElementById("i_detail").value;
+        var id = document.getElementById("i_retur").value;
         if (id) {
           var id_new = id;
         }else{
@@ -357,13 +367,13 @@
       $('input[name="i_retur"]').val(retur_supplier_id);
     }
 
-    function select_list_item(id) {
+    function select_list_item() {
         $('#i_item').select2({
           placeholder: 'Pilih Barang',
           multiple: false,
           allowClear: true,
           ajax: {
-            url: '<?php echo base_url();?>Purchase/load_data_select_detail/'+id,
+            url: '<?php echo base_url();?>Purchase/load_data_select_detail/',
             dataType: 'json',
             delay: 100,
             cache: true,

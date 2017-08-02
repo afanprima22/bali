@@ -256,7 +256,7 @@ class Cash extends MY_Controller {
 	public function load_data_select_cash(){
 		//WHERE LIKE
 		$where_like['data'][] = array(
-			'column' => 'cash_id',
+			'column' => 'cash_code',
 			'param'	 => $this->input->get('q')
 		);
 		//ORDER
@@ -270,7 +270,7 @@ class Cash extends MY_Controller {
 			foreach ($query->result() as $val) {
 				$response['items'][] = array(
 					'id'	=> $val->cash_id,
-					'text'	=> $val->cash_id
+					'text'	=> $val->cash_code
 				);
 			}
 			$response['status'] = '200';
@@ -311,6 +311,42 @@ class Cash extends MY_Controller {
 
 		
 		$query = $this->g_mod->select('*','cashs a',NULL,$where_like,$order,$join,$where);
+		$response['items'] = array();
+		if ($query<>false) {
+			foreach ($query->result() as $val) {
+				$response['items'][] = array(
+					'id'	=> $val->cash_id,
+					'text'	=> $val->warehouse_name
+				);
+			}
+			$response['status'] = '200';
+		}
+
+		echo json_encode($response);
+	}
+
+	public function load_data_select_warehouse(){
+		//WHERE LIKE
+		$where_like['data'][] = array(
+			'column' => 'warehouse_name',
+			'param'	 => $this->input->get('q')
+		);
+		//ORDER
+		$order['data'][] = array(
+			'column' => 'cash_id',
+			'type'	 => 'ASC'
+		);
+
+		$join['data'][] = array(
+			'table' => 'warehouses b',
+			'join'	=> 'b.warehouse_id=a.warehouse_id',
+			'type'	=> 'inner'
+		);
+
+		
+
+		
+		$query = $this->g_mod->select('*','cashs a',NULL,$where_like,$order,$join,NULL);
 		$response['items'] = array();
 		if ($query<>false) {
 			foreach ($query->result() as $val) {

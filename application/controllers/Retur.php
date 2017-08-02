@@ -229,6 +229,7 @@ class Retur extends MY_Controller {
 			'column' => $this->input->get('columns['.$index_order.'][name]'),
 			'type'	 => $this->input->get('order[0][dir]')
 		);
+
 		
 		
 		
@@ -248,21 +249,27 @@ class Retur extends MY_Controller {
 			'type'	=> 'inner'
 		);
 
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'retur_supplier_id',
+			'param'	 => $id
+		);
+
 		/*//JOIN
 		$join['data'][] = array(
 			'table' => 'units e',
 			'join'	=> 'e.unit_id=a.unit_id',
 			'type'	=> 'inner'
 		);*/
-		$query_total = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,NULL);
-		$query_filter = $this->g_mod->select($select,$tbl,NULL,$where_like,$order,$join,NULL);
-		$query = $this->g_mod->select($select,$tbl,$limit,$where_like,$order,$join,NULL);
+		$query_total = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
+		$query_filter = $this->g_mod->select($select,$tbl,NULL,$where_like,$order,$join,$where);
+		$query = $this->g_mod->select($select,$tbl,$limit,$where_like,$order,$join,$where);
 
 		$response['data'] = array();
 		if ($query<>false) {
 			$no = $limit['start']+1;
 			foreach ($query->result() as $val) {
-				if ($val->retur_supplier_id>0) {
+				if ($val->retur_supplier_detail_id>0) {
 					$response['data'][] = array(
 						$val->retur_supplier_detail_id,
 						$val->item_name,
@@ -413,6 +420,7 @@ class Retur extends MY_Controller {
 			foreach ($query->result() as $val) {
 				$response['val'][] = array(
 					'retur_supplier_detail_id'	=> $val->retur_supplier_detail_id,
+					'purchase_detail_id' 	=> $val->purchase_detail_id,
 					'item_name' 	=> $val->item_name,
 					'retur_supplier_detail_qty' 	=> $val->retur_supplier_detail_qty,
 				);
@@ -442,7 +450,7 @@ class Retur extends MY_Controller {
 
 	public function load_data_retur_detail($id){
 		$select = '*';
-		$tbl2 = 'purchases_details a';
+		$tbl2 = 'purchases_details';
 		//WHERE
 		$where['data'][] = array(
 			'column' => 'purchase_detail_id',

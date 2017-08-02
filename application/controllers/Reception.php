@@ -282,6 +282,8 @@ class Reception extends MY_Controller {
 				'param'	 => $id
 			);
 			$update = $this->g_mod->update_data_table('receptions_details', $where, $data);
+			$update1 = $this->g_mod->update_data_Qty('purchases_details', 'purchase_detail_qty_akumulation','purchase_detail_id',$this->input->post('i_Qty'),$data['purchase_detail_id']);
+
 			if($update->status) {
 				$response['status'] = '200';
 				$response['alert'] = '2';
@@ -292,15 +294,9 @@ class Reception extends MY_Controller {
 			//INSERT
 			$data = $this->general_post_data_detail();
 			//echo $data['warehouse_img'];
-			$insert = $this->g_mod->insert_data_table('receptions_details', NULL, $data);
-			$data2['purchase_detail_qty_akumulation'] = $this->input->post('i_Qty', TRUE);
-			//WHERE
+			$insert = $this->g_mod->insert_data_table('receptions_details', NULL,$data);
 			
-			$where2['data'][] = array(
-				'column' => 'purchase_detail_id',
-				'param'	 => $this->input->post('i_item')
-			);
-			$update = $this->g_mod->update_data_table('purchases_details', $where2, $data2);
+			$update = $this->g_mod->update_data_Qty('purchases_details', 'purchase_detail_qty_akumulation','purchase_detail_id',$this->input->post('i_Qty'),$data['purchase_detail_id']);
 			if($insert->status) {
 				$response['status'] = '200';
 				$response['alert'] = '1';
@@ -315,7 +311,7 @@ class Reception extends MY_Controller {
 	function general_post_data_detail(){
 
     $data = array(
-      'purchase_detail_id'      => $this->input->post('i_item', TRUE),
+      'purchase_detail_id'      => $this->input->post('i_detail_id', TRUE),
       'Reception_id'      => $this->input->post('i_reception', TRUE),
       'reception_detail_order'         => $this->input->post('i_order', TRUE),
       'reception_detail_qty'         => $this->input->post('i_Qty', TRUE),
@@ -384,13 +380,16 @@ class Reception extends MY_Controller {
 			$no = $limit['start']+1;
 			foreach ($query->result() as $val) {
 				if ($val->reception_detail_id>0) {
+					
+					
 					$response['data'][] = array(
 						$val->reception_detail_id,
 						$val->item_barcode,
 						$val->item_name,
 						$val->reception_detail_order,
-						$val->reception_detail_qty,
-						$val->purchase_detail_qty_akumulation,
+						'<input type="text" class="form-control money" onchange="get_detail_reception(this.value,'.$val->purchase_detail_id.')" name="i_qty" value="'.$val->reception_detail_qty.'">',
+						'<input type="text" readonly class="form-control money"  name="i_detail_id" value="'.$val->purchase_detail_id.'">',
+						$val->reception_detail_order-$val->purchase_detail_qty_akumulation,
 						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data_detail('.$val->reception_detail_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_detail('.$val->reception_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<a href="#myModal" class="btn btn-info btn-xs" data-toggle="modal" onclick="search_reception_detail('.$val->reception_detail_id.')"><i class="glyphicon glyphicon-list"></i></a>'
 					);
 					$no++;	
@@ -438,6 +437,7 @@ class Reception extends MY_Controller {
 			foreach ($query->result() as $val) {
 				$response['val'][] = array(
 					'reception_id'			=> $val->reception_id,
+					'purchase_detail_id'			=> $val->purchase_detail_id,
 					'reception_detail_id'	=> $val->reception_detail_id,
 					'item_barcode' 	=> $val->item_barcode,
 					'item_id' 			=> $val->item_id,
@@ -452,7 +452,7 @@ class Reception extends MY_Controller {
 	}
 
 	public function load_data_reception_detail($id){
-		$select = 'a.*,b.item_barcode';
+		$select = 'a.*,b.item_barcode,b.item_name';
 		$tbl2 = 'purchases_details a';
 		//WHERE
 		$where['data'][] = array(
@@ -476,12 +476,9 @@ class Reception extends MY_Controller {
 
 		$query = $this->g_mod->select($select,$tbl2,NULL,NULL,NULL,$join,$where);
 		if ($query<>false) {
-
 			foreach ($query->result() as $val) {
 				$response['val'][] = array(
-					'item_id' 	=> $val->item_id,
-					'item_barcode' 	=> $val->item_barcode,
-					'purchase_detail_qty'	=> $val->purchase_detail_qty,
+					'purchase_detail_id' 	=> $val->purchase_detail_id,
 					
 				);
 			}
@@ -490,33 +487,6 @@ class Reception extends MY_Controller {
 		}
 	}
 
-	/*public function load_data_purchase_detail($id){
-		$select = 'a.*';
-		$tbl2 = 'purchases_details a';
-		//WHERE
-		$where['data'][] = array(
-			'column' => 'purchase_id',
-			'param'	 => $id
-		);
-
-		$query = $this->g_mod->select($select,$tbl3,NULL,NULL,NULL,NULL,$where);
-		if ($query<>false) {
-
-			foreach ($query->result() as $val) {
-				$response['val'][] = array(
-					'purchase_detail_qty' 			=> $val->purchase_detail_qty,
-					'purchase_detail_qty'	=> $val->purchase_detail_qty,/*
-					'unit_name' 	=> $val->unit_name,
-					
-				);
-			}
-
-			echo json_encode($response);
-		}
-	}*/
-
-
-	
 
 	public function delete_data_detail(){
 		$id = $this->input->post('id');
@@ -651,6 +621,94 @@ class Reception extends MY_Controller {
 			$response['recordsFiltered'] = $query_filter->num_rows();
 		}
 
+		echo json_encode($response);
+	}
+
+	//
+	public function action_data_reference($id){
+		$select = 'a.*,b.item_barcode,b.item_name';
+		$tbl2 = 'purchases_details a';
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'purchase_id',
+			'param'	 => $id
+		);
+
+		$join['data'][] = array(
+			'table' => 'items b',
+			'join'	=> 'b.item_id=a.item_id',
+			'type'	=> 'inner'
+		);
+
+		$join['data'][] = array(
+			'table' => 'units c',
+			'join'	=> 'c.unit_id=b.unit_id',
+			'type'	=> 'inner'
+		);
+
+
+
+		$query = $this->g_mod->select($select,$tbl2,NULL,NULL,NULL,$join,$where);
+		if ($query<>false) {/*
+			$oc1 = $row['purchase_detail_qty'] - $row['qty_accumulation'];*/
+			foreach ($query->result() as $val) {
+				$response['val'][] = array(
+					'purchase_detail_id' 	=> $val->purchase_detail_id,
+					'item_barcode' 	=> $val->item_barcode,
+					'item_id' 	=> $val->item_id,
+					'item_name' 	=> $val->item_name,
+					'purchase_detail_qty'	=> $val->purchase_detail_qty,
+					'purchase_detail_qty_akumulation'	=>$val->purchase_detail_qty- $val->purchase_detail_qty_akumulation,
+
+					
+				);
+				//WHERE
+				$data['purchase_detail_id'] 			= $val->purchase_detail_id;
+				$data['reception_detail_order'] 	=$val->purchase_detail_qty;
+				$data['reception_detail_qty'] 	= 0;
+				$data['user_id'] 			= $this->user_id;
+
+				$insert = $this->g_mod->insert_data_table('receptions_details', NULL, $data);
+			}
+		}
+
+		
+		
+		if($query<>false) {
+			$response['status'] = '200';
+			$response['alert'] = '2';
+		} else {
+			$response['status'] = '204';
+		}
+
+		
+		echo json_encode($response);
+	}
+
+	public function action_data_reception($id){
+		$value 			= $this->input->post('value');
+		$value2 			= $this->input->post('value');
+		$id 	= $this->input->post('id');
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'purchase_detail_id',
+			'param'	 => $id
+		);
+		
+		$data['reception_detail_qty'] = $value;
+		$update = $this->g_mod->update_data_table('receptions_details', $where, $data);
+		$data2['purchase_detail_qty_akumulation'] = $data['reception_detail_qty'];
+			
+		/*$update1 = $this->g_mod->update_data_table('purchases_details',$where2, $data2,$data);*/
+		$update1 = $this->g_mod->update_data_Qty('purchases_details', 'purchase_detail_qty_akumulation','purchase_detail_id',$data['reception_detail_qty'],$id	);
+		if($update->status) {
+			$response['status'] = '200';
+			$response['alert'] = '2';
+		} else {
+			$response['status'] = '204';
+		}
+
+		
 		echo json_encode($response);
 	}
 

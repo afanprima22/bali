@@ -207,6 +207,10 @@ class My_Model extends CI_Model {
         $sql = "update $tbl set $columb_stock = $columb_stock - $value where $columb_where = $id $where2";
         $this->db->query($sql);
     }
+    function update_data_Qty($tbl,$columb_stock,$columb_where,$value,$id,$where2 = NULL){
+        $sql = "update $tbl set $columb_stock =$value where $columb_where = $id $where2";
+        $this->db->query($sql);
+    }
 
     function read_data($select,$table,$columb,$id)
     {

@@ -133,6 +133,7 @@
           success:function(data){
             if(data.status=='200'){
               reset();
+              reset1();
               search_data();
               $('[href="#list"]').tab('show');
               if (data.alert=='1') {
@@ -147,6 +148,10 @@
             } 
           }
         });
+    }
+
+    function reset1(){
+      $("#i_warehouse option").remove("");
     }
 
     function edit_data(id) {
@@ -170,7 +175,7 @@
 
     function select_list_warehouse() {
         $('#i_warehouse').select2({
-          placeholder: 'Pilih Gudang',
+          placeholder: 'Pilih gudang',
           multiple: false,
           allowClear: true,
           ajax: {
@@ -188,7 +193,7 @@
               params.page = params.page || 1;
 
               return {
-                results: data.warehouses,
+                results: data.items,
                 pagination: {
                   more: (params.page * 30) < data.total_count
                 }

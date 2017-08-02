@@ -18,7 +18,6 @@
                     <table width="100%" id="table1" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                         <thead>
                             <tr>
-                                <th>ID</th>
                                 <th>periode</th>
                                 <th>code</th>
                                 <th>Config</th>
@@ -45,7 +44,7 @@
 
                           <div class="form-group">
                             <label>Code kas</label>
-                            <select class="form-control select2"  onchange="select_list_kas(this.value)" name="i_cash" id="i_cash" style="width: 100%;" required="required" value=""></select>
+                            <select class="form-control select2"   name="i_cash" id="i_cash" style="width: 100%;" required="required" value=""></select>
                           </div>
                           
                         </div>
@@ -67,8 +66,7 @@
                           <div class="box-inner">
                             <div class="box-header well" data-original-title="">
                               <h2>List Detail</h2><input type="hidden" class="form-control" name="i_transales" id="i_transales" placeholder="Auto" readonly="">
-<!--                               <div class="btn-group pull-right"><a href="#myModal" onclick="get_purchase_id()" class="btn-sm btn-success" data-toggle="modal" ><i class="glyphicon glyphicon-plus"> Detail</i></a></div>
- -->                            </div>
+                            </div>
                             <div class="box-content">
                               <div class="form-group">
                                 <table width="100%" id="table2" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
@@ -77,12 +75,10 @@
                                       <tr>
                                         <td><input type="text" class="form-control" name="i_detail" id="i_detail" placeholder="Auto" value="" readonly=""></td>
                                         <td><select class="form-control select2"  name="i_sales" id="i_sales" style="width: 100%;" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
-                                        <td><input type="number" class="form-control" placeholder="biaya keliling"  name="i_arround" id="i_arround" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
-<!--                                         <td><input type="text" class="form-control" name="i_unit" id="i_unit" required="required" readonly onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
- -->                                        <td><input type="number" class="form-control" name="i_additional" id="i_additional" placeholder="biaya tambahan" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                        <td style="width:17%;"><input type="number" class="form-control" placeholder="biaya keliling"  name="i_arround" id="i_arround" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                        <td style="width:17%;"><input type="number" class="form-control" name="i_additional" id="i_additional" placeholder="biaya tambahan" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
                                         <td><select class="form-control select2" style="width: 100%;"  name="i_origin" id="i_origin" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
-<!--                                         <td><input type="text" class="form-control" name="i_desc" placeholder="keterangan" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
- -->                                        <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan Barang</button></td>
+                                        <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan Barang</button></td>
                                         
                                     </tr>
                                     </tr>
@@ -215,7 +211,6 @@
               url: '<?php echo base_url();?>Transales/load_data/'
             },
             "columns": [
-              {"name": "transales_id"},
               {"name": "transales_periode"},
               {"name": "transales_code"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
@@ -269,6 +264,7 @@
           success:function(data){
             for(var i=0; i<data.val.length;i++){
               document.getElementById("i_id").value             = data.val[i].transales_id;
+              $("#i_cash").append('<option value="'+data.val[i].cash_id+'" selected>'+data.val[i].cash_code+'</option>');
               document.getElementById("datepicker").value           = data.val[i].transales_periode;
               get_transales_id();
               search_data_detail(data.val[i].transales_id);
@@ -314,11 +310,11 @@
 
       function select_list_warehouse() {
         $('#i_origin').select2({
-          placeholder: 'Pilih Gudang',
+          placeholder: 'Pilih gudang',
           multiple: false,
           allowClear: true,
           ajax: {
-            url: '<?php echo base_url();?>Warehouse/load_data_select_warehouse/',
+            url: '<?php echo base_url();?>Cash/load_data_select_warehouse/',
             dataType: 'json',
             delay: 100,
             cache: true,
@@ -332,7 +328,7 @@
               params.page = params.page || 1;
 
               return {
-                results: data.warehouses,
+                results: data.items,
                 pagination: {
                   more: (params.page * 30) < data.total_count
                 }
@@ -376,7 +372,6 @@
         }else{
           var id_new = 0;
         }
-        var id1 =document.getElementById("i_id").value;
         //alert(id);
 
         $.ajax({
@@ -386,10 +381,19 @@
           dataType : "json",
           success:function(data){
             if(data.status=='200'){
+              reset2();
               search_data_detail(id_new);
             } 
           }
         });
+      }
+
+      function reset2(){
+        $('input[name="i_detail"]').val("");
+         $("#i_sales option").remove("");
+        $('input[name="i_arround"]').val("");
+        $('input[name="i_additional"]').val("");
+        $("#i_origin option").remove("");
       }
 
       function search_data_detail(id) { 
@@ -434,7 +438,7 @@
               $("#i_sales").append('<option value="'+data.val[i].sales_id+'" selected>'+data.val[i].sales_name+'</option>');
               $('input[name="i_arround"]').val(data.val[i].transales_detail_cost_arround);
               $('input[name="i_additional"]').val(data.val[i].transales_detail_cost_additional);
-              $("#i_origin").append('<option value="'+data.val[i].warehouse_id+'" selected>'+data.val[i].warehouse_name+'</option>');
+              $("#i_origin").append('<option value="'+data.val[i].cash_id+'" selected>'+data.val[i].warehouse_name+'</option>');
 
             }
           }
@@ -444,7 +448,7 @@
 
 
       function delete_data_detail(id_detail) {
-        var id = document.getElementById("i_detail").value;
+        var id = document.getElementById("i_transales").value;
         if (id) {
           var id_new = id;
         }else{
@@ -474,13 +478,13 @@
       $('input[name="i_transales"]').val(transales_id);
     }
 
-    function select_list_kas(id) {
+    function select_list_kas() {
         $('#i_cash').select2({
           placeholder: 'Pilih code',
           multiple: false,
           allowClear: true,
           ajax: {
-            url: '<?php echo base_url();?>Cash/load_data_select_detail/'+id,
+            url: '<?php echo base_url();?>Cash/load_data_select_cash/',
             dataType: 'json',
             delay: 100,
             cache: true,

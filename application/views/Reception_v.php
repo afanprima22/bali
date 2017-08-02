@@ -45,7 +45,7 @@
                           </div>
                           <div class="form-group">
                             <label>Code Pembelian</label>
-                            <select class="form-control select2"  onchange="select_list_item(this.value)" name="i_code" id="i_code" style="width: 100%;" required="required" value=""></select>
+                            <select class="form-control select2"  onchange="get_reference(this.value)" name="i_code" id="i_code" style="width: 100%;" required="required" value=""></select>
                           </div>
                           <div class="form-group">
                             <label>tanggal terima</label>
@@ -69,29 +69,30 @@
                           <div class="box-inner">
                             <div class="box-header well" data-original-title="">
                               <h2>List Detail</h2><input type="hidden" class="form-control" name="i_reception" id="i_reception" placeholder="Auto" readonly="">
+                              <input type="hidden" class="form-control" name="i_detail_id" id="i_detail_id" placeholder="Auto" readonly="">
 <!--                               <div class="btn-group pull-right"><a href="#myModal" onclick="get_purchase_id()" class="btn-sm btn-success" data-toggle="modal" ><i class="glyphicon glyphicon-plus"> Detail</i></a></div>
  -->                            </div>
                             <div class="box-content">
                               <div class="form-group">
                                 <table width="100%" id="table2" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                                   <thead>
-                                      <tr>
                                         <td><input type="text" class="form-control" name="i_detail_reception" id="i_detail_reception" placeholder="Auto" value="" readonly=""></td>
+                                      <!-- <tr>
                                         <td><input type="text" class="form-control" placeholder="Barcode"  name="i_barcode" id="i_barcode" value="" readonly onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
-                                        <td><select class="form-control select2" onchange="reception_detail(this.value)" name="i_item" id="i_item" style="width: 85%;" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
-<!--                                         <td><input type="text" class="form-control" name="i_unit" id="i_unit" required="required" readonly onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
- -->                                        <td><input type="text" readonly="" class="form-control" name="i_order" id="i_order" placeholder="jumlah order" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                        <td><input type="text" class="form-control"  name="i_item" id="i_item" readonly style="width: 85%;" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>                                         <td><input type="text" class="form-control" name="i_unit" id="i_unit" required="required" readonly onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                         <td><input type="text" readonly="" class="form-control" name="i_order" id="i_order" placeholder="jumlah order" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
                                         <td><input type="number" class="form-control" onchange="Qty(this.value)" name="i_Qty" id="i_Qty" placeholder="Qty deterima" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
                                         <td><input type="hidden" class="form-control" name="i_sisa" id="i_sisa" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
                                         <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan Barang</button></td>
                                         
-                                    </tr>
+                                    </tr> -->
                                     <tr>
                                       <th>Id</th>
                                       <th>barcode</th>
                                       <th>nama barang</th>
                                       <th>jumlah order</th>
                                       <th>Qty diterima</th>
+                                      <th>id</th>
                                       <th>Qty sisa</th>
                                       <th >Config</th>
                                     </tr>
@@ -202,7 +203,6 @@
         search_data_detail(0);
         select_list_code();
         select_list_warehouse();
-        select_list_item();
         $.fn.modal.Constructor.prototype.enforceFocus = function() {};
     });
 
@@ -252,7 +252,8 @@
               {"name": "item_name"},
               {"name": "reception_detail_order"},
               {"name": "reception_detail_qty"},
-              {"name": "purchase_detail_qty_akumulation"},
+              {"name": "purchase_detail_id"},
+              {"name": "reception_detail_order-purchase_detail_qty_akumulation"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
             "order": [
@@ -343,7 +344,7 @@
 
       function select_list_warehouse() {
         $('#i_warehouse').select2({
-          placeholder: 'Pilih Gudang',
+          placeholder: 'Pilih gudang',
           multiple: false,
           allowClear: true,
           ajax: {
@@ -361,7 +362,7 @@
               params.page = params.page || 1;
 
               return {
-                results: data.warehouses,
+                results: data.items,
                 pagination: {
                   more: (params.page * 30) < data.total_count
                 }
@@ -384,7 +385,9 @@
           success:function(data){
             if(data.status=='200'){
               reset();
+              reset1();
               search_data();
+              search_data_detail(0);
               $('[href="#list"]').tab('show');
               if (data.alert=='1') {
                 document.getElementById('create').style.display = 'block';
@@ -398,6 +401,11 @@
             } 
           }
         });
+    }
+
+    function reset1(){
+      $("#i_code option").remove();
+      $("#i_warehouse option").remove();
     }
 
     /*function select_list_unit() {
@@ -460,7 +468,10 @@
       }
 
       function reset3(){
-        $('input[name="i_unit"]').val("");
+        $('input[name="i_barcode"]').val("");
+        $('input[name="i_item"]').val("");
+        $('input[name="i_order"]').val("");
+        $('input[name="i_Qty"]').val("");
       }
 
       function edit_data_detail(id){
@@ -472,11 +483,12 @@
           success:function(data){
            var reception_id = $('input[name="i_id"]').val();
       //alert(purchase_id);
-      $('input[name="i_reception"]').val(reception_id);
+              $('input[name="i_reception"]').val(reception_id);
             for(var i=0; i<data.val.length;i++){
+              $('input[name="i_detail_id"]').val(data.val[i].purchase_detail_id);
               $('input[name="i_detail_reception"]').val(data.val[i].reception_detail_id);
               $('input[name="i_barcode"]').val(data.val[i].item_barcode);
-              $("#i_item").append('<option value="'+data.val[i].item_id+'" selected>'+data.val[i].item_name+'</option>');
+              $('input[name="i_item"]').val(data.val[i].item_id).val(data.val[i].item_name);
               $('input[name="i_order"]').val(data.val[i].reception_detail_order);
               $('input[name="i_Qty"]').val(data.val[i].reception_detail_qty);
 
@@ -485,7 +497,7 @@
         });
       }
 
-      function select_list_item(id) {
+      /*function select_list_item(id) {
         $('#i_item').select2({
           placeholder: 'Pilih Barang',
           multiple: false,
@@ -517,7 +529,7 @@
           templateResult: FormatResult,
           templateSelection: FormatSelection,
         });
-      }
+      }*/
 
       
 
@@ -554,9 +566,12 @@
           dataType : "json",
           success:function(data){
             for(var i=0; i<data.val.length;i++){
+              $('input[name="i_detail_id"]').val(data.val[i].purchase_detail_id);
               $('input[name="i_barcode"]').val(data.val[i].item_barcode);
+              $('input[name="i_item"]').val(data.val[i].item_id).val(data.val[i].item_name);
               $('input[name="i_unit"]').val(data.val[i].unit_id);
               $('input[name="i_order"]').val(data.val[i].purchase_detail_qty);
+              $('input[name="i_sisa"]').val(data.val[i].purchase_detail_qty_akumulation);
 
             }
           }
@@ -565,7 +580,8 @@
 
       function Qty(id){
         var order = document.getElementById("i_order").value;
-        if (parseFloat(id)>parseFloat(order)) {
+        var sisa = document.getElementById("i_sisa").value;
+        if (parseFloat(id)>parseFloat(sisa)) {
           reset7()
           alert("qty tidak boleh lebih dari order")
         };
@@ -691,6 +707,48 @@
       var reception_id = $('input[name="i_id"]').val();
       //alert(purchase_id);
       $('input[name="i_reception"]').val(reception_id);
+    }
+
+    function get_reference(id){
+      //alert(warehouse_id);
+    var id_reception = document.getElementById("i_id").value;
+        if (id_reception) {
+          var id_new = id_reception;
+        }else{
+          var id_new = 0;
+        }
+      $.ajax({
+          type : "POST",
+          url  : '<?php echo base_url();?>Reception/action_data_reference/'+id,
+          data : {id:id,id_new:id_new},
+          dataType : "json",
+          success:function(data){
+            search_data_detail(id_new);
+          }
+        });
+
+    }
+
+    function get_detail_reception(value,id){
+      //alert(warehouse_id);
+      
+       var id_reception = document.getElementById("i_detail_reception").value;
+        if (id_reception) {
+          var id_new = id_reception;
+        }else{
+          var id_new = 0;
+        }
+        var id_purchase = document.getElementById("i_detail_id").value;
+      $.ajax({
+          type : "POST",
+          url  : '<?php echo base_url();?>Reception/action_data_reception/'+id,
+          data : {value:value,id:id},
+          dataType : "json",
+          success:function(data){
+            search_data_detail(id_new);
+          }
+        });
+
     }
 
 </script>

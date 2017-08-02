@@ -4,6 +4,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 class Spending extends MY_Controller {
 	private $any_error = array();
 	public $tbl = 'spendings';
+	public $tbl2 = 'coas';
 
 	public function __construct() {
         parent::__construct();
@@ -99,7 +100,6 @@ class Spending extends MY_Controller {
 					$response['data'][] = array(
 						$val->spending_id,
 						$val->spending_date,
-						$val->spending_needs,
 						$val->spending_cost,
 						$val->spending_code,
 						$val->oprational_name,
@@ -197,7 +197,6 @@ class Spending extends MY_Controller {
 		}
 
 		$data['spending_date'] = $this->format_date_day_mid($this->input->post('i_date', TRUE));
-		$data['spending_needs'] = $this->input->post('i_needs', TRUE);
 		$data['spending_cost'] = $this->input->post('i_cost', TRUE);
 		$data['oprational_id'] = $this->input->post('i_oprational', TRUE);
 		/*$data = array(
@@ -233,9 +232,7 @@ class Spending extends MY_Controller {
 				$response['val'][] = array(
 					'spending_id'			=> $val->spending_id,
 					'spending_date' 		=>$this->format_date_day_mid2($val->spending_date),
-					'spending_needs'			=> $val->spending_needs,
 					'spending_cost'			=> $val->spending_cost,
-					'spending_code'			=> $val->spending_code,
 					'oprational_id'			=> $val->oprational_id,
 					'oprational_name'			=> $val->oprational_name,
 				);
@@ -274,7 +271,7 @@ class Spending extends MY_Controller {
 			$d = '';
 		}
 		$tbl = 'spendings_details a';
-		$select = 'a.*,b.warehouse_name';
+		$select = 'a.*,b.coa_name';
 		//LIMIT
 		$limit = array(
 			'start'  => $this->input->get('start'),
@@ -282,7 +279,7 @@ class Spending extends MY_Controller {
 		);
 		//WHERE LIKE
 		$where_like['data'][] = array(
-			'column' => 'warehouse_name',
+			'column' => 'spending_detail_id',
 			'param'	 => $this->input->get('search[value]')
 		);
 		//ORDER
@@ -305,13 +302,20 @@ class Spending extends MY_Controller {
 			);
 		}
 		
+
 		//JOIN
 		$join['data'][] = array(
-			'table' => 'warehouses b',
-			'join'	=> 'b.warehouse_id=a.warehouse_id',
+			'table' => 'coas b',
+			'join'	=> 'b.coa_id=a.coa_id',
 			'type'	=> 'inner'
 		);
 
+		/*//JOIN
+		$join['data'][] = array(
+			'table' => 'spendings b',
+			'join'	=> 'b.spending_id=a.spending_id',
+			'type'	=> 'inner'
+		);*/
 		
 		$query_total = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
 		$query_filter = $this->g_mod->select($select,$tbl,NULL,$where_like,$order,$join,$where);
@@ -324,13 +328,15 @@ class Spending extends MY_Controller {
 				if ($val->spending_detail_id>0) {
 					$response['data'][] = array(
 						$val->spending_detail_id,
-						$val->spending_detail_cost_total,
-						$val->warehouse_name,
+						$val->coa_name,
+						$val->spending_detail_cost,
+						$val->spending_detail_needs,
 						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data_detail('.$val->spending_detail_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_detail('.$val->spending_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
 					);
 					$no++;	
 				}
 			}
+
 		}
 
 		$response['recordsTotal'] = 0;
@@ -356,6 +362,11 @@ class Spending extends MY_Controller {
 				'param'	 => $id
 			);
 			$update = $this->g_mod->update_data_table('spendings_details', $where, $data);
+			$spending_id = ($data['spending_id']) ? $data['spending_id'] : 0;
+			$user_id = $data['user_id'];
+			$sql = "SELECT SUM(spending_detail_cost) as total FROM spendings_details where spending_id = $spending_id and user_id = $user_id";
+			$row = $this->g_mod->select_manual($sql);
+			$response['total'] = $row['total'];
 			if($update->status) {
 				$response['status'] = '200';
 				$response['alert'] = '2';
@@ -368,6 +379,11 @@ class Spending extends MY_Controller {
 			$data = $this->general_post_data_detail();
 			//echo $data['warehouse_img'];
 			$insert = $this->g_mod->insert_data_table('spendings_details', NULL, $data);
+			$spending_id = ($data['spending_id']) ? $data['spending_id'] : 0;
+			$user_id = $data['user_id'];
+			$sql = "SELECT SUM(spending_detail_cost) as total FROM spendings_details where spending_id = $spending_id and user_id = $user_id";
+			$row = $this->g_mod->select_manual($sql);
+			$response['total'] = $row['total'];
 			if($insert->status) {
 				$response['status'] = '200';
 				$response['alert'] = '1';
@@ -383,9 +399,10 @@ class Spending extends MY_Controller {
 
 		$data = array(
 			'spending_id' 			=> $this->input->post('i_spending', TRUE),
+			'coa_id' 			=> $this->input->post('i_COA', TRUE),
 			'user_id' 						=> $this->user_id,
-			'spending_detail_cost_total' 				=> $this->input->post('i_total', TRUE),
-			'warehouse_id' 				=> $this->input->post('i_warehouse', TRUE),
+			'spending_detail_cost' 				=> $this->input->post('i_price', TRUE),
+			'spending_detail_needs' 				=> $this->input->post('i_needs', TRUE),
 			);
 			
 
@@ -393,7 +410,7 @@ class Spending extends MY_Controller {
 	}
 
 	public function load_data_where_detail(){
-		$select = 'a.*,b.warehouse_name';
+		$select = 'a.*,b.coa_name';
 		$tbl = 'spendings_details a';
 		//WHERE
 		$where['data'][] = array(
@@ -401,12 +418,10 @@ class Spending extends MY_Controller {
 			'param'	 => $this->input->get('id')
 		);
 
-		
-
 		//JOIN
 		$join['data'][] = array(
-			'table' => 'warehouses b',
-			'join'	=> 'b.warehouse_id=a.warehouse_id',
+			'table' => 'coas b',
+			'join'	=> 'b.coa_id=a.coa_id',
 			'type'	=> 'inner'
 		);
 
@@ -417,9 +432,10 @@ class Spending extends MY_Controller {
 			foreach ($query->result() as $val) {
 				$response['val'][] = array(
 					'spending_detail_id'	=> $val->spending_detail_id,
-					'spending_detail_cost_total' 	=> $val->spending_detail_cost_total,
-					'warehouse_id' 	=> $val->warehouse_id,
-					'warehouse_name' 	=> $val->warehouse_name,
+					'coa_id'	=> $val->coa_id,
+					'coa_name'	=> $val->coa_name,
+					'spending_detail_cost' 	=> $val->spending_detail_cost,
+					'spending_detail_needs' 	=> $val->spending_detail_needs,
 				);
 			}
 
@@ -429,12 +445,18 @@ class Spending extends MY_Controller {
 
 	public function delete_data_detail(){
 		$id = $this->input->post('id');
+		$id2 = $this->input->post('id_spending');
 		//WHERE
 		$where['data'][] = array(
 			'column' => 'spending_detail_id',
 			'param'	 => $id
 		);
 		$delete = $this->g_mod->delete_data_table('spendings_details', $where);
+		$spending_id = ($id2) ? $id2 : 0;
+		$user_id = $this->user_id;
+			$sql = "SELECT SUM(spending_detail_cost) as total FROM spendings_details where spending_id =$spending_id and user_id = $user_id ";
+			$row = $this->g_mod->select_manual($sql);
+			$response['total'] = $row['total'];
 		if($delete->status) {
 			$response['status'] = '200';
 			$response['alert'] = '3';
@@ -444,5 +466,78 @@ class Spending extends MY_Controller {
 
 		echo json_encode($response);
 	}
+
+	public function load_data_spending_detail($id){
+		$select = '*';
+		$tbl2 = 'oprationals a';
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'oprational_id',
+			'param'	 => $id
+		);
+
+		
+
+
+		$query = $this->g_mod->select($select,$tbl2,NULL,NULL,NULL,NULL,$where);
+		if ($query<>false) {
+
+			foreach ($query->result() as $val) {
+				$response['val'][] = array(
+					'oprational_coa'	=> $val->oprational_coa,
+					
+				);
+			}
+
+			echo json_encode($response);
+		}
+	}
+
+	public function get_SUM(){
+     
+                  $sql = "SELECT SUM(spending_detail_cost) as total FROM spendings_details";
+                  $row = $this->g_mod->select_manual($sql);
+                  $sum = $row['total'];
+                if ($row<>false) {
+                  foreach ($row as $val) {
+				$response['val'][] = array(
+					'total'	=> $sum,
+					
+				);
+			}
+              echo json_encode($response);
+            }
+    }
+
+
+    public function load_data_select_coa(){
+		//WHERE LIKE
+		$where_like['data'][] = array(
+			'column' => 'coa_name',
+			'param'	 => $this->input->get('q')
+		);
+		//ORDER
+		$order['data'][] = array(
+			'column' => 'coa_name',
+			'type'	 => 'ASC'
+		);
+
+		
+		$query = $this->g_mod->select('*',$this->tbl2,NULL,$where_like,$order,NULL);
+		$response['items'] = array();
+		if ($query<>false) {
+			foreach ($query->result() as $val) {
+				$response['items'][] = array(
+					'id'	=> $val->coa_id,
+					'text'	=>$val->coa_name
+				);
+			}
+			$response['status'] = '200';
+		}
+
+		echo json_encode($response);
+	}
+
+	
 
 }

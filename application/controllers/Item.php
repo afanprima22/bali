@@ -958,6 +958,32 @@ class Item extends MY_Controller {
 		echo json_encode($response);
 	}
 
+
+	public function load_data_item_detail($id){
+		$select = '*';
+		$tbl2 = 'items a';
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'item_id',
+			'param'	 => $id
+		);
+
+
+		$query = $this->g_mod->select($select,$tbl2,NULL,NULL,NULL,NULL,$where);
+		if ($query<>false) {
+
+			foreach ($query->result() as $val) {
+				$response['val'][] = array(
+					'item_id' 	=> $val->item_id,
+					'item_price1' 	=> $val->item_price1,
+					
+				);
+			}
+
+			echo json_encode($response);
+		}
+	}
+
 	/* end Function */
 
 }

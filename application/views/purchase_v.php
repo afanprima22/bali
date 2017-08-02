@@ -125,7 +125,7 @@
               <div class="modal-content">
                   <div class="modal-header">
                       <button type="button" class="close" data-dismiss="modal">×</button>
-                      <h4>List Detail</h4><input type="text" class="form-control" name="i_purchase_id" id="i_purchase_id" placeholder="Auto" readonly="">
+                      <h4>List Detail</h4><input type="hidden" class="form-control" name="i_purchase_id" id="i_purchase_id" placeholder="Auto" readonly="">
                   </div>
                   <div class="modal-body">
                       <div class="box-inner">
@@ -141,7 +141,7 @@
                           </div>
                         <div class="form-group">
                             <label>Qty</label>
-                            <input type="number" class="form-control" name="i_qty" placeholder="Masukkan supplier" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                            <input type="number" class="form-control" onchange="total(this.value)" name="i_qty" placeholder="Masukkan supplier" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                           </div>
                       </div>
                       <div class="col-md-3">
@@ -151,7 +151,7 @@
                           </div>
                         <div class="form-group">
                             <label>Diskon</label>
-                            <input type="number" class="form-control" name="i_diskon" placeholder="Masukkan supplier" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                            <input type="number" class="form-control" name="i_diskon" placeholder="Masukkan Diskon" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                           </div>
                       </div>
                       <div class="col-md-3">
@@ -172,7 +172,7 @@
                           
                           <div class="form-group">
                             <label>Total</label>
-                            <input type="number" class="form-control" name="i_total" placeholder="Keterangan" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                            <input type="text" class="form-control" readonly="" name="i_total" placeholder="Keterangan" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                           </div>
 
                         </div>
@@ -698,6 +698,13 @@
             }
           }
         });
+      }
+
+      function total(id){
+        var price = $('input[name="i_price"]').val();
+        var total = (parseFloat(id)*parseFloat(price));
+      //alert(total);
+      $('input[name="i_total"]').val(total);
       }
     
 </script>

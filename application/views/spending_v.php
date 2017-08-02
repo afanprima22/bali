@@ -20,7 +20,6 @@
                             <tr>
                                 <th>ID</th>
                                 <th>Tanggal</th>
-                                <th>keperluan</th>
                                 <th>Biaya</th>
                                 <th>Code</th>
                                 <th>operasional</th>
@@ -55,21 +54,17 @@
                               <input type="text" class="form-control pull-right" id="datepicker" name="i_date" placeholder="periode" value="" required="required">
                             </div>
                           </div>
-                          <div class="form-group">
-                            <label>Keperluan</label>
-                            <input type="text" class="form-control" name="i_needs" id="i_needs" value="" placeholder="Keperluan" required>
-                          </div>
                         </div>
                       <div class="col-md-6">
 
                           <div class="form-group">
-                            <label>Biaya</label>
-                            <input type="text" class="form-control" name="i_cost" id="i_cost" value="" placeholder="Biaya" required>
+                            <label>Total Biaya</label>
+                            <input type="text" readonly class="form-control" style="{ border = transparent;}" name="i_cost" id="i_cost" value="" placeholder="Biaya" required>
                           </div>
 
                           <div class="form-group">
                             <label>operasional</label>
-                            <select class="form-control select2"  name="i_oprational" id="i_oprational" style="width: 100%;" value="" placeholder="Keperluan" required></select>
+                            <select class="form-control select2" name="i_oprational" id="i_oprational" style="width: 100%;" value="" placeholder="Keperluan" required></select>
                           </div>
                         
                       </div>
@@ -77,7 +72,7 @@
                         <div class="col-md-12" id="detail_data">
                           <div class="box-inner">
                             <div class="box-header well" data-original-title="">
-                              <h2>List Detail</h2><input type="hidden" class="form-control" name="i_spending" id="i_spending" placeholder="Auto" readonly="">
+                              <h2>List Detail</h2><input type="text" class="form-control" name="i_spending" id="i_spending" placeholder="Auto" readonly="">
 <!--                               <div class="btn-group pull-right"><a href="#myModal" onclick="get_purchase_id()" class="btn-sm btn-success" data-toggle="modal" ><i class="glyphicon glyphicon-plus"> Detail</i></a></div>
  -->                            </div>
                             <div class="box-content">
@@ -86,21 +81,19 @@
                                   <thead>
                                     <tr>
                                       <tr>
-                                        <td><input type="text" class="form-control" name="i_detail" id="i_detail" placeholder="Auto" value="" readonly=""></td>
-<!--                                         <td><select class="form-control select2"  name="i_sales" id="i_sales" style="width: 100%;" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
- -->                                        <td><input type="number" class="form-control" placeholder="Total Biaya"  name="i_total" id="i_total" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
-<!--                                         <td><input type="text" class="form-control" name="i_unit" id="i_unit" required="required" readonly onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
- --><!--                                         <td><input type="number" class="form-control" name="i_additional" id="i_additional" placeholder="biaya tambahan" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
- -->                                        <td><select class="form-control select2" style="width: 100%;"  name="i_warehouse" id="i_warehouse" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
-<!--                                         <td><input type="text" class="form-control" name="i_desc" placeholder="keterangan" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
- -->                                        <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan Barang</button></td>
+                                        <td><input type="text" class="form-control" readonly="" name="i_detail" id="i_detail"  value="" ></td>
+                                        <td><select class="form-control select2" style="width: 100%;" name="i_COA" id="i_COA"  value="" ></select></td>
+                                        <td><input type="number"  class="form-control" placeholder="Biaya"  name="i_price" id="i_price" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                        <td><input type="text" class="form-control" name="i_needs" id="i_needs" value="" placeholder="Keperluan" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                        <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan Barang</button></td>
                                         
                                     </tr>
                                     </tr>
                                     <tr>
-                                      <th>Id</th>
-                                      <th>Total biaya</th>
-                                      <th>Asal kas</th>
+                                      <th>id</th>
+                                      <th>COA</th>
+                                      <th>biaya</th>
+                                      <th>Keperluan</th>
                                       <th>Config</th>
                                     </tr>
                                   </thead>
@@ -208,8 +201,10 @@
     $(document).ready(function(){
         search_data();
         search_data_detail(0);
+         //get_SUM_detail(0);
         select_list_oprational();
         select_list_warehouse();
+        select_list_coa();
 
         $.fn.modal.Constructor.prototype.enforceFocus = function() {};
     });
@@ -225,7 +220,6 @@
             "columns": [
               {"name": "spending_id"},
               {"name": "spending_date"},
-              {"name": "spending_needs"},
               {"name": "spending_cost"},
               {"name": "spending_code"},
               {"name": "oprational_id"},
@@ -255,7 +249,9 @@
           success:function(data){
             if(data.status=='200'){
               reset();
+              reset2();
               search_data();
+              search_data_detail(0);
               $('[href="#list"]').tab('show');
               if (data.alert=='1') {
                 document.getElementById('create').style.display = 'block';
@@ -271,6 +267,20 @@
         });
     }
 
+    function reset1(){
+              $('input[name="i_detail"]').val("");
+              $("#i_COA option").remove("");
+              $('input[name="i_price"]').val("");
+              $('input[name="i_needs"]').val("");
+      }
+
+      function reset2(){
+              $('input[name="i_id"]').val("");
+              $('input[name="datepicker"]').val("");
+              $('input[name="i_cost"]').val("");
+              $("#i_oprational option").remove();
+      }
+
     function edit_data(id) {
         $.ajax({
           type : "GET",
@@ -281,7 +291,6 @@
             for(var i=0; i<data.val.length;i++){
               document.getElementById("i_id").value             = data.val[i].spending_id;
               document.getElementById("datepicker").value           = data.val[i].spending_date;
-              document.getElementById("i_needs").value           = data.val[i].spending_needs;
               document.getElementById("i_cost").value           = data.val[i].spending_cost;
               $("#i_oprational").append('<option value="'+data.val[i].oprational_id+'" selected>'+data.val[i].oprational_name+'</option>');
               get_spending_id();
@@ -402,13 +411,25 @@
           dataType : "json",
           success:function(data){
             if(data.status=='200'){
+              reset1();
               search_data_detail(id_new);
+              $('input[name="i_cost"]').val(data.total);
+              
             } 
+            
           }
         });
+        
       }
 
+      
+      
+
+      
+
       function search_data_detail(id) { 
+        
+
         $('#table2').DataTable({
             destroy: true,
             "processing": true,
@@ -420,16 +441,37 @@
               
             "columns": [
               {"name": "spending_detail_id"},
-              {"name": "spending_detail_cost_total"},
-              {"name": "warehouse_name"},
+              {"name": "coa_id"},
+              {"name": "spending_detail_cost"},
+              {"name": "spending_detail_needs"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
             "order": [
               [0, 'asc']
             ],
             "iDisplayLength": 10
-              
         });
+
+        
+    }
+
+    function get_SUM_detail(id){
+      var cost = 
+      document.getElementById("i_cost").value = <?php 
+                  $sql = "SELECT SUM(spending_detail_cost) as total FROM spendings_details";
+                  $row = $this->g_mod->select_manual($sql);
+                  $value = $row['total'];
+                  if ($value==NULL) {
+                    echo $value=0;
+                  }
+                  else{
+                    echo $row['total'];
+                  }
+                 //echo $value;
+                  
+              ?>*1;
+
+              document.getElementById("i_cost").value = cost;
     }
 
     function edit_data_detail(id){
@@ -439,40 +481,79 @@
           data : "id="+id,
           dataType : "json",
           success:function(data){
+            reset1();
             
            var spending_id = $('input[name="i_id"]').val();
       //alert(purchase_id);
             $('input[name="i_spending"]').val(spending_id);
             for(var i=0; i<data.val.length;i++){
               $('input[name="i_detail"]').val(data.val[i].spending_detail_id);
-              $('input[name="i_total"]').val(data.val[i].spending_detail_cost_total);
-              $("#i_origin").append('<option value="'+data.val[i].warehouse_id+'" selected>'+data.val[i].warehouse_name+'</option>');
+              $("#i_COA").append('<option value="'+data.val[i].coa_id+'" selected>'+data.val[i].coa_name+'</option>');
+              $('input[name="i_price"]').val(data.val[i].spending_detail_cost);
+              $('input[name="i_needs"]').val(data.val[i].spending_detail_needs);
+              $('input[name="i_cost"]').val(data.total);
 
             }
           }
         });
       }
 
+      function select_list_coa() {
+        $('#i_COA').select2({
+          placeholder: 'Pilih nama coa',
+          multiple: false,
+          allowClear: true,
+          ajax: {
+            url: '<?php echo base_url();?>Spending/load_data_select_coa/',
+            dataType: 'json',
+            delay: 100,
+            cache: true,
+            data: function (params) {
+              return {
+                q: params.term, // search term
+                page: params.page
+              };
+            },
+            processResults: function (data, params) {
+              params.page = params.page || 1;
+
+              return {
+                results: data.items,
+                pagination: {
+                  more: (params.page * 30) < data.total_count
+                }
+              };
+            }
+          },
+          escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+          minimumInputLength: 1,
+          templateResult: FormatResult,
+          templateSelection: FormatSelection,
+        });
+      }
+
 
 
       function delete_data_detail(id_detail) {
-        var id = document.getElementById("i_detail").value;
+        var id = document.getElementById("i_spending").value;
         if (id) {
           var id_new = id;
         }else{
           var id_new = 0;
         }
+        var id_spending = document.getElementById("i_id").value;
 
         var a = confirm("Anda yakin ingin menghapus record ini ?");
         if(a==true){
             $.ajax({
                 url: '<?php echo base_url();?>Spending/delete_data_detail',
-                data: 'id='+id_detail,
+                data: {id_spending:id_spending,id:id_detail},
                 type: 'POST',
                 dataType: 'json',
                 success: function (data) {
                   if (data.status=='200') {
                     search_data_detail(id_new);
+                    $('input[name="i_cost"]').val(data.total);
                   }
                 }
             });
@@ -484,6 +565,31 @@
       var spending_id = $('input[name="i_id"]').val();
       //alert(spending_id);
       $('input[name="i_spending"]').val(spending_id);
+    }
+
+    function spending_detail(id){
+        $.ajax({
+          type : "GET",
+          url  : '<?php echo base_url();?>Spending/load_data_spending_detail/'+id,
+          data : "id="+id,
+          dataType : "json",
+          success:function(data){
+            for(var i=0; i<data.val.length;i++){
+              $('input[name="i_COA"]').val(data.val[i].oprational_coa);
+
+            }
+          }
+        });
+      }
+
+      function total(id){
+        var biaya = document.getElementById("i_price").value;
+        var tBiaya = document.getElementById("i_cost").value;
+    document.getElementById('i_cost').value = (biaya*1)+(tBiaya*1);
+    /*var biaya = $('input[name"i_price"]').val();
+
+    var jumlah_harga = valgoritma + vjavascript + vphp;*/
+
     }
 </script>
 </body>
