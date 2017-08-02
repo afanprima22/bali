@@ -395,4 +395,32 @@ class Partner extends MY_Controller {
 	}
 	/* end Function */
 
+	public function load_data_select_partner(){
+		//WHERE LIKE
+		$where_like['data'][] = array(
+			'column' => 'partner_name',
+			'param'	 => $this->input->get('q')
+		);
+		//ORDER
+		$order['data'][] = array(
+			'column' => 'partner_name',
+			'type'	 => 'ASC'
+		);
+
+		
+		$query = $this->g_mod->select('*','partners',NULL,$where_like,$order,NULL);
+		$response['items'] = array();
+		if ($query<>false) {
+			foreach ($query->result() as $val) {
+				$response['items'][] = array(
+					'id'	=> $val->partner_id,
+					'text'	=> $val->partner_name
+				);
+			}
+			$response['status'] = '200';
+		}
+
+		echo json_encode($response);
+	}
+
 }

@@ -453,16 +453,29 @@ class Purchase extends MY_Controller {
 
 	public function load_data_select_code(){
 		//WHERE LIKE
+		/*$sql="SELECT SUM(purchase_detail_qty)- SUM(purchase_detail_qty_akumulation)>0 as total FROM `purchases` JOIN purchases_details ON purchases_details.purchase_id=purchases.purchase_id ";
+		$row = $this->g_mod->select_manual($sql);
+		$value = $row['total'];
+		if ($value==0) {
+			
+			echo "ggggg";
+			}
+		else{*/
+		
 		$where_like['data'][] = array(
 			'column' => 'purchase_code',
 			'param'	 => $this->input->get('q')
 		);
 		//ORDER
 		$order['data'][] = array(
-			'column' => 'purchase_code',
+			'column' => 'purchase_id',
 			'type'	 => 'ASC'
 		);
-
+		/*$join['data'][] = array(
+			'table' => 'purchases_details b',
+			'join'	=> 'b.purchase_id=a.purchase_id',
+			'type'	=> 'inner'
+		);*/
 		
 		$query = $this->g_mod->select('*','purchases',NULL,$where_like,$order,NULL);
 		$response['items'] = array();
@@ -477,17 +490,17 @@ class Purchase extends MY_Controller {
 		}
 
 		echo json_encode($response);
-	}
+		
+		}
 
-	public function load_data_select_detail($id){
-		//WHERE LIKE
+	public function load_data_select_detail(){
 		$where_like['data'][] = array(
 			'column' => 'item_name',
 			'param'	 => $this->input->get('q')
 		);
 		//ORDER
 		$order['data'][] = array(
-			'column' => 'purchase_id',
+			'column' => 'item_id',
 			'type'	 => 'ASC'
 		);
 
@@ -497,20 +510,7 @@ class Purchase extends MY_Controller {
 			'type'	=> 'inner'
 		);
 
-		/*$join['data'][] = array(
-			'table' => 'units c',
-			'join'	=> 'b.unit_id=c.unit_id',
-			'type'	=> 'inner'
-		);*/
-
-//WHERE
-		$where['data'][] = array(
-			'column' => 'purchase_id',
-			'param'	 => $id
-		);
-
-		
-		$query = $this->g_mod->select('*','purchases_details a',NULL,$where_like,$order,$join,$where);
+		$query = $this->g_mod->select('a.*,b.item_name','purchases_details a',NULL,$where_like,$order,$join,NULL);
 		$response['items'] = array();
 		if ($query<>false) {
 			foreach ($query->result() as $val) {
@@ -524,6 +524,7 @@ class Purchase extends MY_Controller {
 
 		echo json_encode($response);
 	}
+
 
 	
 }
