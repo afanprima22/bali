@@ -65,7 +65,7 @@
                               <div class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar"></i>
                               </div>
-                              <input type="text" class="form-control pull-right" id="datepicker2" name="i_date_tempo" placeholder="Tanggal Lahir" value="" required="required">
+                              <input type="text" class="form-control pull-right" id="datepicker2" name="i_date_tempo" placeholder="Jatuh Tempo" value="" required="required">
                             </div>
                           </div>
                           <div class="form-group">
@@ -77,7 +77,7 @@
                         <div class="col-md-12" id="detail_data">
                           <div class="box-inner">
                             <div class="box-header well" data-original-title="">
-                              <h2>List Detail</h2><input type="text" class="form-control" name="i_purchase_id" id="i_purchase_id" placeholder="Auto" readonly="">
+                              <h2>List Detail</h2><input type="hidden" class="form-control" name="i_purchase_id" id="i_purchase_id" placeholder="Auto" readonly="">
                               <div class="btn-group pull-right"><a href="#myModal" onclick="reset3()" class="btn-sm btn-success" data-toggle="modal" ><i class="glyphicon glyphicon-plus"> Detail</i></a></div>
                             </div>
                             <div class="box-content">
@@ -141,13 +141,13 @@
                           </div>
                         <div class="form-group">
                             <label>Qty</label>
-                            <input type="number" class="form-control" onchange="total(this.value)" name="i_qty" placeholder="Masukkan supplier" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                            <input type="number" class="form-control" onchange="total(this.value)" name="i_qty" placeholder="Masukkan Quantity" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                           </div>
                       </div>
                       <div class="col-md-3">
                         <div class="form-group">
                             <label>Harga</label>
-                            <input type="text" readonly="" class="form-control" name="i_price" placeholder="Masukkan supplier" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                            <input type="number" class="form-control" onchange="total2(this.value)" name="i_price" id="i_price" placeholder="Masukkan Harga" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                           </div>
                         <div class="form-group">
                             <label>Diskon</label>
@@ -157,22 +157,22 @@
                       <div class="col-md-3">
                         <div class="form-group">
                             <label>Biaya angkut</label>
-                            <input type="number" class="form-control" name="i_angkut" placeholder="Masukkan supplier" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                            <input type="number" class="form-control" name="i_angkut" placeholder="Masukkan biaya angkut" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                         </div>
                         <div class="form-group">
                             <label>Biaya Kirim</label>
-                            <input type="number" class="form-control" name="i_send" placeholder="Keterangan" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                            <input type="number" class="form-control" name="i_send" placeholder="masukkan biaya kirim" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                         </div>
                       </div>
                       <div class="col-md-3">
                           <div class="form-group">
                             <label>Biaya Lain</label>
-                            <input type="number" class="form-control" name="i_etc" placeholder="Keterangan" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                            <input type="number" class="form-control" name="i_etc" placeholder="masukkan biaya lain" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                           </div>
                           
                           <div class="form-group">
                             <label>Total</label>
-                            <input type="text" class="form-control" readonly="" name="i_total" placeholder="Keterangan" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                            <input type="text" class="form-control" readonly="" name="i_total" placeholder="Total" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                           </div>
 
                         </div>
@@ -706,6 +706,29 @@
       //alert(total);
       $('input[name="i_total"]').val(total);
       }
+
+      /*function total2(id){
+        var Qty = $('input[name="i_qty"]').val();
+        var total = (parseFloat(id)*parseFloat(Qty));
+      //alert(total);
+      $('input[name="i_total"]').val(total);
+      }*/
+
+      function total2(id){
+      $.ajax({
+          type : "POST",
+          url  : '<?php echo base_url();?>Purchase/action_data_item/',
+          data :  $( "#formalls" ).serialize(),
+          dataType : "json",
+          success:function(data){
+            var Qty = $('input[name="i_qty"]').val();
+            var total = (parseFloat(id)*parseFloat(Qty));
+            //alert(total);
+            $('input[name="i_total"]').val(total);
+          }
+        });
+
+    }
     
 </script>
 </body>

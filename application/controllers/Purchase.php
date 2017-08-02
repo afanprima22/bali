@@ -525,6 +525,37 @@ class Purchase extends MY_Controller {
 		echo json_encode($response);
 	}
 
+	public function action_data_item(){
+		$id2 	= $this->input->post('i_item');
+
+		$data = $this->general_post_data_item();
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'item_id',
+			'param'	 => $id2
+		);
+		
+		$update = $this->g_mod->update_data_table('items', $where, $data);
+		if($update->status) {
+			$response['status'] = '200';
+			$response['alert'] = '2';
+		} else {
+			$response['status'] = '204';
+		}
+
+		
+		echo json_encode($response);
+	}
+	function general_post_data_item(){
+
+		$data = array(
+			'item_price1' 			=> $this->input->post('i_price', TRUE));
+			
+			
+
+		return $data;
+	}
+
 
 	
 }
