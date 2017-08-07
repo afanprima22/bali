@@ -181,7 +181,7 @@
                                       <td>
                                         <input type="number" class="form-control" name="i_detail_presentase" placeholder="Masukkan Presentase" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                                       </td>
-                                      <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan Rak</button></td>
+                                      <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan Detail</button></td>
                                     </tr>
                                     <tr>
                                       <th>Id</th>
