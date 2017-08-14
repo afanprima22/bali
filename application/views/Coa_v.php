@@ -1,12 +1,7 @@
-<style type="text/css">
-  .money{
-    text-align: right;
-  }
-</style>
 <div class="nav-tabs-custom">
     <ul class="nav nav-tabs">
         <li class="active"><a href="#list" data-toggle="tab">List Data</a></li>
-        <li><a href="#form" onclick="type_payment(1)" data-toggle="tab">Form Data</a></li>
+        <li><a href="#form" data-toggle="tab">Form Data</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="list">
@@ -18,12 +13,11 @@
                     <table width="100%" id="table1" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                         <thead>
                             <tr>
-                                <th>nama cabang</th>
-                                <th>tanggal</th>
-                                <th>Nominal Kas</th>
-                                <th>code Kas</th>
+                                <th>id Coa</th>
+                                <th>Nama Coa</th>
                                 <th>Config</th>
                             </tr>
+                            
                         </thead>
                     </table>
                 </div>
@@ -35,64 +29,60 @@
         <div class="tab-pane" id="form">
             <div class="box-inner">
 
-                <form id="formall" role="form" action="" method="post" enctype="multipart/form-data" onkeypress="return event.keyCode != 13;">
+                <form id="formall" role="form" action="" method="post" enctype="multipart/form-data">
                     <div class="box-content">
+                      <label>
+                            <input type="radio" onclick="type_payment(1)" name="i_type" id="inlineRadio1" value="1"> Parent
+                            </label>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <label>
+                                <input type="radio" onclick="type_payment(2)" name="i_type" id="inlineRadio2" value="2"> Child
+                            </label>
                       <div class="row">
                         <div class="col-md-6">
                           <div class="form-group">
-                            <label>Id Kas (Auto)</label>
+                            <label>Id COA (Auto)</label>
                             <input type="text" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
                           </div>
+                                               
+                        </div>
+                        <div class="col-md-6">
+                        <div id="credit_card" style="display: none;">
                           <div class="form-group">
-                            <label>nama cabang</label>
-                            <select class="form-control select2" name="i_coa" id="i_coa" style="width: 100%;" required="required" value=""></select>
-                            <input type="text" class="form-control" name="i_bank" id="i_bank" value="">
-                          </div>
-                          <div class="form-group">
-                            <label>tanggal</label>
-                            <div class="input-group date">
-                              <div class="input-group-addon">
-                                <i class="glyphicon glyphicon-calendar"></i>
-                              </div>
-                              <input type="text" class="form-control pull-right" id="datepicker" name="i_cash_date" placeholder="Tanggal" value="" required="required">
-                            </div>
+                            <label>Nama parent</label>
+                            <select class="form-control select2" onchange="nomor(this.value)" name="i_coa" id="i_coa" style="width: 100%;"  value=""></select>
                           </div>
                         </div>
-                      <div class="col-md-6">
                           <div class="form-group">
-                            <label>Nominal</label>
-                            <input type="number" class="form-control" name="i_nominal" id="i_nominal" placeholder="masukkan nominal" value="" required="required">
+                            <label>Nama Coa</label>
+                            <input type="text" class="form-control" name="i_name" id="i_name" required="required" placeholder="Masukkan Nama Coa"  value="" >
                           </div>
-                        
-                      </div>
-                        
-                        
-
-                      </div>
+                          <div class="form-group">
+                            <label>Coa nomor</label>
+                            <input type="text" class="form-control" onchange="cek(this.value)" name="i_nomor" id="i_nomor" required="required" placeholder="Masukkan Nomor Coa"  value="" >
+                          </div>    
+                      </div></div>
                       <div class="form-group"></div>
                       <div class="box-footer text-right">
                         <!--<a href="#myModal" class="btn btn-info" data-toggle="modal">Click for dialog</a>-->
-                        <button type="button" onclick="reset()" class="btn btn-warning">Batal</button>
+                        <button type="button" onclick="reset(),reset2()" class="btn btn-warning">Batal</button>
                         <button type="submit" class="btn btn-primary" <?php if(isset($c)) echo $c;?>>Simpan</button>
                       </div>
 
                     </div>
-                
-                    </form>
+                </form>
+
             </div>
         </div>
-
         
-
     </div>
 </div>
 <?php $this->load->view('layout/footer');?>
 <script type="text/javascript">
     $(document).ready(function(){
         search_data();
-        select_list_warehouse();
-
-        $.fn.modal.Constructor.prototype.enforceFocus = function() {};
+        //search_data_akun(0);
+        select_list_coa();
     });
 
     function search_data() { 
@@ -101,13 +91,11 @@
             "processing": true,
             "serverSide": true,
             ajax: {
-              url: '<?php echo base_url();?>Cash/load_data/'
+              url: '<?php echo base_url();?>Coa/load_data/'
             },
             "columns": [
+              {"name": "coa_id"},
               {"name": "coa_name"},
-              {"name": "cash_date"},
-              {"name": "cash_nominal"},
-              {"name": "cash_code"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
             "order": [
@@ -115,7 +103,15 @@
             ],
             "iDisplayLength": 10
         });
+    }
 
+    function active_tab(id){
+        if (id == 1) {
+          $('[href="#tabs-2"]').tab('show');
+        }else{
+          $('[href="#tabs-1"]').tab('show');
+        }
+        
     }
 
     $("#formall").submit(function(event){
@@ -123,12 +119,12 @@
           action_data();
         }
         return false;
-    });
+      });
 
     function action_data(){
         $.ajax({
           type : "POST",
-          url  : '<?php echo base_url();?>Cash/action_data/',
+          url  : '<?php echo base_url();?>Coa/action_data/',
           data : $( "#formall" ).serialize(),
           dataType : "json",
           success:function(data){
@@ -150,37 +146,37 @@
           }
         });
     }
-
     function reset1(){
-      $("#i_coa option").remove("");
-    }
+        $('#i_coa option').remove();
+        $('input[name="i_akun_name"]').val("");
+      }
 
+    
     function edit_data(id) {
         $.ajax({
           type : "GET",
-          url  : '<?php echo base_url();?>Cash/load_data_where/',
+          url  : '<?php echo base_url();?>Coa/load_data_where/'+id,
           data : "id="+id,
           dataType : "json",
           success:function(data){
             for(var i=0; i<data.val.length;i++){
-              document.getElementById("i_id").value             = data.val[i].cash_id;
-              $("#i_coa").append('<option value="'+data.val[i].coa_id+'" selected>'+data.val[i].coa_name+' '+data.val[i].bank_name+'</option>');
-              document.getElementById("datepicker").value           = data.val[i].cash_date;
-              document.getElementById("i_nominal").value           = data.val[i].cash_nominal;
-              
+             document.getElementById("i_id").value             = data.val[i].coa_id;
+              document.getElementById("i_name").value           = data.val[i].coa_name;
+              document.getElementById("i_parent").value           = data.val[i].coa_parent;
+              //search_data_akun(data.val[i].coa_id);
+            }
           }
-        }
-      });
+        });
+
         $('[href="#form"]').tab('show');
     }
-
-    function select_list_warehouse() {
-        $('#i_warehouse').select2({
-          placeholder: 'Pilih gudang',
+    function select_list_coa() {
+        $('#i_coa').select2({
+          placeholder: 'Pilih Coa',
           multiple: false,
           allowClear: true,
           ajax: {
-            url: '<?php echo base_url();?>Warehouse/load_data_select_warehouse/',
+            url: '<?php echo base_url();?>Coa/load_data_select_coa/',
             dataType: 'json',
             delay: 100,
             cache: true,
@@ -208,43 +204,44 @@
         });
       }
 
-      function delete_data(id) {
-        var a = confirm("Anda yakin ingin menghapus record ini ?");
-        if(a==true){
-            $.ajax({
-                url: '<?php echo base_url();?>Cash/delete_data',
-                data: 'id='+id,
-                type: 'POST',
-                dataType: 'json',
-                success: function (data) {
-                  if (data.status=='200') {
-                    reset();
-                    search_data();
+      function type_payment(id){
 
-                    document.getElementById('create').style.display = 'none';
-                    document.getElementById('update').style.display = 'none';
-                    document.getElementById('delete').style.display = 'block';
-                  }
-                }
-            });
-        }
-        
+      if (id == 2) {
+        document.getElementById('credit_card').style.display = 'block';
+      }else{
+        document.getElementById('credit_card').style.display = 'none';
+      }
+    }
+    function nomor(id){
+      $.ajax({
+          type : "GET",
+          url  : '<?php echo base_url();?>Coa/load_data_nomor/'+id,
+          data : "id="+id,
+          dataType : "json",
+          success:function(data){
+            for(var i=0; i<data.val.length;i++){
+              document.getElementById("i_nomor").value           = data.val[i].coa_nomor;
+            }
+          }
+        });
     }
 
-    function type_payment(id) {
+    function cek(id) { 
         $.ajax({
-        type: 'POST',
-        url: '<?=site_url('Cash/read_coa')?>',
-        data: {id:id},
-        dataType: 'json',
-        success: function(data){
-          $('#i_coa').html(data);
-          
-        } 
-      });
-      }
-
-
+          type : "GET",
+          url  : '<?php echo base_url();?>Coa/load_data_cek/'+id,
+          data : "id="+id,
+          dataType : "json",
+          success:function(data){
+            for(var i=0; i<data.val.length;i++){
+              var nomor = document.getElementById("i_nomor").value;
+              if (nomor==data.val[i].coa_nomor) {
+                alert("akun sudah ada");
+              };
+            }
+          }
+        });
+    }
 </script>
 </body>
 </html>

@@ -18,8 +18,9 @@
                     <table width="100%" id="table1" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                         <thead>
                             <tr>
-                                <th>periode</th>
-                                <th>code</th>
+                                <th>Periode Awal</th>
+                                <th>Periode Akhir</th>
+                                <th>Code</th>
                                 <th>Config</th>
                             </tr>
                         </thead>
@@ -38,24 +39,33 @@
                       <div class="row">
                         <div class="col-md-6">
                           <div class="form-group">
-                            <label>Id Reception (Auto)</label>
+                            <label>Id (Auto)</label>
                             <input type="text" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
                           </div>
 
                           <div class="form-group">
-                            <label>Code kas</label>
-                            <select class="form-control select2"   name="i_cash" id="i_cash" style="width: 100%;" required="required" value=""></select>
+                            <label>Gudang</label>
+                            <select class="form-control select2"   name="i_warehouse1" id="i_warehouse1" style="width: 100%;" required="required" value=""></select>
                           </div>
                           
                         </div>
                       <div class="col-md-6">
                           <div class="form-group">
-                            <label>tanggal Periode</label>
+                            <label>Periode Awal</label>
                             <div class="input-group date">
                               <div class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar"></i>
                               </div>
-                              <input type="text" class="form-control pull-right" id="datepicker" name="i_date" placeholder="periode" value="" required="required">
+                              <input type="text" class="form-control pull-right" id="datepicker" name="i_date_awal" placeholder="Periode Awal" value="" required="required">
+                            </div>
+                          </div>
+                          <div class="form-group">
+                            <label>Periode Akhir</label>
+                            <div class="input-group date">
+                              <div class="input-group-addon">
+                                <i class="glyphicon glyphicon-calendar"></i>
+                              </div>
+                              <input type="text" class="form-control pull-right" id="datepicker2" name="i_date_akhir" placeholder="Periode Akhir" value="" required="required">
                             </div>
                           </div>
                           
@@ -78,7 +88,7 @@
                                         <td style="width:17%;"><input type="number" class="form-control" placeholder="biaya keliling"  name="i_arround" id="i_arround" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
                                         <td style="width:17%;"><input type="number" class="form-control" name="i_additional" id="i_additional" placeholder="biaya tambahan" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
                                         <td><select class="form-control select2" style="width: 100%;"  name="i_origin" id="i_origin" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
-                                        <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan Barang</button></td>
+                                        <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan detail</button></td>
                                         
                                     </tr>
                                     </tr>
@@ -194,9 +204,10 @@
 <script type="text/javascript">
     $(document).ready(function(){
         search_data();
-        select_list_sales();
-        select_list_kas();
+        select_list_sales();/*
+        select_list_kas();*/
         select_list_warehouse();
+        select_list_warehouse1();
         search_data_detail(0);
 
         $.fn.modal.Constructor.prototype.enforceFocus = function() {};
@@ -211,7 +222,8 @@
               url: '<?php echo base_url();?>Transales/load_data/'
             },
             "columns": [
-              {"name": "transales_periode"},
+              {"name": "transales_early_periode"},
+              {"name": "transales_periode_end"},
               {"name": "transales_code"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
@@ -239,7 +251,9 @@
           success:function(data){
             if(data.status=='200'){
               reset();
+              reset1();
               search_data();
+              search_data_detail(0);
               $('[href="#list"]').tab('show');
               if (data.alert=='1') {
                 document.getElementById('create').style.display = 'block';
@@ -255,6 +269,10 @@
         });
     }
 
+    function reset1(){
+      $('#i_warehouse1 option').remove();
+    }
+
     function edit_data(id) {
         $.ajax({
           type : "GET",
@@ -264,8 +282,9 @@
           success:function(data){
             for(var i=0; i<data.val.length;i++){
               document.getElementById("i_id").value             = data.val[i].transales_id;
-              $("#i_cash").append('<option value="'+data.val[i].cash_id+'" selected>'+data.val[i].cash_code+'</option>');
-              document.getElementById("datepicker").value           = data.val[i].transales_periode;
+              $("#i_warehouse1").append('<option value="'+data.val[i].cash_id+'" selected>'+data.val[i].warehouse_name+'</option>');
+              document.getElementById("datepicker").value           = data.val[i].transales_early_periode;
+              document.getElementById("datepicker2").value           = data.val[i].transales_periode_end;
               get_transales_id();
               search_data_detail(data.val[i].transales_id);
           }
@@ -478,13 +497,13 @@
       $('input[name="i_transales"]').val(transales_id);
     }
 
-    function select_list_kas() {
-        $('#i_cash').select2({
-          placeholder: 'Pilih code',
+    function select_list_warehouse1() {
+        $('#i_warehouse1').select2({
+          placeholder: 'Pilih Gudang',
           multiple: false,
           allowClear: true,
           ajax: {
-            url: '<?php echo base_url();?>Cash/load_data_select_cash/',
+           url: '<?php echo base_url();?>Cash/load_data_select_warehouse/',
             dataType: 'json',
             delay: 100,
             cache: true,

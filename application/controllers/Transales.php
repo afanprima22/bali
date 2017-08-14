@@ -90,7 +90,8 @@ class Transales extends MY_Controller {
 			foreach ($query->result() as $val) {
 				if ($val->transales_id>0) {
 					$response['data'][] = array(
-						$val->transales_periode,
+						$val->transales_early_periode,
+						$val->transales_periode_end,
 						$val->transales_code,
 						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->transales_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->transales_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
 					);
@@ -185,8 +186,9 @@ class Transales extends MY_Controller {
 			$data['transales_code'] = $this->get_code_transales();
 		}
 
-		$data['transales_periode'] = $this->format_date_day_mid($this->input->post('i_date', TRUE));
-		$data['cash_id'] = $this->input->post('i_cash', TRUE);
+		$data['transales_early_periode'] = $this->format_date_day_mid($this->input->post('i_date_awal', TRUE));
+		$data['transales_periode_end'] = $this->format_date_day_mid($this->input->post('i_date_akhir', TRUE));
+		$data['cash_id'] = $this->input->post('i_warehouse1', TRUE);
 		/*$data = array(
 			'purchase_date' 		=> $this->format_date_day_mid($this->input->post('i_date_purchase', TRUE)),
 			'partner_id' 		=> $this->input->post('i_partner', TRUE),
@@ -199,7 +201,7 @@ class Transales extends MY_Controller {
 	}
 
 	public function load_data_where(){
-		$select = 'a.*,b.cash_code';
+		$select = 'a.*,c.warehouse_name';
 		$tbl = 'transaless a';
 		//WHERE
 		$where['data'][] = array(
@@ -212,6 +214,11 @@ class Transales extends MY_Controller {
 			'join'	=> 'b.cash_id=a.cash_id',
 			'type'	=> 'inner'
 		);
+		$join['data'][] = array(
+			'table' => 'warehouses c',
+			'join'	=> 'c.warehouse_id=b.warehouse_id',
+			'type'	=> 'inner'
+		);
 		$query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
 		if ($query<>false) {
 
@@ -219,8 +226,9 @@ class Transales extends MY_Controller {
 				$response['val'][] = array(
 					'transales_id'			=> $val->transales_id,
 					'cash_id'			=> $val->cash_id,
-					'cash_code'			=> $val->cash_code,
-					'transales_periode' 		=>$this->format_date_day_mid2($val->transales_periode)
+					'warehouse_name'			=> $val->warehouse_name,
+					'transales_early_periode' 		=>$this->format_date_day_mid2($val->transales_early_periode),
+					'transales_periode_end' 		=>$this->format_date_day_mid2($val->transales_periode_end)
 				);
 			}
 

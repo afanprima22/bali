@@ -92,7 +92,7 @@
                                       <th>Diskon</th>
                                       <th>Biaya angkut</th>
                                       <th>Biaya kirim</th>
-                                      <th>Biaya lain lain</th>
+                                      <th>Biaya lain</th>
                                       <th>Total</th>
                                       <th >Config</th>
                                     </tr>
@@ -151,23 +151,23 @@
                           </div>
                         <div class="form-group">
                             <label>Diskon</label>
-                            <input type="number" class="form-control" name="i_diskon" placeholder="Masukkan Diskon" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                            <input type="number" class="form-control" onchange="diskon(this.value)" name="i_diskon" placeholder="Masukkan Diskon" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                           </div>
                       </div>
                       <div class="col-md-3">
                         <div class="form-group">
                             <label>Biaya angkut</label>
-                            <input type="number" class="form-control" name="i_angkut" placeholder="Masukkan biaya angkut" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                            <input type="number" class="form-control" onchange="angkut(this.value)" name="i_angkut" placeholder="Masukkan biaya angkut" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                         </div>
                         <div class="form-group">
                             <label>Biaya Kirim</label>
-                            <input type="number" class="form-control" name="i_send" placeholder="masukkan biaya kirim" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                            <input type="number" class="form-control" onchange="send(this.value)" name="i_send" placeholder="masukkan biaya kirim" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                         </div>
                       </div>
                       <div class="col-md-3">
                           <div class="form-group">
                             <label>Biaya Lain</label>
-                            <input type="number" class="form-control" name="i_etc" placeholder="masukkan biaya lain" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                            <input type="number" class="form-control" onchange="etc(this.value)" name="i_etc" placeholder="masukkan biaya lain" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                           </div>
                           
                           <div class="form-group">
@@ -263,41 +263,6 @@
     }
     
 
-    /*function search_data_purchase_detail(id) { 
-        $('#table2').DataTable({
-            destroy: true,
-            "processing": true,
-            "serverSide": true,
-            ajax: {
-              url: '<?php echo base_url();?>Purchase/load_data_detail/'+id
-            },
-            "columns": [
-              {"name": "purchase_detail_id"},
-              {"name": "item_id"},
-              {"name": "purchase_detail_qty"},
-              {"name": "purchase_detail_price"},
-              {"name": "purchase_detail_discount"},
-              {"name": "purchase_detail_cost_transport"},
-              {"name": "purchase_detail_cost_send"},
-              {"name": "purchase_detail_cost_etc"},
-              {"name": "purchase_detail_total"},
-              {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
-            ],
-            "order": [
-              [0, 'asc']
-            ],
-            "iDisplayLength": 10
-        });
-
-        $('input[name="i_id"]').val(id);
-    }*/
-
-    /*$("#formall").submit(function(event){
-        if ($("#formall").valid()==true) {
-          action_data();
-        }
-        return false;
-      });*/
 
     function action_data(){
         $.ajax({
@@ -331,39 +296,7 @@
     }
 
            
-    /*function select_list_class_item() {
-        $('#i_item').select2({
-          placeholder: 'Pilih Class Item',
-          multiple: false,
-          allowClear: true,
-          ajax: {
-            url: '<?php echo base_url();?>Item/load_data_select_class/',
-            dataType: 'json',
-            delay: 100,
-            cache: true,
-            data: function (params) {
-              return {
-                q: params.term, // search term
-                page: params.page
-              };
-            },
-            processResults: function (data, params) {
-              params.page = params.page || 1;
-
-              return {
-                results: data.items,
-                pagination: {
-                  more: (params.page * 30) < data.total_count
-                }
-              };
-            }
-          },
-          escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-          minimumInputLength: 1,
-          templateResult: FormatResult,
-          templateSelection: FormatSelection,
-        });
-      }*/
+    
 
     function delete_data(id) {
         var a = confirm("Anda yakin ingin menghapus record ini ?");
@@ -486,40 +419,7 @@
         });
       }
 
-      /*function select_list_item() {
-        $('#i_item2').select2({
-          placeholder: 'Pilih Barang',
-          multiple: false,
-          allowClear: true,
-          ajax: {
-            url: '<?php echo base_url();?>Item/load_data_select_item/',
-            dataType: 'json',
-            delay: 100,
-            cache: true,
-            data: function (params) {
-              return {
-                q: params.term, // search term
-                page: params.page
-              };
-            },
-            processResults: function (data, params) {
-              params.page = params.page || 1;
-
-              return {
-                results: data.items,
-                pagination: {
-                  more: (params.page * 30) < data.total_count
-                }
-              };
-            }
-          },
-          escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-          minimumInputLength: 1,
-          templateResult: FormatResult,
-          templateSelection: FormatSelection,
-        });
-      }
-*/
+      
       function save_detail(type){
         var id = document.getElementById("i_purchase_id").value;
         if (id) {
@@ -611,75 +511,6 @@
         
     }
 
-    /*function save_rack_detail(){
-        var id = document.getElementById("i_detail_id").value;
-        //alert(id);
-
-        $.ajax({
-          type : "POST",
-          url  : '<?php echo base_url();?>Warehouse/action_data_rack_detail/',
-          data : $( "#form_modal" ).serialize(),
-          dataType : "json",
-          success:function(data){
-            if(data.status=='200'){
-              reset4();
-              search_data_rack_detail(id);
-            } 
-          }
-        });
-      }
-
-      function reset4(){
-        $('#i_item option').remove();
-      }*/
-
-      /*function edit_data_rack_detail(id){
-        $.ajax({
-          type : "GET",
-          url  : '<?php echo base_url();?>Warehouse/load_data_where_rack_detail/',
-          data : "id="+id,
-          dataType : "json",
-          success:function(data){
-            for(var i=0; i<data.val.length;i++){
-              $('input[name="i_purchase_detail_id"]').val(data.val[i].purchase_detail_id);
-              $("#i_item").append('<option value="'+data.val[i].item_clas_id+'" selected>'+data.val[i].item_clas_name+'</option>');
-              $('input[name="i_qty"]').val(data.val[i].purchase_detail_qty);
-              $('input[name="i_price"]').val(data.val[i].purchase_detail_price);
-              $('input[name="i_diskon"]').val(data.val[i].purchase_detail_discount);
-              $('input[name="i_angkut"]').val(data.val[i].purchase_detail_cost_transport);
-              $('input[name="i_send"]').val(data.val[i].purchase_detail_cost_send);
-              $('input[name="i_etc"]').val(data.val[i].purchase_detail_cost_etc);
-              $('input[name="i_total"]').val(data.val[i].purchase_detail_total);
-
-            }
-          }
-        });
-      }
-
-      function delete_data_rack_detail(id_formula) {
-        var id = document.getElementById("i_detail_id").value;
-        if (id) {
-          var id_new = id;
-        }else{
-          var id_new = 0;
-        }
-
-        var a = confirm("Anda yakin ingin menghapus record ini ?");
-        if(a==true){
-            $.ajax({
-                url: '<?php echo base_url();?>Warehouse/delete_data_rack_detail',
-                data: 'id='+id_formula,
-                type: 'POST',
-                dataType: 'json',
-                success: function (data) {
-                  if (data.status=='200') {
-                    search_data_rack_detail(id_new);
-                  }
-                }
-            });
-        }
-        
-    }*/
     function get_purchase_id(){
       var purchase_id = $('input[name="i_id"]').val();
       //alert(purchase_id);
@@ -693,26 +524,58 @@
           data : "id="+id,
           dataType : "json",
           success:function(data){
+            reset5();
             for(var i=0; i<data.val.length;i++){
               $('input[name="i_price"]').val(data.val[i].item_price1);
+              $('input[name="i_total"]').val(data.val[i].item_price1);
             }
           }
         });
       }
-
+      function reset5(){
+              $('input[name="i_qty"]').val("");
+              $('input[name="i_diskon"]').val("");
+              $('input[name="i_angkut"]').val("");
+              $('input[name="i_send"]').val("");
+              $('input[name="i_etc"]').val("");
+      }
+//TOTAL
       function total(id){
         var price = $('input[name="i_price"]').val();
-        var total = (parseFloat(id)*parseFloat(price));
-      //alert(total);
-      $('input[name="i_total"]').val(total);
+        var angkut = $('input[name="i_angkut"]').val();
+        var send = $('input[name="i_send"]').val();
+        var etc = $('input[name="i_etc"]').val();
+        var price = $('input[name="i_price"]').val();
+        var diskon = $('input[name="i_diskon"]').val();
+        if (!angkut) {
+          var angkut =0;
+          
+        };if (!send) {
+          var send =0;
+          
+        };if (!etc) {
+          var etc =0;
+          
+        };if (!price) {
+          var price =0;
+          
+        };if (!diskon) {
+          var diskon =0;
+          
+        };
+        if (!id) {
+          var id =0;
+          
+        };
+        var total1 = (parseFloat(id)*parseFloat(price));
+        var total2 = (parseFloat(diskon)*parseFloat(total1));
+        var total = (parseFloat(total2)/100)
+        var total4 = (parseFloat(total1)-parseFloat(total));
+
+        var subtotal = (parseFloat(total4)+parseFloat(angkut)+parseFloat(send)+parseFloat(etc));
+      $('input[name="i_total"]').val(parseFloat(subtotal));
       }
 
-      /*function total2(id){
-        var Qty = $('input[name="i_qty"]').val();
-        var total = (parseFloat(id)*parseFloat(Qty));
-      //alert(total);
-      $('input[name="i_total"]').val(total);
-      }*/
 
       function total2(id){
       $.ajax({
@@ -721,14 +584,209 @@
           data :  $( "#formalls" ).serialize(),
           dataType : "json",
           success:function(data){
-            var Qty = $('input[name="i_qty"]').val();
-            var total = (parseFloat(id)*parseFloat(Qty));
-            //alert(total);
-            $('input[name="i_total"]').val(total);
+            price();
           }
         });
 
     }
+      function price(){
+        var price = $('input[name="i_price"]').val();
+        var angkut = $('input[name="i_angkut"]').val();
+        var send = $('input[name="i_send"]').val();
+        var etc = $('input[name="i_etc"]').val();
+        var Qty = $('input[name="i_qty"]').val();
+        var diskon = $('input[name="i_diskon"]').val();
+        if (!angkut) {
+          var angkut =0;
+          
+        };if (!send) {
+          var send =0;
+          
+        };if (!etc) {
+          var etc =0;
+          
+        };if (!diskon) {
+          var diskon =0;
+          
+        };if (!Qty) {
+          var Qty =0;
+          
+        };
+        if (!id) {
+          var id =0;
+          
+        };
+        
+        var total1 = (parseFloat(price)*parseFloat(Qty));
+        var total2 = (parseFloat(diskon)*parseFloat(total1));
+        var total = (parseFloat(total2)/100)
+        var total4 = (parseFloat(total1)-parseFloat(total));
+
+        var subtotal = (parseFloat(total4)+parseFloat(angkut)+parseFloat(send)+parseFloat(etc));
+      $('input[name="i_total"]').val(parseFloat(subtotal));
+      }
+      function reset4(){
+         $('input[name="i_diskon"]').val("");
+      }
+
+      function diskon(id){
+        var angkut = $('input[name="i_angkut"]').val();
+        var send = $('input[name="i_send"]').val();
+        var etc = $('input[name="i_etc"]').val();
+        var price = $('input[name="i_price"]').val();
+        var Qty = $('input[name="i_qty"]').val();
+        if (!angkut) {
+          var angkut =0;
+          
+        };if (!send) {
+          var send =0;
+          
+        };if (!etc) {
+          var etc =0;
+          
+        };if (!Qty) {
+          var Qty =0;
+          
+        };
+        if (!id) {
+          var id =0;
+          
+        };if (!price) {
+          var price =0;
+          
+        };
+        if (id>100) {
+          reset4();
+          alert("diskon tidak boleh lebih dari 100%")
+        };
+        if (id<0) {
+          reset4();
+          alert("diskon tidak boleh kurang dari 0%")
+        };
+        var total1 = (parseFloat(Qty)*parseFloat(price));
+        var total2 = (parseFloat(id)*parseFloat(total1));
+        var total = (parseFloat(total2)/100)
+        var total4 = (parseFloat(total1)-parseFloat(total));
+        var subtotal = (parseFloat(total4)+parseFloat(angkut)+parseFloat(send)+parseFloat(etc));
+       
+      $('input[name="i_total"]').val(subtotal);
+      }
+
+      function angkut(id){
+
+        var send = $('input[name="i_send"]').val();
+        var etc = $('input[name="i_etc"]').val();
+        var price = $('input[name="i_price"]').val();
+        var Qty = $('input[name="i_qty"]').val();
+        var diskon = $('input[name="i_diskon"]').val();
+        if (!diskon) {
+          var diskon =0;
+          
+        };if (!send) {
+          var send =0;
+          
+        };if (!etc) {
+          var etc =0;
+          
+        };if (!Qty) {
+          var Qty =0;
+          
+        };
+        if (!id) {
+          var id =0;
+          
+        };if (!price) {
+          var price =0;
+          
+        };
+
+        
+        var total1 = (parseFloat(Qty)*parseFloat(price));
+        var total2 = (parseFloat(diskon)*parseFloat(total1));
+        var total = (parseFloat(total2)/100)
+        var total4 = (parseFloat(total1)-parseFloat(total));
+
+        var subtotal = (parseFloat(id)+parseFloat(total4)+parseFloat(send)+parseFloat(etc));
+
+        $('input[name="i_total"]').val(subtotal);
+      }
+      function send(id){
+        var price = $('input[name="i_price"]').val();
+        var Qty = $('input[name="i_qty"]').val();
+        var diskon = $('input[name="i_diskon"]').val();
+        var angkut = $('input[name="i_angkut"]').val();
+        var etc = $('input[name="i_etc"]').val();
+        if (!diskon) {
+          var diskon =0;
+          
+        };
+        if (!etc) {
+          var etc =0;
+          
+        };
+        if (!angkut) {
+          var angkut =0;
+          
+        };
+        if (!Qty) {
+          var Qty =0;
+          
+        };
+        if (!id) {
+          var id =0;
+          
+        };if (!price) {
+          var price =0;
+          
+        };
+        var total1 = (parseFloat(Qty)*parseFloat(price));
+        var total2 = (parseFloat(diskon)*parseFloat(total1));
+        var total = (parseFloat(total2)/100)
+        var total4 = (parseFloat(total1)-parseFloat(total));
+
+        var subtotal = (parseFloat(id)+parseFloat(total4)+parseFloat(angkut));
+
+        $('input[name="i_total"]').val(subtotal);
+      }
+      function etc(id){
+        var price = $('input[name="i_price"]').val();
+        var Qty = $('input[name="i_qty"]').val();
+        var diskon = $('input[name="i_diskon"]').val();
+        var angkut = $('input[name="i_angkut"]').val();
+        var send = $('input[name="i_send"]').val();
+        if (!diskon) {
+          var diskon =0;
+          
+        };
+        if (!send) {
+          var send =0;
+          
+        };
+        if (!angkut) {
+          var angkut =0;
+          
+        };
+        if (!Qty) {
+          var Qty =0;
+          
+        };
+        if (!id) {
+          var id =0;
+          
+        };if (!price) {
+          var price =0;
+          
+        };
+        var total1 = (parseFloat(Qty)*parseFloat(price));
+        var total2 = (parseFloat(diskon)*parseFloat(total1));
+        var total = (parseFloat(total2)/100)
+        var total4 = (parseFloat(total1)-parseFloat(total));
+
+        var subtotal = (parseFloat(id)+parseFloat(total4)+parseFloat(angkut)+parseFloat(send));
+
+        $('input[name="i_total"]').val(subtotal);
+      }
+    
     
 </script>
 </body>

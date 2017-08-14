@@ -60,7 +60,7 @@ class Cash extends MY_Controller {
 			$d = '';
 		}
 		$tbl = 'cashs a';
-		$select = 'a.*,b.warehouse_name';
+		$select = 'a.*,b.coa_name,c.bank_name';
 		//LIMIT
 		$limit = array(
 			'start'  => $this->input->get('start'),
@@ -68,7 +68,7 @@ class Cash extends MY_Controller {
 		);
 		//WHERE LIKE
 		$where_like['data'][] = array(
-			'column' => 'warehouse_name',
+			'column' => 'coa_name',
 			'param'	 => $this->input->get('search[value]')
 		);
 		//ORDER
@@ -80,8 +80,15 @@ class Cash extends MY_Controller {
 
 		//JOIN
 		$join['data'][] = array(
-			'table' => 'warehouses b',
-			'join'	=> 'b.warehouse_id=a.warehouse_id',
+			'table' => 'coas b',
+			'join'	=> 'b.coa_id=a.coa_id',
+			'type'	=> 'inner'
+		);
+
+		//JOIN
+		$join['data'][] = array(
+			'table' => 'banks c',
+			'join'	=> 'c.bank_id=a.bank_id',
 			'type'	=> 'inner'
 		);
 
@@ -97,7 +104,7 @@ class Cash extends MY_Controller {
 			foreach ($query->result() as $val) {
 				if ($val->cash_id>0) {
 					$response['data'][] = array(
-						$val->warehouse_name,
+						$val->coa_name,
 						$val->cash_date,
 						$val->cash_nominal,
 						$val->cash_code,
@@ -180,7 +187,8 @@ class Cash extends MY_Controller {
 			$data['cash_code'] = $this->get_code_cash();
 		}
 
-		$data['warehouse_id'] =$this->input->post('i_warehouse', TRUE);
+		$data['coa_id'] =1;
+		$data['bank_id'] =$this->input->post('i_coa', TRUE);
 		$data['cash_date'] = $this->format_date_day_mid($this->input->post('i_cash_date', TRUE));
 		$data['cash_nominal'] =$this->input->post('i_nominal', TRUE);		/*$data = array(
 			'purchase_date' 		=> $this->format_date_day_mid($this->input->post('i_date_purchase', TRUE)),
@@ -204,8 +212,8 @@ class Cash extends MY_Controller {
 	}*/
 
 	public function load_data_where(){
-    $select = 'a.*,b.warehouse_name';
-    $tbl = 'cashs a';
+    $select = 'a.*,b.coa_name,bank_name';
+    $tbl = 'cashs a,banks';
     //WHERE
     $where['data'][] = array(
       'column' => 'cash_id',
@@ -213,8 +221,8 @@ class Cash extends MY_Controller {
     );
     //JOIN
     $join['data'][] = array(
-      'table' => 'warehouses b',
-      'join'  => 'b.warehouse_id=a.warehouse_id',
+      'table' => 'coas b',
+      'join'  => 'b.coa_id=a.coa_id',
       'type'  => 'inner'
     );
     
@@ -224,8 +232,9 @@ class Cash extends MY_Controller {
       foreach ($query->result() as $val) {
         $response['val'][] = array(
           'cash_id'     => $val->cash_id,
-          'warehouse_id'    => $val->warehouse_id,
-          'warehouse_name'    => $val->warehouse_name,
+          'coa_id'    => $val->coa_id,
+          'coa_name'    => $val->coa_name,
+          'bank_name'    => $val->bank_name,
           'cash_date'     =>$this->format_date_day_mid2($val->cash_date),
           'cash_nominal'    => $val->cash_nominal,
         );
@@ -359,5 +368,46 @@ class Cash extends MY_Controller {
 		}
 
 		echo json_encode($response);
+	}
+
+	public function read_coa(){
+
+		$id = $this->input->post('id');
+
+		$tbl = 'coas ,banks';
+		$select = ',coa_id,coa_name,bank_id,bank_name';
+
+		//JOIN
+		/*$join['data'][] = array(
+			'table' => 'coas b',
+			'join'	=> 'b.coa_id=a.coa_id',
+			'type'	=> 'inner'
+		);*/
+		/*$join['data'][] = array(
+			'table' => 'warehouses c',
+			'join'	=> 'c.warehouse_id=a.warehouse_id',
+			'type'	=> 'inner'
+		);*/
+
+		if ($id == 1) {
+			$where = 'coa_id = 1';
+		}/*elseif($id == 2){
+			$where = 'a.coa_id = 1';
+		}else{
+			$where = 'a.coa_id = 3';
+		}
+		*/
+		//echo $id;
+		$query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,NULL,NULL,$where);
+		$data = "<option value='0' disabled selected>-- Pilih Coa --</option>";
+		$response['cashs'] = array();
+		if ($query<>false) {
+			foreach ($query->result() as $val) {
+				$data .= '<option value="'.$val->bank_id.'">'.$val->coa_name.' '.$val->bank_name.'</option>';
+			}
+		}
+
+		echo json_encode($data);
+
 	}
 }

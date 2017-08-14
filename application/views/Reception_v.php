@@ -53,7 +53,7 @@
                               <div class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar"></i>
                               </div>
-                              <input type="text" class="form-control pull-right" id="datepicker" name="i_date_reception" placeholder="Tanggal Lahir" value="" required="required">
+                              <input type="text" class="form-control pull-right" id="datepicker" name="i_date_reception" placeholder="Tanggal terima" value="" required="required">
                             </div>
                           </div>
                         </div>

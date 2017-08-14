@@ -39,7 +39,7 @@
                       <div class="row">
                         <div class="col-md-6">
                           <div class="form-group">
-                            <label>Id purchase (Auto)</label>
+                            <label>Id Return (Auto)</label>
                             <input type="text" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
                           </div>
                           <div class="form-group">
@@ -54,7 +54,7 @@
                               <div class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar"></i>
                               </div>
-                              <input type="text" class="form-control pull-right" id="datepicker" name="i_date" placeholder="Tanggal Lahir" value="" required="required">
+                              <input type="text" class="form-control pull-right" id="datepicker" name="i_date" placeholder="Tanggal return" value="" required="required">
                             </div>
                           </div>
                         </div>
@@ -72,8 +72,8 @@
                                     <tr>
                                         <td><input type="text" class="form-control" name="i_detail" id="i_detail" placeholder="Auto" value="" readonly=""></td>
                                         <td><select class="form-control select2" style="width: 100%;" onchange="retur_detail(this.value)" name="i_item" id="i_item" style="width: 85%;" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
-                                        <td><input type="text" readonly="" class="form-control" name="i_qty" id="i_qty" placeholder="jumlah order" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
-                                         <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan Barang</button></td>
+                                        <td><input type="text" class="form-control" name="i_qty" id="i_qty" placeholder="jumlah return" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                         <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan detail</button></td>
                                         
                                     </tr>
                                     <tr>

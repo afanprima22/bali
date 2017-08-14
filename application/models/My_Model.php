@@ -246,4 +246,17 @@ class My_Model extends CI_Model {
         return $query; 
     }
 
+    //
+    function list_coa($id) {
+        $query = "select a.* from coas a where a.coa_parent = $id
+                  ";
+        $query = $this->db->query($query);
+        //query();
+        if ($query->num_rows() == 0)
+            return array();
+        $data = $query->result_array();
+        foreach ($data as $index => $row) {}
+        return $data;
+    }
+
 }
