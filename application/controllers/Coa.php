@@ -9,7 +9,7 @@ class Coa extends MY_Controller {
         parent::__construct();
         $this->check_user_access();
 
-        $akses = $this->g_mod->get_user_acces($this->user_id,83);
+        $akses = $this->g_mod->get_user_acces($this->user_id,82);
 		$this->permit = $akses['permit_acces'];
 	}
 
