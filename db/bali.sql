@@ -3,7 +3,7 @@
 -- http://www.phpmyadmin.net
 --
 -- Host: 127.0.0.1
--- Generation Time: Jul 22, 2017 at 02:15 PM
+-- Generation Time: Aug 26, 2017 at 10:43 AM
 -- Server version: 10.1.9-MariaDB
 -- PHP Version: 5.6.15
 
@@ -19,6 +19,23 @@ SET time_zone = "+00:00";
 --
 -- Database: `bali`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `balances`
+--
+
+CREATE TABLE `balances` (
+  `balance_id` int(11) NOT NULL,
+  `period_id` int(11) NOT NULL,
+  `coa_id` int(11) NOT NULL,
+  `warehouse_id` int(11) NOT NULL,
+  `balance_debit` int(11) NOT NULL,
+  `balance_kredit` int(11) NOT NULL,
+  `balance_hutang` int(11) NOT NULL,
+  `balance_piutang` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -92,20 +109,24 @@ INSERT INTO `business` (`busines_id`, `busines_name`) VALUES
 
 CREATE TABLE `cashs` (
   `cash_id` int(11) NOT NULL,
-  `warehouse_id` int(11) NOT NULL,
+  `coa_id` int(11) NOT NULL,
   `cash_date` date NOT NULL,
   `cash_nominal` int(11) NOT NULL,
-  `cash_code` varchar(50) NOT NULL
+  `cash_code` varchar(50) NOT NULL,
+  `cash_type` int(11) NOT NULL COMMENT '0 debit,1 kredit,2 hutang,3 piutang',
+  `warehouse_id` int(11) NOT NULL,
+  `cash_desc` varchar(100) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `cashs`
 --
 
-INSERT INTO `cashs` (`cash_id`, `warehouse_id`, `cash_date`, `cash_nominal`, `cash_code`) VALUES
-(2, 1, '2017-07-30', 2000000, ''),
-(3, 1, '2017-07-01', 99999, 'PU2017070001'),
-(4, 1, '2017-07-01', 100000, 'CA2017070001');
+INSERT INTO `cashs` (`cash_id`, `coa_id`, `cash_date`, `cash_nominal`, `cash_code`, `cash_type`, `warehouse_id`, `cash_desc`) VALUES
+(2, 1, '2017-07-30', 2000000, '', 0, 0, ''),
+(3, 1, '2017-07-01', 99999, 'PU2017070001', 0, 0, ''),
+(4, 1, '2017-07-01', 100000, 'CA2017070001', 0, 0, ''),
+(5, 5, '2017-08-16', 4000000, 'CA2017080001', 0, 1, '');
 
 -- --------------------------------------------------------
 
@@ -177,18 +198,136 @@ INSERT INTO `cities` (`city_id`, `city_name`) VALUES
 
 CREATE TABLE `coas` (
   `coa_id` int(11) NOT NULL,
-  `coa_name` varchar(20) NOT NULL
+  `coa_name` varchar(20) NOT NULL,
+  `coa_parent` int(11) NOT NULL,
+  `coa_nomor` varchar(25) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `coas`
 --
 
-INSERT INTO `coas` (`coa_id`, `coa_name`) VALUES
-(1, 'CASH'),
-(2, 'DEBIT'),
-(3, 'KREDIT/HUTANG'),
-(4, 'KARTU KREDIT');
+INSERT INTO `coas` (`coa_id`, `coa_name`, `coa_parent`, `coa_nomor`) VALUES
+(1, 'AKTIVA', 0, '100'),
+(2, 'AKTIVA LANCAR', 0, '110'),
+(3, 'Kas dan setara kas', 0, '111'),
+(4, 'Kas Besar', 3, '111.1'),
+(5, 'Kas Kecil', 3, '111.2'),
+(6, 'Bank BCA', 3, '111.3'),
+(7, 'Bank Sinarmas', 3, '111.4'),
+(8, 'Piutang Usaha', 0, '112'),
+(9, 'Piutang Dagang', 9, '112.1'),
+(10, 'Piutang Karyawan', 9, '112.2'),
+(11, 'Persediaan Barang Da', 0, '113'),
+(12, 'Biaya dibayar dimuka', 0, '114'),
+(13, 'Sewa dibayar dimuka', 12, '114.1'),
+(14, 'Asuransi Dibayar Dim', 12, '114.2'),
+(15, 'Pajak Dibayar Dimuka', 0, '115'),
+(16, 'Pph. Ps. 22', 15, '115.1'),
+(17, 'Pph. Ps. 23', 15, '115.2'),
+(18, 'Pph. Ps. 25', 15, '115.3'),
+(19, 'PPN Masukan', 15, '115.4'),
+(20, 'Uang Muka Pembelian', 0, '116'),
+(21, 'AKTIVA TETAP', 0, '120'),
+(22, 'Tanah', 0, '121'),
+(23, 'Bangunan', 0, '122'),
+(24, 'Kendaraan', 0, '123'),
+(25, 'Inventaris Kantor', 0, '124'),
+(26, 'Ak. Peny. Bangunan', 23, '122.1'),
+(27, 'Ak. Peny. Kendaraan', 24, '123.1'),
+(28, 'Ak. Peny. Inventaris', 25, '124.1'),
+(29, 'AKTIVA LAIN-LAIN', 0, '125'),
+(30, 'Biaya Pra Operasiona', 29, '125.1'),
+(31, 'Biaya Pra Operasiona', 30, '125.1.1'),
+(32, 'Biaya Pra Operasiona', 30, '125.1.2'),
+(33, 'Biaya Pra Operasiona', 30, '125.1.3'),
+(34, 'Biaya Pra Operasiona', 30, '125.1.4'),
+(35, 'Biaya Pra Operasiona', 30, '125.1.5'),
+(36, 'Biaya Pra Operasiona', 30, '125.1.6'),
+(37, 'Biaya Pra Operasiona', 30, '125.1.7'),
+(38, 'Biaya Pra Operasiona', 30, '125.1.8'),
+(39, 'Biaya Pra Operasiona', 30, '125.1.9'),
+(40, 'Amortisasi Biaya Pra', 29, '125.2'),
+(41, 'KEWAJIBAN', 0, '200'),
+(42, 'KEWAJIBAN LANCAR', 0, '210'),
+(43, 'Hutang Dagang', 0, '211'),
+(44, 'Hutang Pajak', 0, '212'),
+(45, 'Hutang PPN DN', 44, '212.1'),
+(46, 'Hutang PPh 21', 44, '212.2'),
+(47, 'Hutang PPh 22', 44, '212.3'),
+(48, 'Hutang PPh 23', 44, '212.4'),
+(49, 'Hutang PPh 25', 44, '212.5'),
+(50, 'Hutang PPh 29', 44, '212.6'),
+(51, 'PPN Keluaran', 44, '212.7'),
+(52, 'Hutang PPh Final', 44, '212.8'),
+(53, 'Hutang biaya', 0, '213'),
+(54, 'Hutang Biaya:rekenin', 53, '213.1'),
+(55, 'Hutang Biaya:rekenin', 53, '213.2'),
+(56, 'Hutang Biaya Telepho', 53, '213.3'),
+(57, 'Hutang Sewa', 53, '213.4'),
+(58, 'KEWAJIBAN JANGKA PAN', 0, '220'),
+(59, 'Hutang Bank', 0, '221'),
+(60, 'EKUITAS', 0, '300'),
+(61, 'Modal Disetor', 0, '310'),
+(62, 'Laba Ditahan', 0, '311'),
+(63, 'L/R Tahun Berjalan', 0, '312'),
+(64, 'Prive', 0, '313'),
+(65, 'PENDAPATAN/PENJUALAN', 0, '400'),
+(66, 'Penjualan Barang', 0, '410'),
+(67, 'Pot. Penjualan/Penda', 0, '420'),
+(68, 'Retur Penjualan', 0, '430'),
+(69, 'Harga Pokok Penjuala', 0, '440'),
+(70, 'Pot. Pembelian', 0, '450'),
+(71, 'Retur Pembelian', 0, '460'),
+(72, 'Pendapatan Sewa', 0, '470'),
+(73, 'Pendapatan Loyalitas', 0, '480'),
+(74, 'BIAYA PENJUALAN DAN ', 0, '500'),
+(75, 'BMM, Parkir, dan Tol', 0, '501'),
+(76, 'Entertainment', 0, '502'),
+(77, 'Izin kota dan kendar', 0, '503'),
+(78, 'Biaya Iklan', 0, '504'),
+(79, 'Bongkar dan angkut m', 0, '505'),
+(80, 'Biaya Ekspedisi', 0, '506'),
+(81, 'BIAYA UMUM DAN ADMIN', 0, '510'),
+(82, 'Biaya PLN', 0, '511'),
+(83, 'Biaya PDAM', 0, '512'),
+(84, 'Biaya telephone', 0, '513'),
+(85, 'Biaya ATK', 0, '514'),
+(86, 'Pemeliharaan gedung/', 0, '515'),
+(87, 'Pemeliharaan dan per', 0, '516'),
+(88, 'Perbaikan dan pemeli', 0, '517'),
+(89, 'Keperluan Dapur', 0, '518'),
+(90, 'Keperluan Kantor', 0, '519'),
+(91, 'Biaya Pulsa', 0, '520'),
+(92, 'Biaya Gaji', 0, '521'),
+(93, 'Gaji pimpinan dan ka', 92, '521.1'),
+(94, 'Gaji Karyawan Berkes', 92, '521.2'),
+(95, 'Biaya sewa Gedung/Ba', 0, '522'),
+(96, 'Biaya Asuransi', 0, '523'),
+(97, 'Biaya Pajak', 0, '524'),
+(98, 'Biaya PPh 21', 97, '524.1'),
+(99, 'Biaya PPh 4 ayat (2)', 97, '524.2'),
+(100, 'Biaya PPN (Yang Tida', 97, '524.3'),
+(101, 'Biaya PBB', 97, '524.4'),
+(102, 'Biaya Jamsostek', 0, '525'),
+(103, 'Biaya Provisi', 0, '526'),
+(104, 'BIAYA PENYUSUTAN', 0, '527'),
+(105, 'Biaya penyusutan Ken', 105, '527.1'),
+(106, 'Biaya peny. Inventar', 105, '527.2'),
+(107, 'Biaya penyusutan ban', 105, '527.3'),
+(108, 'Biaya penyusutan pra', 105, '527.4'),
+(109, 'Biaya Fotocopy', 0, '528'),
+(110, 'Biaya Kirim Dokumen/', 0, '529'),
+(111, 'Biaya Sumbangan', 0, '530'),
+(112, 'Biaya Bunga Pinjaman', 0, '531'),
+(113, 'Biaya Perjalanan Din', 0, '532'),
+(114, 'PENDAPATAN DAN BY LA', 0, '610'),
+(115, 'Pendapatan Jasa Giro', 0, '611'),
+(116, 'Pajak Jasa Giro', 0, '612'),
+(117, 'Biaya Admin Bank', 0, '613'),
+(118, 'Laba/Rugi Selisih Pe', 0, '614'),
+(119, 'Pembulatan', 0, '615'),
+(120, 'Pendapatan Lainnya', 0, '616');
 
 -- --------------------------------------------------------
 
@@ -244,7 +383,9 @@ CREATE TABLE `customers` (
 --
 
 INSERT INTO `customers` (`customer_id`, `customer_name`, `busines_id`, `customer_group_id`, `customer_address`, `customer_store`, `customer_telp`, `customer_hp`, `customer_npwp`, `customer_npwp_name`, `customer_mail`, `city_id`, `customer_img`, `category_price_id`, `customer_limit_kredit`, `customer_limit_card`, `customer_limit_day`, `customer_card_no`) VALUES
-(1, 'ipul', 1, 2, 'asfsfdsf', 'wefdsfdsf', '3324235', '325325', '32432', '23432', 'sdgds@rhrj.fh', 1, '2fbce207a5765d2c87e3b5051db950d9.jpg', 4, 24234, 23432, 234324, '1234567876543');
+(1, 'ipul', 1, 2, 'asfsfdsf', 'wefdsfdsf', '3324235', '325325', '32432', '23432', 'sdgds@rhrj.fh', 1, '2fbce207a5765d2c87e3b5051db950d9.jpg', 4, 24234, 23432, 234324, '1234567876543'),
+(2, 'Hari', 3, 2, 'ghjkk', 'sdgxfhghjh', '2432563', '235454', '21435', 'jmhnfgg', 'bffdsa@gmail.com', 1, '', 2, 235465, 0, 23546, ''),
+(3, 'Mike', 0, 0, 'sgdhtr', 'fgdfg', '45543', '', '34554', 'vngfn', '', 1, '', 2, 0, 0, 0, '');
 
 -- --------------------------------------------------------
 
@@ -308,7 +449,8 @@ CREATE TABLE `deliveries` (
 --
 
 INSERT INTO `deliveries` (`delivery_id`, `delivery_date`, `employee_id`, `nota_id`, `delivery_cost`) VALUES
-(1, '2017-07-12', 3, 2, 300000);
+(1, '2017-07-12', 3, 3, 500000),
+(2, '2017-07-12', 3, 4, 1000000);
 
 -- --------------------------------------------------------
 
@@ -320,7 +462,7 @@ CREATE TABLE `delivery_details` (
   `delivery_detail_id` int(11) NOT NULL,
   `delivery_id` int(11) NOT NULL,
   `delivery_detail_code` varchar(50) NOT NULL,
-  `delivery_detail_status` int(11) NOT NULL,
+  `delivery_detail_status` int(11) NOT NULL COMMENT '0 pending,1 dikirim lengkap,2dikirim sebagian,3 sisa new do,4 sisa cancel do',
   `warehouse_id` int(11) NOT NULL,
   `delivery_detail_type` int(11) NOT NULL COMMENT '1 untuk kirim,2 untuk ambil'
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
@@ -330,10 +472,11 @@ CREATE TABLE `delivery_details` (
 --
 
 INSERT INTO `delivery_details` (`delivery_detail_id`, `delivery_id`, `delivery_detail_code`, `delivery_detail_status`, `warehouse_id`, `delivery_detail_type`) VALUES
-(1, 1, 'DO2017070001', 0, 1, 1),
-(2, 1, 'DO2017070002', 0, 1, 2),
-(3, 1, 'DO2017070003', 0, 2, 1),
-(4, 1, 'DO2017070004', 0, 2, 2);
+(1, 1, 'DO2017070001', 1, 1, 1),
+(2, 1, 'DO2017070002', 1, 1, 2),
+(3, 2, 'DO2017070003', 3, 1, 1),
+(4, 2, 'DO2017070004', 0, 1, 2),
+(6, 2, 'DO2017070005', 0, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -353,18 +496,15 @@ CREATE TABLE `delivery_sends` (
 --
 
 INSERT INTO `delivery_sends` (`delivery_send_id`, `delivery_detail_id`, `nota_detail_order_id`, `delivery_send_qty`) VALUES
-(1, 1, 24, 4),
-(2, 2, 24, 1),
-(3, 1, 8, 5),
-(4, 2, 8, 5),
-(5, 1, 10, 7),
-(6, 2, 10, 1),
-(7, 3, 11, 10),
-(8, 4, 11, 3),
-(9, 3, 25, 3),
-(10, 4, 25, 1),
-(11, 3, 9, 8),
-(12, 4, 9, 5);
+(1, 1, 23, 2),
+(2, 2, 23, 1),
+(3, 1, 22, 10),
+(4, 2, 22, 0),
+(5, 3, 27, 1),
+(6, 4, 27, 1),
+(7, 3, 26, 4),
+(8, 4, 26, 2),
+(9, 6, 26, 1);
 
 -- --------------------------------------------------------
 
@@ -421,7 +561,7 @@ CREATE TABLE `employees` (
 
 INSERT INTO `employees` (`employee_id`, `employee_name`, `employee_address`, `employee_birth_date`, `employee_hp`, `employee_rek`, `employee_bank`, `employee_npwp`, `employee_name_npwp`, `employee_ktp`, `division_id`, `employee_status`, `employee_begin`, `warehouse_id`, `employee_first_salary`, `employee_piece`, `employee_over`, `employee_type`) VALUES
 (1, 'Sugiono', 'kjbhsdhf', '2017-03-16', '987230473', '9837483', 'MANDIRI', '8937432894', 'jshdsuifh', '987230473', 1, 'Aktif', '2017-05-23', 0, 0, 0, 0, 'Sales'),
-(2, 'Sukijan', 'Surabaya', '2017-04-19', '09876545678', '4567898765', 'BCA', '4567887654', 'Ketenagakerjaan', '44567876543', 1, 'Aktif', '2017-04-19', 0, 2500000, 5000, 3000, 'Karyawan'),
+(2, 'Sukijan', 'Surabaya', '2017-04-19', '09876545678', '4567898765', 'BCA', '4567887654', 'Ketenagakerjaan', '44567876543', 1, 'Aktif', '2017-04-19', 2, 2500000, 5000, 3000, 'Karyawan'),
 (3, 'Paiman', 'dfgsdg', '2017-07-13', '45434', '3455434', 'BCA', '324543423', 'Ketenagakerjaan', '654345', 3, 'Aktif', '2017-07-11', 1, 1000000, 10000, 50000, 'Karyawan'),
 (4, 'Joko', 'fghgfdsa', '2017-07-06', '34567', '45676543', 'BCA', '456787654', 'Ketenagakerjaan', '565432', 4, 'Aktif', '2017-07-17', 1, 5000000, 10000, 100000, 'Karyawan');
 
@@ -476,8 +616,9 @@ CREATE TABLE `foremans` (
 --
 
 INSERT INTO `foremans` (`foreman_id`, `foreman_date`, `employee_id`, `delivery_detail_id`) VALUES
-(1, '2017-07-14', 4, 1),
-(2, '2017-07-21', 4, 3);
+(4, '2017-07-26', 4, 1),
+(5, '2017-07-26', 4, 2),
+(6, '2017-07-26', 4, 3);
 
 -- --------------------------------------------------------
 
@@ -498,12 +639,12 @@ CREATE TABLE `foreman_details` (
 --
 
 INSERT INTO `foreman_details` (`foreman_detail_id`, `foreman_id`, `delivery_send_id`, `foreman_detail_qty`, `user_id`) VALUES
-(1, 1, 1, 4, 43),
-(2, 1, 3, 5, 43),
-(3, 1, 5, 7, 43),
-(4, 2, 7, 10, 43),
-(5, 2, 9, 3, 43),
-(6, 2, 11, 5, 43);
+(5, 4, 1, 2, 43),
+(6, 4, 3, 10, 43),
+(7, 5, 2, 1, 43),
+(8, 5, 4, 0, 43),
+(9, 6, 5, 1, 43),
+(10, 6, 7, 3, 43);
 
 -- --------------------------------------------------------
 
@@ -524,11 +665,11 @@ CREATE TABLE `foreman_racks` (
 --
 
 INSERT INTO `foreman_racks` (`foreman_rack_id`, `foreman_detail_id`, `rack_id`, `item_id`, `foreman_rack_qty`) VALUES
-(1, 2, 1, 2, 4),
-(2, 3, 1, 1, 5),
-(3, 1, 3, 3, 4),
-(4, 2, 3, 2, 1),
-(5, 3, 3, 1, 2);
+(1, 5, 1, 1, 1),
+(2, 6, 1, 2, 7),
+(3, 5, 3, 1, 1),
+(4, 6, 3, 2, 3),
+(5, 7, 1, 1, 1);
 
 -- --------------------------------------------------------
 
@@ -647,6 +788,86 @@ INSERT INTO `item_sub_clases` (`item_sub_clas_id`, `item_clas_id`, `item_sub_cla
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `journals`
+--
+
+CREATE TABLE `journals` (
+  `jaournal_id` int(11) NOT NULL,
+  `journal_date` date NOT NULL,
+  `journal_type_id` int(11) NOT NULL,
+  `journal_data_id` int(11) NOT NULL,
+  `journal_debit` int(11) NOT NULL,
+  `journal_kredit` int(11) NOT NULL,
+  `journal_hutang` int(11) NOT NULL,
+  `journal_piutang` int(11) NOT NULL,
+  `journal_desc` varchar(100) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `journal_types`
+--
+
+CREATE TABLE `journal_types` (
+  `journal_type_id` int(11) NOT NULL,
+  `journal_type_name` varchar(50) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `journal_types`
+--
+
+INSERT INTO `journal_types` (`journal_type_id`, `journal_type_name`) VALUES
+(1, 'KAS');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mutations`
+--
+
+CREATE TABLE `mutations` (
+  `mutation_id` int(11) NOT NULL,
+  `warehouse_id` int(11) NOT NULL,
+  `mutation_date` date NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `mutations`
+--
+
+INSERT INTO `mutations` (`mutation_id`, `warehouse_id`, `mutation_date`) VALUES
+(1, 1, '2017-08-01');
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `mutation_details`
+--
+
+CREATE TABLE `mutation_details` (
+  `mutation_detail_id` int(11) NOT NULL,
+  `mutation_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `rack_id` int(11) NOT NULL,
+  `mutation_detail_qty` int(11) NOT NULL,
+  `warehouse_id` int(11) NOT NULL,
+  `rack_id2` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `mutation_details`
+--
+
+INSERT INTO `mutation_details` (`mutation_detail_id`, `mutation_id`, `item_id`, `rack_id`, `mutation_detail_qty`, `warehouse_id`, `rack_id2`, `user_id`) VALUES
+(1, 1, 3, 1, 2, 4, 9, 11),
+(2, 1, 1, 1, 5, 2, 5, 11);
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `notas`
 --
 
@@ -662,17 +883,19 @@ CREATE TABLE `notas` (
   `nota_credit_card` varchar(20) NOT NULL,
   `nota_desc` varchar(100) NOT NULL,
   `nota_status` int(11) NOT NULL COMMENT '0 proses,1 do',
-  `nota_reference` int(11) NOT NULL
+  `nota_reference` int(11) NOT NULL,
+  `warehouse_id` int(11) NOT NULL,
+  `nota_member_card` varchar(30) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `notas`
 --
 
-INSERT INTO `notas` (`nota_id`, `nota_code`, `nota_date`, `customer_id`, `employee_id`, `nota_type`, `coa_detail_id`, `nota_tempo`, `nota_credit_card`, `nota_desc`, `nota_status`, `nota_reference`) VALUES
-(2, 'NT2017060001', '2017-06-17', 1, 1, 1, 1, '2017-06-17', '', 'test', 0, 3),
-(3, 'NT2017060002', '2017-06-17', 1, 1, 1, 1, '2017-06-17', '', '', 0, 0),
-(4, 'NT2017070001', '2017-07-21', 1, 1, 1, 1, '2017-07-21', '', 'test', 0, 0);
+INSERT INTO `notas` (`nota_id`, `nota_code`, `nota_date`, `customer_id`, `employee_id`, `nota_type`, `coa_detail_id`, `nota_tempo`, `nota_credit_card`, `nota_desc`, `nota_status`, `nota_reference`, `warehouse_id`, `nota_member_card`) VALUES
+(3, 'NT2017060002', '2017-06-17', 1, 1, 1, 1, '2017-06-17', '', '', 1, 0, 1, ''),
+(4, 'NT2017070001', '2017-07-21', 1, 1, 1, 1, '2017-07-21', '', 'test', 1, 0, 1, ''),
+(5, 'NT2017070002', '2017-07-25', 2, 1, 1, 1, '2017-07-25', '', 'fgr43rew', 0, 0, 1, '');
 
 -- --------------------------------------------------------
 
@@ -687,21 +910,27 @@ CREATE TABLE `nota_details` (
   `nota_detail_qty` int(11) NOT NULL,
   `nota_detail_price` int(11) NOT NULL,
   `nota_detail_promo` int(11) NOT NULL,
-  `user_id` int(11) NOT NULL
+  `user_id` int(11) NOT NULL,
+  `nota_detail_retail` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 --
 -- Dumping data for table `nota_details`
 --
 
-INSERT INTO `nota_details` (`nota_detail_id`, `nota_id`, `item_id`, `nota_detail_qty`, `nota_detail_price`, `nota_detail_promo`, `user_id`) VALUES
-(5, 2, 2, 1, 5000, 5000, 11),
-(6, 2, 1, 12, 4000, 4000, 11),
-(13, 3, 2, 1, 5000, 0, 11),
-(14, 3, 1, 12, 4000, 2000, 11),
-(15, 2, 3, 12, 5000, 5000, 11),
-(16, 4, 3, 12, 5000, 0, 43),
-(17, 4, 1, 12, 4000, 4000, 43);
+INSERT INTO `nota_details` (`nota_detail_id`, `nota_id`, `item_id`, `nota_detail_qty`, `nota_detail_price`, `nota_detail_promo`, `user_id`, `nota_detail_retail`) VALUES
+(5, 2, 2, 1, 5000, 5000, 11, 0),
+(6, 2, 1, 12, 4000, 4000, 11, 0),
+(13, 3, 2, 1, 5000, 0, 11, 0),
+(14, 3, 1, 12, 4000, 2000, 11, 0),
+(15, 2, 3, 12, 5000, 5000, 11, 0),
+(16, 4, 3, 12, 5000, 0, 43, 0),
+(17, 4, 1, 12, 4000, 4000, 43, 0),
+(19, 5, 2, 1, 2000, 2000, 11, 3),
+(21, 5, 1, 12, 1000, 0, 11, 15),
+(22, 6, 2, 1, 2000, 0, 11, 0),
+(23, 6, 2, 1, 2000, 2000, 11, 3),
+(24, 6, 1, 12, 1000, 0, 11, 0);
 
 -- --------------------------------------------------------
 
@@ -729,12 +958,28 @@ INSERT INTO `nota_detail_orders` (`nota_detail_order_id`, `nota_detail_id`, `war
 (9, 5, 2, 2, 8, 5, 0, 0),
 (10, 6, 1, 1, 7, 1, 0, 0),
 (11, 6, 2, 1, 10, 3, 0, 0),
-(22, 13, 1, 2, 10, 0, 0, 0),
-(23, 14, 1, 1, 2, 1, 0, 0),
+(22, 13, 1, 2, 10, 0, 10, 0),
+(23, 14, 1, 1, 2, 1, 2, 1),
 (24, 15, 1, 3, 4, 1, 0, 0),
 (25, 15, 2, 3, 3, 1, 0, 0),
-(26, 17, 1, 1, 4, 2, 0, 0),
-(27, 16, 1, 3, 1, 1, 0, 0);
+(26, 17, 1, 1, 4, 2, 3, 0),
+(27, 16, 1, 3, 1, 1, 1, 0),
+(28, 19, 1, 2, 2, 1, 0, 0),
+(29, 23, 1, 2, 2, 1, 0, 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `nota_detail_retails`
+--
+
+CREATE TABLE `nota_detail_retails` (
+  `nota_detail_retail_id` int(11) NOT NULL,
+  `nota_detail_id` int(11) NOT NULL,
+  `item_id` int(11) NOT NULL,
+  `rack_id` int(11) NOT NULL,
+  `nota_detail_retail_qty` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -788,6 +1033,18 @@ INSERT INTO `partners` (`partner_id`, `partner_name`, `partner_sales_name`, `cat
 (1, 'Jenggi', 'Jansuki', 1, 'Jumali', '678987654', '098765678', 'Surabaya', '56789865', 'BCA', 'jenggi@gmail.com', '345677654', 'ASKES', '65567876', 'BNI', 10),
 (2, 'asdfghjghfgdf', 'dsfghjhg', 1, 'sdfghgf', '323454657', '234540', 'hghfds', '253645', 'asdfhfgdf', 'bffdsa@gmail.com', '32443', 'hgfd', '2435465', 'ngfdfs', 3456),
 (3, 'fgdhgh', 'gfh', 3, 'fghgfh', '345', '34634', 'fh', '346', 'fghf', 'sdgsdfds@fdfhfdh.gj', '2353', 'fhg', '', '', 0);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `periods`
+--
+
+CREATE TABLE `periods` (
+  `period_id` int(11) NOT NULL,
+  `period_month` int(11) NOT NULL,
+  `period_year` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
 -- --------------------------------------------------------
 
@@ -851,36 +1108,39 @@ INSERT INTO `permits` (`permit_id`, `user_type_id`, `side_menu_id`, `permit_acce
 (619, 9, 69, ''),
 (620, 9, 70, ''),
 (621, 9, 71, ''),
-(714, 5, 1, '1'),
-(715, 5, 2, '1'),
-(716, 5, 3, '1'),
-(717, 5, 18, '1'),
-(718, 5, 29, 'c,r,u,d'),
-(719, 5, 30, 'c,r,u,d'),
-(720, 5, 46, '1'),
-(721, 5, 57, 'c,r,u,d'),
-(722, 5, 58, 'c,r,u,d'),
-(723, 5, 59, 'c,r,u,d'),
-(724, 5, 60, 'c,r,u,d'),
-(725, 5, 61, 'c,r,u,d'),
-(726, 5, 62, 'c,r,u,d'),
-(727, 5, 63, 'c,r,u,d'),
-(728, 5, 64, 'c,r,u,d'),
-(729, 5, 65, 'c,r,u,d'),
-(730, 5, 66, 'c,r,u,d'),
-(731, 5, 68, 'c,r,u,d'),
-(732, 5, 69, 'c,r,u,d'),
-(733, 5, 70, 'c,r,u,d'),
-(734, 5, 71, 'c,r,u,d'),
-(735, 5, 72, 'c,r,u,d'),
-(736, 5, 73, 'c,r,u,d'),
-(737, 5, 74, 'c,r,u,d'),
-(738, 5, 75, 'c,r,u,d'),
-(739, 5, 76, 'c,r,u,d'),
-(740, 5, 77, 'c,r,u,d'),
-(741, 5, 78, 'c,r,u,d'),
-(742, 5, 79, 'c,r,u,d'),
-(743, 5, 80, 'c,r,u,d');
+(807, 5, 1, '1'),
+(808, 5, 2, '1'),
+(809, 5, 3, '1'),
+(810, 5, 18, '1'),
+(811, 5, 29, 'c,r,u,d'),
+(812, 5, 30, 'c,r,u,d'),
+(813, 5, 46, '1'),
+(814, 5, 57, 'c,r,u,d'),
+(815, 5, 58, 'c,r,u,d'),
+(816, 5, 59, 'c,r,u,d'),
+(817, 5, 60, 'c,r,u,d'),
+(818, 5, 61, 'c,r,u,d'),
+(819, 5, 62, 'c,r,u,d'),
+(820, 5, 63, 'c,r,u,d'),
+(821, 5, 64, 'c,r,u,d'),
+(822, 5, 65, 'c,r,u,d'),
+(823, 5, 66, 'c,r,u,d'),
+(824, 5, 68, 'c,r,u,d'),
+(825, 5, 69, 'c,r,u,d'),
+(826, 5, 70, 'c,r,u,d'),
+(827, 5, 71, 'c,r,u,d'),
+(828, 5, 72, 'c,r,u,d'),
+(829, 5, 73, 'c,r,u,d'),
+(830, 5, 74, 'c,r,u,d'),
+(831, 5, 75, 'c,r,u,d'),
+(832, 5, 76, 'c,r,u,d'),
+(833, 5, 77, 'c,r,u,d'),
+(834, 5, 78, 'c,r,u,d'),
+(835, 5, 79, 'c,r,u,d'),
+(836, 5, 80, 'c,r,u,d'),
+(837, 5, 81, 'c,r,u,d'),
+(838, 5, 82, 'c,r,u,d'),
+(839, 5, 83, 'c,r,u,d');
 
 -- --------------------------------------------------------
 
@@ -983,7 +1243,7 @@ INSERT INTO `purchases_details` (`purchase_detail_id`, `purchase_id`, `item_id`,
 (18, 11, 0, 11, 2, 12345, 2, 2, 2, 2, 4, 2),
 (19, 11, 0, 11, 1, 12345, 1, 1, 1, 1, 1, 2),
 (32, 12, 2, 11, 23, 432, 3, 3, 3, 3, 3, 2),
-(34, 13, 2, 11, 4, 432, 4, 4, 4, 4, 4, 1);
+(34, 13, 2, 11, 4, 432, 4, 4, 4, 4, 4, 4);
 
 -- --------------------------------------------------------
 
@@ -1045,7 +1305,8 @@ INSERT INTO `rack_details` (`rack_detail_id`, `rack_id`, `item_id`) VALUES
 (24, 5, 3),
 (25, 5, 4),
 (26, 6, 3),
-(27, 6, 4);
+(27, 6, 4),
+(28, 5, 1);
 
 -- --------------------------------------------------------
 
@@ -1139,6 +1400,54 @@ CREATE TABLE `returs_suppliers_details` (
   `retur_supplier_detail_desc` text NOT NULL,
   `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `retur_cus`
+--
+
+CREATE TABLE `retur_cus` (
+  `retur_cus_id` int(11) NOT NULL,
+  `retur_cus_code` varchar(30) NOT NULL,
+  `retur_cus_date` date NOT NULL,
+  `nota_id` int(11) NOT NULL,
+  `retur_cus_desc` varchar(100) NOT NULL,
+  `retur_cus_status` int(11) NOT NULL COMMENT '0 belum dipakai,1 sudah di pakai',
+  `retur_cus_total` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `retur_cus`
+--
+
+INSERT INTO `retur_cus` (`retur_cus_id`, `retur_cus_code`, `retur_cus_date`, `nota_id`, `retur_cus_desc`, `retur_cus_status`, `retur_cus_total`) VALUES
+(1, 'RC2017080001', '2017-08-05', 3, 'asds', 1, 4000),
+(2, 'RC2017080002', '2017-08-15', 5, 'test', 0, 4000);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `retur_cus_details`
+--
+
+CREATE TABLE `retur_cus_details` (
+  `retur_cus_detail_id` int(11) NOT NULL,
+  `retur_cus_id` int(11) NOT NULL,
+  `nota_detail_id` int(11) NOT NULL,
+  `retur_cus_detail_qty` int(11) NOT NULL,
+  `retur_cus_detail_status` int(11) NOT NULL COMMENT '0 belum diterima,1 sudah diterima',
+  `retur_cus_detail_desc` varchar(100) NOT NULL,
+  `user_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+
+--
+-- Dumping data for table `retur_cus_details`
+--
+
+INSERT INTO `retur_cus_details` (`retur_cus_detail_id`, `retur_cus_id`, `nota_detail_id`, `retur_cus_detail_qty`, `retur_cus_detail_status`, `retur_cus_detail_desc`, `user_id`) VALUES
+(1, 1, 14, 1, 0, 'rusak', 11),
+(4, 2, 19, 2, 0, 'as', 11);
 
 -- --------------------------------------------------------
 
@@ -1249,46 +1558,65 @@ CREATE TABLE `sessions` (
 --
 
 INSERT INTO `sessions` (`id`, `ip_address`, `timestamp`, `data`) VALUES
-('0ndp0tgl8cb6jlbc4siklh3u1gnh30b2', '::1', 1499998151, 0x5f5f63695f6c6173745f726567656e65726174657c693a313439393939383037353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('0trkaoj0f9ms6lk86qhel35brb86i59d', '::1', 1500004413, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303030343138373b),
-('1icp12u6q3emvt04g8en71t9730uvdr0', '::1', 1499937023, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313439393933363838313b),
-('1ubup2a76h78sksghp9ur0bufdt8jklr', '::1', 1500619919, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303631393633353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('2gmmqrlpcbrf5gh9fc1ue7frij56n648', '::1', 1500693570, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303639333535363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('2ose00uput97ktgpm9vfp2crgka9lm26', '::1', 1500016346, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303031363333383b),
-('358hg9vqrduakbb9c0echnin8gf472uv', '::1', 1500619439, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303631393032353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('437m7au8mv78qcck2sv5t8b7bpgqjkpu', '::1', 1500005276, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303030353137343b),
-('50a1tku6jim303fgjehegmlj4a0r9ljr', '::1', 1500620105, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303631393935353b),
-('5cdhhbl7g1b0khku4n0b75mdntgp9psg', '::1', 1500030289, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303033303232353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('7csjvd66cutkkugq4el5o1l2kqpm45qs', '::1', 1500023561, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303032313837343b),
-('81aabkcl5msjh1d4qp4plno5aklqg29k', '::1', 1500006062, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303030353935363b),
-('8aiaelfole2dhc73os4n5p3p77v69f3b', '::1', 1500605426, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303630353330333b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('ac6h4k85fg42t05rj8a2aavem6aq8b15', '::1', 1500697274, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303639373237323b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('c22vnkoef95flc1111dfjrlhhnhnshqt', '::1', 1500616589, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303631363538313b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('cdg2efn9n3jind2u8jjnse1penaqlvip', '::1', 1500356511, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303335363437343b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('d8pg4dp3rv2efvimpas7bj3mscfficip', '::1', 1500021867, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303032313533333b),
-('djna183tj9p8hh59rhfs2omljo52rvnc', '::1', 1500608589, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303630383536393b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('f5luq9ieeg6bn4pl89qdr1mdo1faa63i', '::1', 1500004132, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303030333832353b),
-('fn111rdovicgvfg9kmk157hqp3dh18ab', '::1', 1500018895, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303031373734343b),
-('grj6sgbnn8h1vv5tmgk2j8sm69931k25', '::1', 1499937912, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313439393933373835393b),
-('irlfbjvjm3oqfhgpufk7mnnf33p0nd53', '::1', 1500011554, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303030373032383b),
-('jdvnlbg7c4ummc3kh39qb5m8c9jl9o0q', '::1', 1499937401, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313439393933373237303b),
-('jph7qamr788v0ifs7458mg5tor094aie', '::1', 1500005913, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303030353634343b),
-('k4tosus89vm485ide53umjkf4af5i2nl', '::1', 1499939548, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313439393933383638393b),
-('kacrk7te2nht1f164m941jima7hk1tfq', '::1', 1500005083, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303030343737343b),
-('kmbi2gmg3hk3r4sned14bdbd90i8ipjn', '::1', 1500002068, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303030323032353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('lrdvkk127ll5sve6dc3pha0fc3ba86qo', '::1', 1499939564, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313439393933393535343b),
-('lsnkfvja1k3uh3hmj672i8nd25ithqiq', '::1', 1499998623, 0x5f5f63695f6c6173745f726567656e65726174657c693a313439393939383531333b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('mnsctv17ptc4ps4b2it5qhrgks5sir4h', '::1', 1500707696, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303730373635363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('q0jkcbnpm49adh96t941834gih00bkpu', '::1', 1500012220, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303031323231363b),
-('q4t2reo272dqrmrqa2pt8fd74b78glfn', '::1', 1500017448, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303031363937323b),
-('q5v3hs7h2ck7b7bnt7omqh7vvou7uoku', '::1', 1500015189, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303031353133353b),
-('rnk5rnlibnaga5pi73ij7e6q91cd9664', '::1', 1500016933, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303031363635333b),
-('s1pfcrrc7e643apadvrtvep6lg34151c', '::1', 1500706523, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303730363531323b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('s86drjk7neudfrvltqe41v8rbc1tcvr1', '::1', 1500616165, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303631363135343b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('sfee18hnud7jpi8u4ndquvegjvlrubui', '::1', 1500020434, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303031383935323b),
-('sh4bj4bjpfhhebbmfdg438oo35vuue61', '::1', 1500001714, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530303030313632303b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
-('u5p6ennpafn1embta0p3o09lfvt009ed', '::1', 1500620661, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313530303632303339393b),
-('v4deia2fjdl5maus92mb7m8s5phqag3v', '::1', 1499938605, 0x6c6f676765647c733a323a22696e223b757365725f69647c733a323a223433223b757365725f757365726e616d657c733a363a226d616e646f72223b757365725f6e616d657c733a303a22223b757365725f747970655f69647c733a313a2235223b5f5f63695f6c6173745f726567656e65726174657c693a313439393933383335313b);
+('04bv8ulfhm7mm9p4eb9hgpblamibjcl3', '::1', 1501913388, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313931333038333b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('0jqet5oh0r0p9vqo1sda1u4fjdoisuin', '::1', 1503302392, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530333330323038363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('0pf1ul02qhml6g4jltg0q182rp9u6cfl', '::1', 1502779481, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323737393239303b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('1kfe0uvkkuqjh72jfjff42gj0eis308o', '::1', 1502864272, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323836343232323b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('1sajqe23pesh9652ig4hqd91db4kphpn', '::1', 1502769509, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323736393233393b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('26vp69visnqprt31flfo2o2qo43e85q2', '::1', 1501231629, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313233313630313b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('2lagvb4uhl9ess1r280135omv1s2bvic', '::1', 1502769631, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323736393537363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('2vqdr0sm6043nlghmo1r2vga6v74eoif', '::1', 1501229695, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313232393436363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('3hpphdkd422i09gp16teteuog86klk0e', '::1', 1501232915, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313233323631363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('3kt8ov1bvknmo5g32majkf297l8ngkvu', '::1', 1503301848, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530333330313639333b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('46oeualjenmgebn91fofhei53a209g38', '::1', 1501229849, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313232393832313b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('4hegot7udj2o0n3kh8itfsli5j32nerd', '::1', 1502850272, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323835303231363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('4vdeun4g59sb5v663id6286uujgmhuki', '::1', 1502768865, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323736383836323b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('50i0v0ohnuf798vfntahe4qqjr3us9sp', '::1', 1502780136, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323738303133333b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('5c59hc5ok1tgoin0mut2um3d5o671k60', '::1', 1503027625, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530333032373534383b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('69qlbt7l6s66ae0u753ukhjq5bvhnr06', '::1', 1503371924, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530333337313932333b),
+('6nv44ocf86qbvqbj4qvq3h6jfp05f6v3', '::1', 1502863744, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323836333436393b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('7d72r5ruscf3pdtkm7t522c9gj23lqk0', '::1', 1502855847, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323835353737313b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('877n321blktp9qeduo3fbgti9dn9p5gj', '::1', 1502780073, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323737393735353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('8ej0fdfap58hiplntn52bmviv5kd62pq', '::1', 1502768833, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323736383535373b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('95sjime1ss3c6giefu8bm9ejtukp62nj', '::1', 1502680334, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323638303034353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('a248uosrpeot8cubv875p68fdi5hc3ku', '::1', 1501235267, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313233343937343b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('ab94eb8gfi39ls2vmpo4vt7amk4on2ep', '::1', 1502864109, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323836333737373b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('ag139trheh002sksfcaqrdllca9tsk8a', '::1', 1501914350, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313931343332303b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('autj565rhshvahoo0992g2agd2ot4kki', '::1', 1501236047, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313233353932333b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('b8hvni06anhqf75nho7tfm9im6q969q7', '::1', 1502782075, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323738313935353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('bqpg4706k7eqfo0mk07vvjthgr7k5bjd', '::1', 1502766354, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323736363334383b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('ciejcip1a710d46iakjnvgc2s654ptsh', '::1', 1501232982, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313233323935363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('f42i6k0fv24ol0jl0eh80qmajjrhv86d', '::1', 1502770388, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323737303338323b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('fsh2atmo7575lq1eg8kpkdvt5o9evsc6', '::1', 1502767530, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323736373234363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('go0j1t45dmkkrpf2qdm3dgk97t1du542', '::1', 1503303278, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530333330333234353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('icgp3qs1caok014826g769v5fqrttp5i', '::1', 1501232056, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313233323035323b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('ig7n3g4tu5ke1uep0qtdacf6ral6bm1i', '::1', 1503024842, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530333032343833323b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('j0jbpucuv8ujkrjt7l08m6g6p7eeh8d0', '::1', 1501651515, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313635313439343b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('jrfu1ct5its7njv6soghgogtu6i8arpc', '::1', 1502862430, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323836323334363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('jvar0gnp7l1pcvve2qas3ambbp48qu7i', '::1', 1503718942, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530333731383539313b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('k2vj1g8qus2hio4tldeei6bvirrdo87c', '::1', 1502853351, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323835333136393b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('klsgbd4djmh787c1kfv1cs56mb0q68q9', '::1', 1502781949, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323738313635323b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('n0if1fsv1m8jc1t9rl561jl6nq24oln1', '::1', 1502679545, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323637393530353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('nga51ojbgde4vlct9sg006vcsv6nbom7', '::1', 1502780891, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323738303533353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('npcs82is9kqqblv8kjl317avc726m2m9', '::1', 1501245813, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313234353830383b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('ogm2j310c2e1gv5na4cepltkfe44l0ke', '::1', 1502768043, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323736373736303b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('os9sgk25mesgu3u6caolestcgh8lim5c', '::1', 1502782599, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323738323331363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('p87hckm5bt6hauofqgk8d3ijiojt26vl', '::1', 1502768218, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323736383038363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('qk1rorfj0ul1gjihdsq83rf4u323u1fa', '::1', 1502782923, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323738323634303b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('qlqen6bo1ljsglm6j10bqhatpm5jj3r0', '::1', 1501235605, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313233353436363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('qortnnn0l1c1psq30lu9ktasubasr2so', '::1', 1502861664, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323836313635383b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('r8oi0mv1tbm899nit4tjptraotde7k93', '::1', 1502783111, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323738333130393b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('rsqaa9bus6mocvq284nit89s63tk3rpl', '::1', 1502853561, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323835333535383b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('sant3n1krt1hnl0n5mllpsi7poafs022', '::1', 1502781360, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323738313231373b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('t0reljamv2kc44un209tsgpovl23d6jf', '::1', 1502862701, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323836323635343b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('th98a9drj19knb1fcl639g8281cdlfpd', '::1', 1502697113, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323639373130373b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('ts6r7f07l06vpdp70t6aitk1gj4egui6', '::1', 1503025218, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530333032353231363b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('u518beg3alb9o6tj92hma5f4pkc2i66s', '::1', 1502855300, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323835353238353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('u704vftgvda1r7a6tavd588kgbl1se8k', '::1', 1502863353, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323836333134313b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('vamic7upre7p4toef1padjs1q8b8ief8', '::1', 1501913989, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313931333838353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('vb8415pmv7gbh3iuckcppcesu39vi836', '::1', 1502766917, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323736363834333b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('vbisei74ef2qdo56q2fb9gjhpdavoape', '::1', 1501230864, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530313233303538343b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b),
+('vgcbos6cjjfpj2ivl1ht3krtkbtd8ei0', '::1', 1502854778, 0x5f5f63695f6c6173745f726567656e65726174657c693a313530323835343737353b6c6f676765647c733a323a22696e223b757365725f69647c733a323a223131223b757365725f757365726e616d657c733a353a2261646d696e223b757365725f6e616d657c733a353a2241646d696e223b757365725f747970655f69647c733a313a2235223b);
 
 -- --------------------------------------------------------
 
@@ -1340,7 +1668,10 @@ INSERT INTO `side_menus` (`side_menu_id`, `side_menu_name`, `side_menu_url`, `si
 (77, 'Return Supplier', 'Transaksi/Return', 46, '', 2, 0),
 (78, 'Kas', 'Transaksi/Kas', 46, '', 2, 0),
 (79, 'Biaya Sales', 'Transaksi/Cost-Sales', 46, '', 2, 0),
-(80, 'Pengeluaran Operasional', 'Transaksi/Pengeluaran-Operasional', 46, '', 2, 0);
+(80, 'Pengeluaran Operasional', 'Transaksi/Pengeluaran-Operasional', 46, '', 2, 0),
+(81, 'Retur Customer', 'Transaksi/Retur-Customer', 46, '', 2, 0),
+(82, 'Coa', 'Master-Data/Coa', 3, '', 2, 0),
+(83, 'Mutasi', 'Transaksi/Mutasi', 46, '', 2, 0);
 
 -- --------------------------------------------------------
 
@@ -1351,7 +1682,6 @@ INSERT INTO `side_menus` (`side_menu_id`, `side_menu_name`, `side_menu_url`, `si
 CREATE TABLE `spendings` (
   `spending_id` int(11) NOT NULL,
   `spending_date` date NOT NULL,
-  `spending_needs` varchar(50) NOT NULL,
   `spending_cost` int(11) NOT NULL,
   `spending_code` varchar(50) NOT NULL,
   `oprational_id` int(11) NOT NULL
@@ -1366,8 +1696,9 @@ CREATE TABLE `spendings` (
 CREATE TABLE `spendings_details` (
   `spending_detail_id` int(11) NOT NULL,
   `spending_id` int(11) NOT NULL,
-  `spending_detail_cost_total` int(11) NOT NULL,
-  `warehouse_id` int(11) NOT NULL,
+  `coa_id` int(11) NOT NULL,
+  `spending_detail_cost` int(11) NOT NULL,
+  `spending_detail_needs` int(11) NOT NULL,
   `user_id` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -1375,8 +1706,8 @@ CREATE TABLE `spendings_details` (
 -- Dumping data for table `spendings_details`
 --
 
-INSERT INTO `spendings_details` (`spending_detail_id`, `spending_id`, `spending_detail_cost_total`, `warehouse_id`, `user_id`) VALUES
-(1, 3, 6, 1, 11);
+INSERT INTO `spendings_details` (`spending_detail_id`, `spending_id`, `coa_id`, `spending_detail_cost`, `spending_detail_needs`, `user_id`) VALUES
+(1, 3, 0, 6, 1, 11);
 
 -- --------------------------------------------------------
 
@@ -1396,13 +1727,13 @@ CREATE TABLE `stocks` (
 --
 
 INSERT INTO `stocks` (`stock_id`, `item_id`, `rack_id`, `stock_qty`) VALUES
-(1, 1, 1, 120),
-(2, 1, 3, 100),
+(1, 1, 1, 67),
+(2, 1, 3, 16),
 (3, 1, 4, 200),
-(4, 1, 5, 300),
+(4, 1, 5, 5),
 (5, 1, 6, 500),
-(6, 2, 1, 20),
-(7, 2, 3, 5),
+(6, 2, 1, 10),
+(7, 2, 3, 1),
 (8, 2, 4, 3),
 (9, 2, 5, 5),
 (10, 2, 6, 30),
@@ -1425,7 +1756,9 @@ INSERT INTO `stocks` (`stock_id`, `item_id`, `rack_id`, `stock_qty`) VALUES
 
 CREATE TABLE `transaless` (
   `transales_id` int(11) NOT NULL,
-  `transales_periode` date NOT NULL,
+  `sales_id` int(11) NOT NULL,
+  `transales_date1` date NOT NULL,
+  `transales_date2` date NOT NULL,
   `transales_code` varchar(50) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=latin1;
 
@@ -1579,6 +1912,12 @@ INSERT INTO `warehouses` (`warehouse_id`, `warehouse_name`, `warehouse_telp`, `w
 --
 -- Indexes for dumped tables
 --
+
+--
+-- Indexes for table `balances`
+--
+ALTER TABLE `balances`
+  ADD PRIMARY KEY (`balance_id`);
 
 --
 -- Indexes for table `banks`
@@ -1743,6 +2082,30 @@ ALTER TABLE `item_sub_clases`
   ADD PRIMARY KEY (`item_sub_clas_id`);
 
 --
+-- Indexes for table `journals`
+--
+ALTER TABLE `journals`
+  ADD PRIMARY KEY (`jaournal_id`);
+
+--
+-- Indexes for table `journal_types`
+--
+ALTER TABLE `journal_types`
+  ADD PRIMARY KEY (`journal_type_id`);
+
+--
+-- Indexes for table `mutations`
+--
+ALTER TABLE `mutations`
+  ADD PRIMARY KEY (`mutation_id`);
+
+--
+-- Indexes for table `mutation_details`
+--
+ALTER TABLE `mutation_details`
+  ADD PRIMARY KEY (`mutation_detail_id`);
+
+--
 -- Indexes for table `notas`
 --
 ALTER TABLE `notas`
@@ -1761,6 +2124,12 @@ ALTER TABLE `nota_detail_orders`
   ADD PRIMARY KEY (`nota_detail_order_id`);
 
 --
+-- Indexes for table `nota_detail_retails`
+--
+ALTER TABLE `nota_detail_retails`
+  ADD PRIMARY KEY (`nota_detail_retail_id`);
+
+--
 -- Indexes for table `oprationals`
 --
 ALTER TABLE `oprationals`
@@ -1771,6 +2140,12 @@ ALTER TABLE `oprationals`
 --
 ALTER TABLE `partners`
   ADD PRIMARY KEY (`partner_id`);
+
+--
+-- Indexes for table `periods`
+--
+ALTER TABLE `periods`
+  ADD PRIMARY KEY (`period_id`);
 
 --
 -- Indexes for table `permits`
@@ -1837,6 +2212,18 @@ ALTER TABLE `returs_suppliers`
 --
 ALTER TABLE `returs_suppliers_details`
   ADD PRIMARY KEY (`retur_supplier_detail_id`);
+
+--
+-- Indexes for table `retur_cus`
+--
+ALTER TABLE `retur_cus`
+  ADD PRIMARY KEY (`retur_cus_id`);
+
+--
+-- Indexes for table `retur_cus_details`
+--
+ALTER TABLE `retur_cus_details`
+  ADD PRIMARY KEY (`retur_cus_detail_id`);
 
 --
 -- Indexes for table `saless`
@@ -1940,6 +2327,11 @@ ALTER TABLE `warehouses`
 --
 
 --
+-- AUTO_INCREMENT for table `balances`
+--
+ALTER TABLE `balances`
+  MODIFY `balance_id` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT for table `banks`
 --
 ALTER TABLE `banks`
@@ -1958,7 +2350,7 @@ ALTER TABLE `business`
 -- AUTO_INCREMENT for table `cashs`
 --
 ALTER TABLE `cashs`
-  MODIFY `cash_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `cash_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT for table `categories`
 --
@@ -1978,7 +2370,7 @@ ALTER TABLE `cities`
 -- AUTO_INCREMENT for table `coas`
 --
 ALTER TABLE `coas`
-  MODIFY `coa_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `coa_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=121;
 --
 -- AUTO_INCREMENT for table `coa_details`
 --
@@ -1988,7 +2380,7 @@ ALTER TABLE `coa_details`
 -- AUTO_INCREMENT for table `customers`
 --
 ALTER TABLE `customers`
-  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `customer_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 --
 -- AUTO_INCREMENT for table `customer_details`
 --
@@ -2003,17 +2395,17 @@ ALTER TABLE `customer_groups`
 -- AUTO_INCREMENT for table `deliveries`
 --
 ALTER TABLE `deliveries`
-  MODIFY `delivery_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `delivery_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
 --
 -- AUTO_INCREMENT for table `delivery_details`
 --
 ALTER TABLE `delivery_details`
-  MODIFY `delivery_detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `delivery_detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 --
 -- AUTO_INCREMENT for table `delivery_sends`
 --
 ALTER TABLE `delivery_sends`
-  MODIFY `delivery_send_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `delivery_send_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=10;
 --
 -- AUTO_INCREMENT for table `divisions`
 --
@@ -2038,12 +2430,12 @@ ALTER TABLE `employee_galeries`
 -- AUTO_INCREMENT for table `foremans`
 --
 ALTER TABLE `foremans`
-  MODIFY `foreman_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `foreman_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
 --
 -- AUTO_INCREMENT for table `foreman_details`
 --
 ALTER TABLE `foreman_details`
-  MODIFY `foreman_detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=7;
+  MODIFY `foreman_detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=11;
 --
 -- AUTO_INCREMENT for table `foreman_racks`
 --
@@ -2075,20 +2467,45 @@ ALTER TABLE `item_galeries`
 ALTER TABLE `item_sub_clases`
   MODIFY `item_sub_clas_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
 --
+-- AUTO_INCREMENT for table `journals`
+--
+ALTER TABLE `journals`
+  MODIFY `jaournal_id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `journal_types`
+--
+ALTER TABLE `journal_types`
+  MODIFY `journal_type_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT for table `mutations`
+--
+ALTER TABLE `mutations`
+  MODIFY `mutation_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+--
+-- AUTO_INCREMENT for table `mutation_details`
+--
+ALTER TABLE `mutation_details`
+  MODIFY `mutation_detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+--
 -- AUTO_INCREMENT for table `notas`
 --
 ALTER TABLE `notas`
-  MODIFY `nota_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
+  MODIFY `nota_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=6;
 --
 -- AUTO_INCREMENT for table `nota_details`
 --
 ALTER TABLE `nota_details`
-  MODIFY `nota_detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=18;
+  MODIFY `nota_detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=25;
 --
 -- AUTO_INCREMENT for table `nota_detail_orders`
 --
 ALTER TABLE `nota_detail_orders`
-  MODIFY `nota_detail_order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `nota_detail_order_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=30;
+--
+-- AUTO_INCREMENT for table `nota_detail_retails`
+--
+ALTER TABLE `nota_detail_retails`
+  MODIFY `nota_detail_retail_id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `oprationals`
 --
@@ -2100,10 +2517,15 @@ ALTER TABLE `oprationals`
 ALTER TABLE `partners`
   MODIFY `partner_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
 --
+-- AUTO_INCREMENT for table `periods`
+--
+ALTER TABLE `periods`
+  MODIFY `period_id` int(11) NOT NULL AUTO_INCREMENT;
+--
 -- AUTO_INCREMENT for table `permits`
 --
 ALTER TABLE `permits`
-  MODIFY `permit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=744;
+  MODIFY `permit_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=840;
 --
 -- AUTO_INCREMENT for table `promotions`
 --
@@ -2133,7 +2555,7 @@ ALTER TABLE `racks`
 -- AUTO_INCREMENT for table `rack_details`
 --
 ALTER TABLE `rack_details`
-  MODIFY `rack_detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=28;
+  MODIFY `rack_detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=29;
 --
 -- AUTO_INCREMENT for table `receptions`
 --
@@ -2154,6 +2576,16 @@ ALTER TABLE `returs_suppliers`
 --
 ALTER TABLE `returs_suppliers_details`
   MODIFY `retur_supplier_detail_id` int(11) NOT NULL AUTO_INCREMENT;
+--
+-- AUTO_INCREMENT for table `retur_cus`
+--
+ALTER TABLE `retur_cus`
+  MODIFY `retur_cus_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+--
+-- AUTO_INCREMENT for table `retur_cus_details`
+--
+ALTER TABLE `retur_cus_details`
+  MODIFY `retur_cus_detail_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 --
 -- AUTO_INCREMENT for table `saless`
 --
@@ -2178,12 +2610,12 @@ ALTER TABLE `sales_galeries`
 -- AUTO_INCREMENT for table `side_menus`
 --
 ALTER TABLE `side_menus`
-  MODIFY `side_menu_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=81;
+  MODIFY `side_menu_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=84;
 --
 -- AUTO_INCREMENT for table `spendings`
 --
 ALTER TABLE `spendings`
-  MODIFY `spending_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=4;
+  MODIFY `spending_id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `spendings_details`
 --
@@ -2198,7 +2630,7 @@ ALTER TABLE `stocks`
 -- AUTO_INCREMENT for table `transaless`
 --
 ALTER TABLE `transaless`
-  MODIFY `transales_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=13;
+  MODIFY `transales_id` int(11) NOT NULL AUTO_INCREMENT;
 --
 -- AUTO_INCREMENT for table `transaless_details`
 --

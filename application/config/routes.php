@@ -84,3 +84,4 @@ $route['Transaksi/Cost-Sales']								= 'Transales';
 $route['Transaksi/Pengeluaran-Operasional']					= 'Spending';
 $route['Transaksi/Retur-Customer']							= 'Retur_cus';
 $route['Transaksi/Stok-Opname']								= 'Stokopname';
+$route['Transaksi/Mutasi']									= 'Mutation';
