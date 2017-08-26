@@ -7,6 +7,7 @@ class Coa extends MY_Controller {
 
 	public function __construct() {
         parent::__construct();
+        $this->load->library('PHPExcel');
         $this->check_user_access();
 
         $akses = $this->g_mod->get_user_acces($this->user_id,82);
@@ -70,10 +71,7 @@ class Coa extends MY_Controller {
 			'column' => 'coa_name',
 			'param'	 => $this->input->get('search[value]')
 		);
-		$where['data'][]=array(
-			'column'	=>'coa_parent',
-			'param'		=>0
-			);
+		
 		//ORDER
 		$index_order = $this->input->get('order[0][column]');
 		$order['data'][] = array(
@@ -81,19 +79,21 @@ class Coa extends MY_Controller {
 			'type'	 => $this->input->get('order[0][dir]')
 		);
 
-		$query_total = $this->g_mod->select($select,$this->tbl,NULL,NULL,NULL,NULL,$where);
-		$query_filter = $this->g_mod->select($select,$this->tbl,NULL,$where_like,$order,NULL,$where);
-		$query = $this->g_mod->select($select,$this->tbl,$limit,$where_like,$order,NULL,$where);
+		$query_total = $this->g_mod->select($select,$this->tbl,NULL,NULL,NULL,NULL,NULL);
+		$query_filter = $this->g_mod->select($select,$this->tbl,NULL,$where_like,$order,NULL,NULL);
+		$query = $this->g_mod->select($select,$this->tbl,$limit,$where_like,$order,NULL,NULL);
 
 		$response['data'] = array();
 		if ($query<>false) {
 			$no = $limit['start']+1;
 			foreach ($query->result() as $val) {
 				if ($val->coa_id>0) {
+					$jml = strlen($val->coa_nomor);
+
 					$response['data'][] = array(
-						$val->coa_id,
-						$val->coa_name,
-						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->coa_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>'
+						$val->coa_nomor,
+						'<p style="padding-left:'.$jml.'em;">'.$val->coa_name,
+						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->coa_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->coa_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
 					);
 					$no++;	
 				}
@@ -112,21 +112,29 @@ class Coa extends MY_Controller {
 		echo json_encode($response);
 	}
 
-	public function load_data_where($id){
-		$select = '*';
+	public function load_data_where(){
+		$select = 'a.*,b.coa_name as child_name';
 		//WHERE
 		$where['data'][] = array(
-			'column' => 'coa_id',
-			'param'	 => $id
+			'column' => 'a.coa_id',
+			'param'	 => $this->input->get('id')
 		);
-		$query = $this->g_mod->select($select,$this->tbl,NULL,NULL,NULL,NULL,$where);
+		//JOIN
+		$join['data'][] = array(
+			'table' => 'coas b',
+			'join'	=> 'b.coa_id=a.coa_parent',
+			'type'	=> 'left'
+		);
+		$query = $this->g_mod->select($select,'coas a',NULL,NULL,NULL,$join,$where);
 		if ($query<>false) {
 
 			foreach ($query->result() as $val) {
 				$response['val'][] = array(
 					'coa_id'			=> $val->coa_id,
 					'coa_name' 		=> $val->coa_name,
+					'coa_nomor' 		=> $val->coa_nomor,
 					'coa_parent' 		=> $val->coa_parent,
+					'child_name' 		=> $val->child_name,
 				);
 			}
 
@@ -189,21 +197,22 @@ class Coa extends MY_Controller {
 	public function load_data_select_coa(){
 		//WHERE LIKE
 		$where_like['data'][] = array(
-			'column' => 'coa_name',
+			'column' => 'coa_name,coa_nomor',
 			'param'	 => $this->input->get('q')
 		);
 		//ORDER
 		$order['data'][] = array(
-			'column' => 'coa_name',
+			'column' => 'coa_nomor',
 			'type'	 => 'ASC'
 		);
 		$query = $this->g_mod->select('*',$this->tbl,NULL,$where_like,$order,NULL,NULL);
 		$response['items'] = array();
 		if ($query<>false) {
 			foreach ($query->result() as $val) {
+				$jml = strlen($val->coa_nomor);
 				$response['items'][] = array(
 					'id'	=> $val->coa_id,
-					'text'	=> $val->coa_name
+					'text'	=> '<p style="padding-left:'.$jml.'em;">'.$val->coa_nomor.'  '.$val->coa_name
 				);
 			}
 			$response['status'] = '200';
@@ -250,4 +259,70 @@ class Coa extends MY_Controller {
 			echo json_encode($response);
 		}
 	}
+
+	public function import_excel(){
+		if($_FILES['file']['name']){
+
+			$this->import('file');
+		}
+
+		//echo $status;
+
+		$response['status']		= 200;
+		echo json_encode($response);
+	}
+
+	public function import($file){
+        $fileName = $_FILES[$file]['name'];
+        $inputFileName    = $_FILES[$file]['tmp_name'];
+         
+        /*$config['upload_path'] = './images/import/'; //buat folder dengan nama assets di root folder
+        $config['file_name'] = $fileName;
+        $config['allowed_types'] = 'xls|xlsx|csv';
+        $config['max_size'] = 10000;
+         
+        $this->load->library('upload');
+        $this->upload->initialize($config);
+        
+        if(! $this->upload->do_upload($file) )
+        $this->upload->display_errors();
+             
+        $media = $this->upload->data($file);
+        $inputFileName = "images/import/".$media['file_name'];*/
+         
+        try {
+                $inputFileType = PHPExcel_IOFactory::identify($inputFileName);
+                $objReader = PHPExcel_IOFactory::createReader($inputFileType);
+                $objPHPExcel = $objReader->load($inputFileName);
+            } catch(Exception $e) {
+                die('Error loading file "'.pathinfo($inputFileName,PATHINFO_BASENAME).'": '.$e->getMessage());
+            }
+ 
+            $sheet = $objPHPExcel->getSheet(0);
+            $highestRow = $sheet->getHighestRow();
+            $highestColumn = $sheet->getHighestColumn();
+             
+            for ($row = 2; $row <= $highestRow; $row++){                  //  Read a row of data into an array                 
+                $rowData = $sheet->rangeToArray('A' . $row . ':' . $highestColumn . $row,
+                                                NULL,
+                                                TRUE,
+                                                FALSE);
+                //Sesuaikan sama nama kolom tabel di database                                
+                 $data = array(
+                    "coa_nomor"=> $rowData[0][0],
+                    "coa_name"=> $rowData[0][1]
+                );
+                 
+                //sesuaikan nama dengan nama tabel
+                $this->g_mod->insert_data_table($this->tbl, NULL, $data);
+                			
+				/*if( file_exists( $inputFileName ) ){
+	    			unlink( $inputFileName );
+				}*/
+                     
+            }
+
+            //return $inputFileName;
+    }
+
 }

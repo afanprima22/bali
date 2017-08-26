@@ -6,7 +6,7 @@
 <div class="nav-tabs-custom">
     <ul class="nav nav-tabs">
         <li class="active"><a href="#list" data-toggle="tab">List Data</a></li>
-        <li><a href="#form" onclick="type_payment(1)" data-toggle="tab">Form Data</a></li>
+        <li><a href="#form" data-toggle="tab">Form Data</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="list">
@@ -18,10 +18,10 @@
                     <table width="100%" id="table1" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                         <thead>
                             <tr>
-                                <th>nama cabang</th>
-                                <th>tanggal</th>
+                                <th>Gudang</th>
+                                <th>Tanggal</th>
                                 <th>Nominal Kas</th>
-                                <th>code Kas</th>
+                                <th>Kode Akun</th>
                                 <th>Config</th>
                             </tr>
                         </thead>
@@ -40,34 +40,55 @@
                       <div class="row">
                         <div class="col-md-6">
                           <div class="form-group">
-                            <label>Id Kas (Auto)</label>
-                            <input type="text" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
+                            <label>Alokasi Kas :</label>
+                            &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                            <label>
+                                <input type="radio" name="i_type" id="inlineRadio1" value="0"> Debit
+                            </label>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <label>
+                                <input type="radio" name="i_type" id="inlineRadio2" value="1"> Kredit
+                            </label>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <label>
+                                <input type="radio" name="i_type" id="inlineRadio3" value="2"> Hutang
+                            </label>
+                            &nbsp;&nbsp;&nbsp;&nbsp;
+                            <label>
+                                <input type="radio" name="i_type" id="inlineRadio4" value="3"> Piutang
+                            </label>
                           </div>
                           <div class="form-group">
-                            <label>nama cabang</label>
+                            <label>Gudang</label>
+                            <select class="form-control select2" name="i_warehouse" id="i_warehouse" style="width: 100%;" required="required" value=""></select>
+                            <input type="hidden" class="form-control" name="i_id" id="i_id" value="" >
+                          </div>
+                          <div class="form-group">
+                            <label>Kode Akun</label>
                             <select class="form-control select2" name="i_coa" id="i_coa" style="width: 100%;" required="required" value=""></select>
-                            <input type="text" class="form-control" name="i_bank" id="i_bank" value="">
                           </div>
+                          
+                        </div>
+                        <div class="col-md-6">
                           <div class="form-group">
-                            <label>tanggal</label>
+                            <label>Tanggal Kas</label>
                             <div class="input-group date">
                               <div class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar"></i>
                               </div>
-                              <input type="text" class="form-control pull-right" id="datepicker" name="i_cash_date" placeholder="Tanggal" value="" required="required">
+                              <input type="text" class="form-control pull-right" id="datepicker" name="i_cash_date" placeholder="Masokkan Tanggal Kas" value="" required="required">
                             </div>
                           </div>
-                        </div>
-                      <div class="col-md-6">
                           <div class="form-group">
                             <label>Nominal</label>
-                            <input type="number" class="form-control" name="i_nominal" id="i_nominal" placeholder="masukkan nominal" value="" required="required">
+                            <input type="text" class="form-control money" name="i_nominal" id="i_nominal" placeholder="Masukkan Nominal" value="" required="required">
                           </div>
-                        
-                      </div>
-                        
-                        
-
+                          <div class="form-group">
+                            <label>Keterangan</label>
+                            <textarea class="form-control" rows="3" placeholder="Masukkan Keterangan" name="i_desc" id="i_desc"></textarea>
+                          </div>
+                          
+                        </div>
                       </div>
                       <div class="form-group"></div>
                       <div class="box-footer text-right">
@@ -91,8 +112,9 @@
     $(document).ready(function(){
         search_data();
         select_list_warehouse();
+        select_list_coa();
 
-        $.fn.modal.Constructor.prototype.enforceFocus = function() {};
+       // $.fn.modal.Constructor.prototype.enforceFocus = function() {};
     });
 
     function search_data() { 
@@ -153,6 +175,7 @@
 
     function reset1(){
       $("#i_coa option").remove("");
+      $("#i_warehouse option").remove("");
     }
 
     function edit_data(id) {
@@ -164,10 +187,21 @@
           success:function(data){
             for(var i=0; i<data.val.length;i++){
               document.getElementById("i_id").value             = data.val[i].cash_id;
-              $("#i_coa").append('<option value="'+data.val[i].coa_id+'" selected>'+data.val[i].coa_name+' '+data.val[i].bank_name+'</option>');
               document.getElementById("datepicker").value           = data.val[i].cash_date;
               document.getElementById("i_nominal").value           = data.val[i].cash_nominal;
-              
+
+              $("#i_coa").append('<option value="'+data.val[i].coa_id+'" selected>'+data.val[i].coa_nomor+' '+data.val[i].coa_name+'</option>');
+              $("#i_warehouse").append('<option value="'+data.val[i].warehouse_id+'" selected>'+data.val[i].warehouse_name+'</option>');
+
+              if (data.val[i].cash_type == '0') {
+                document.getElementById("inlineRadio1").checked = true;
+              }else if (data.val[i].nota_type == '1') {
+                document.getElementById("inlineRadio2").checked = true;
+              }else if (data.val[i].nota_type == '2') {
+                document.getElementById("inlineRadio3").checked = true;
+              }else if (data.val[i].nota_type == '3') {
+                document.getElementById("inlineRadio4").checked = true;
+              }
           }
         }
       });
@@ -176,11 +210,45 @@
 
     function select_list_warehouse() {
         $('#i_warehouse').select2({
-          placeholder: 'Pilih gudang',
+          placeholder: 'Pilih Gudang',
           multiple: false,
           allowClear: true,
           ajax: {
             url: '<?php echo base_url();?>Warehouse/load_data_select_warehouse/',
+            dataType: 'json',
+            delay: 100,
+            cache: true,
+            data: function (params) {
+              return {
+                q: params.term, // search term
+                page: params.page
+              };
+            },
+            processResults: function (data, params) {
+              params.page = params.page || 1;
+
+              return {
+                results: data.items,
+                pagination: {
+                  more: (params.page * 30) < data.total_count
+                }
+              };
+            }
+          },
+          escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+          minimumInputLength: 1,
+          templateResult: FormatResult,
+          templateSelection: FormatSelection,
+        });
+      }
+
+      function select_list_coa() {
+        $('#i_coa').select2({
+          placeholder: 'Pilih Kode Akun',
+          multiple: false,
+          allowClear: true,
+          ajax: {
+            url: '<?php echo base_url();?>Coa/load_data_select_coa/',
             dataType: 'json',
             delay: 100,
             cache: true,
@@ -230,20 +298,6 @@
         }
         
     }
-
-    function type_payment(id) {
-        $.ajax({
-        type: 'POST',
-        url: '<?=site_url('Cash/read_coa')?>',
-        data: {id:id},
-        dataType: 'json',
-        success: function(data){
-          $('#i_coa').html(data);
-          
-        } 
-      });
-      }
-
 
 </script>
 </body>

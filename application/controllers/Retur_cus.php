@@ -204,12 +204,18 @@ class Retur_cus extends MY_Controller {
 
 					$order = $row['qty_order'] + $val->nota_detail_retail;
 
+					if ($val->retur_cus_detail_status == 0) {
+						$aksi = '<button class="btn btn-primary btn-xs" type="button" onclick="edit_data_detail('.$val->retur_cus_detail_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-danger btn-xs" onclick="delete_data_detail('.$val->retur_cus_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-xs" onclick="receipt_data_detail('.$val->retur_cus_detail_id.')"><i class="glyphicon glyphicon-check"></i></button>';
+					}else{
+						$aksi = '';
+					}
+
 					$response['data'][] = array(
 						$val->item_name,
 						$order,
 						$val->retur_cus_detail_qty,
 						$val->retur_cus_detail_desc,
-						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data_detail('.$val->retur_cus_detail_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button  class="btn btn-danger btn-xs" onclick="delete_data_detail('.$val->retur_cus_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
+						$aksi
 					);
 					$no++;	
 				}
@@ -261,7 +267,8 @@ class Retur_cus extends MY_Controller {
 					'nota_id' 				=> $val->nota_id,
 					'nota_code' 			=> $val->nota_code,
 					'retur_cus_desc' 		=> $val->retur_cus_desc,
-					'retur_cus_total' 		=> $val->retur_cus_total
+					'retur_cus_total' 		=> $val->retur_cus_total,
+					'retur_cus_status'		=> $val->retur_cus_status
 					
 				);
 			}
@@ -400,6 +407,26 @@ class Retur_cus extends MY_Controller {
 			}
 		}
 		
+		echo json_encode($response);
+	}
+
+	public function update_data_detail_status(){
+		$id = $this->input->post('id');
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'retur_cus_detail_id',
+			'param'	 => $id
+		);
+		$data['retur_cus_detail_status'] = 1;
+
+		$update = $this->g_mod->update_data_table('retur_cus_details', $where, $data);
+		if($update->status) {
+			$response['status'] = '200';
+			$response['alert'] = '3';
+		} else {
+			$response['status'] = '204';
+		}
+
 		echo json_encode($response);
 	}
 

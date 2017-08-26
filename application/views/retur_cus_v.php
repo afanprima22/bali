@@ -45,7 +45,7 @@
                         <div class="col-md-6">
                           <div class="form-group">
                             <label>Kode Nota</label>
-                            <select class="form-control select2" name="i_nota" id="i_nota" style="width: 100%;" onchange="select_list_item(this.value)">
+                            <select class="form-control select2" name="i_nota" id="i_nota" style="width: 100%;" onchange="select_list_item(this.value),get_customer(this.value)">
                             </select>
                             <input type="hidden" class="form-control i_id" name="i_id" id="i_id" value="" >
                           </div>
@@ -89,7 +89,9 @@
                                       <td><input type="text" class="form-control" name="i_order" id="i_order" placeholder="Auto" value="" readonly=""></td>
                                       <td><input type="text" class="form-control" name="i_qty_retur" id="i_qty_retur" placeholder="Jumlah Retur" value=""></td>
                                       <td><input type="text" class="form-control" name="i_detail_desc" id="i_detail_desc" placeholder="Keterangan" value=""></td>
-                                      <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan Detail</button></td>
+                                      <td width="10%">
+                                        <button id="simpan_detail" type="button" onclick="save_detail()" class="btn btn-primary">Simpan Detail</button>
+                                      </td>
                                     </tr>
                                     <tr>
                                       <th>Nama Barang</th>
@@ -108,7 +110,7 @@
                       <div class="form-group"></div>
                       <div class="box-footer text-right">
                         <button type="button" onclick="reset(),reset2()" class="btn btn-warning">Batal</button>
-                        <button type="submit" class="btn btn-primary" <?php if(isset($c)) echo $c;?>>Simpan</button>
+                        <button id="simpan" type="submit" class="btn btn-primary" <?php if(isset($c)) echo $c;?>>Simpan</button>
                       </div>
 
                     </div>
@@ -269,6 +271,14 @@
               $("#i_nota").append('<option value="'+data.val[i].nota_id+'" selected>'+data.val[i].nota_code+'</option>');
 
               search_data_detail(data.val[i].retur_cus_id);
+
+              if (data.val[i].retur_cus_status == 1) {
+                document.getElementById('simpan').style.display = 'none';
+                document.getElementById('simpan_detail').style.display = 'none';
+              }else{
+                document.getElementById('simpan').style.display = 'block';
+                document.getElementById('simpan_detail').style.display = 'block';
+              }
             }
           }
         });
@@ -279,6 +289,8 @@
     function reset2(){
       $('#i_nota option').remove();
       search_data_detail(0);
+      document.getElementById('simpan').style.display = 'block';
+      document.getElementById('simpan_detail').style.display = 'block';
     }
 
       function select_list_item(id) {
@@ -419,6 +431,7 @@
                 dataType: 'json',
                 success: function (data) {
                   if (data.status=='200') {
+                    reset3();
                     search_data_detail(id_new);
                   }
                 }
@@ -437,6 +450,47 @@
             document.getElementById("i_order").value      = data;
           }
         });
+    }
+
+    function get_customer(id){
+      //alert(id)
+      $.ajax({
+          type : "GET",
+          url  : '<?php echo base_url();?>nota/load_data_where/',
+          data : "id="+id,
+          dataType : "json",
+          success:function(data){
+            for(var i=0; i<data.val.length;i++){
+              document.getElementById("i_customer").value      = data.val[i].customer_name;
+            }
+          }
+        });
+    }
+
+    function receipt_data_detail(id_detail) {
+        var id = document.getElementById("i_id").value;
+        if (id) {
+          var id_new = id;
+        }else{
+          var id_new = 0;
+        }
+
+        /*var a = confirm("Anda yakin ingin menghapus record ini ?");
+        if(a==true){*/
+            $.ajax({
+                url: '<?php echo base_url();?>retur_cus/update_data_detail_status',
+                data: 'id='+id_detail,
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                  if (data.status=='200') {
+                    reset3();
+                    search_data_detail(id_new);
+                  }
+                }
+            });
+        //}
+        
     }
 
 </script>

@@ -30,17 +30,11 @@
                 <form id="formall" role="form" action="" method="post" enctype="multipart/form-data">
                     <div class="box-content">
                       <div class="row">
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label>Id Divisi (Auto)</label>
-                            <input type="text" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
-                          </div>
-                                               
-                        </div>
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                           <div class="form-group">
                             <label>Nama Biaya Sales</label>
                             <input type="text" class="form-control" name="i_name" id="i_name" placeholder="Masukkan Nama Biaya Sales" required="required" value="" >
+                            <input type="hidden" class="form-control" name="i_id" id="i_id" value="">
                           </div>     
                           
                       </div>
