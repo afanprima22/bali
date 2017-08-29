@@ -30,6 +30,10 @@
                             </tr>
                         </thead>
                     </table>
+                    <div class="form-group"></div>
+                      <div class="box-footer text-right">
+                        <button type="button" onclick="cetak_pdf()" class="btn btn-warning">Cetak PDF</button>
+                      </div>
                 </div>
             </div>
         </div>
@@ -331,6 +335,15 @@
             } 
           }
         });
+    }
+
+    function cetak_pdf(){
+      window.open('<?php echo base_url();?>delivery/cetak_list_pdf');
+    }
+
+    function print_do(id){
+      //alert(id)
+      window.open('<?php echo base_url();?>delivery/cetak_do_pdf?id='+id);
     }
 </script>
 </body>

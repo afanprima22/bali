@@ -8,6 +8,7 @@ class Delivery extends MY_Controller {
 	public function __construct() {
         parent::__construct();
         $this->check_user_access();
+        $this->load->library('PdfGenerator');
 
         $akses = $this->g_mod->get_user_acces($this->user_id,73);
 		$this->permit = $akses['permit_acces'];
@@ -553,6 +554,61 @@ class Delivery extends MY_Controller {
 		echo json_encode($response);
 	}
 
+	public function cetak_list_pdf(){
+		
+		$tbl  = 'notas a';
+		$select = 'a.*,d.customer_name,d.customer_address';
+				//JOIN
+		$join['data'][] = array(
+			'table' => 'customers d',
+			'join'	=> 'd.customer_id=a.customer_id',
+			'type'	=> 'inner'
+		);	
+
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'a.nota_status',
+			'param'	 => 0
+		);	
+
+		$data['query']	= $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
+		$judul			= "Laporan Delivery Order Pending";
+		$data['title'] 	= $judul;
+
+	    $html = $this->load->view('laporan/report_list_do', $data, true);//SEND DATA TO VIEW
+	    $paper = 'A4';
+    	$orientation = 'potrait';
+	    
+	    $this->pdfgenerator->generate($html, str_replace(" ","_",$judul), $paper, $orientation);
+	}
+
+	public function cetak_do_pdf(){
+		
+		$id = $this->input->get('id');
+
+		$sql = "select a.*,b.warehouse_name from delivery_details a 
+				join warehouses b on b.warehouse_id = a.warehouse_id
+				where a.delivery_detail_id = $id";
+
+		$result	= $this->g_mod->select_manual($sql);
+
+		$data = array(
+			'delivery_detail_status' 	=> $result['delivery_detail_status'],
+			'delivery_detail_code' 		=> $result['delivery_detail_code'], 
+			'delivery_detail_id' 		=> $result['delivery_detail_id'],
+			'warehouse_name' 			=> $result['warehouse_name'],
+			'delivery_detail_type' 		=> $result['delivery_detail_type']
+			);
+
+		$judul			= "Laporan Delivery Order";
+		$data['title'] 	= $judul;
+
+	    $html = $this->load->view('laporan/report_do', $data, true);//SEND DATA TO VIEW
+	    $paper = 'A4';
+    	$orientation = 'potrait';
+	    
+	    $this->pdfgenerator->generate($html, str_replace(" ","_",$judul), $paper, $orientation);
+	}
 
 	/* end Function */
 

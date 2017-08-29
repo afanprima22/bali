@@ -17,7 +17,7 @@ if ($query<>false) {
     }elseif($val->delivery_detail_status == 3){
       $status = "Dikirim Sebagian - New DO";
     }elseif($val->delivery_detail_status == 4){
-      $status = "Dikirim Sebagian - Cancel DO";
+      $status = "Dikirim Sebagian - Cancel";
     }
 
     ?>
@@ -27,7 +27,8 @@ if ($query<>false) {
                               <div class="col-md-3"><h2>No DO : <?=$val->delivery_detail_code?></h2> </div>
                               <div class="col-md-3"><h2>Gudang : <?=$val->warehouse_name?></h2> </div>
                               <div class="col-md-2"><h2>Type DO : <?=$type?></h2> </div>
-                              <div class="col-md-4"><h2>Status : <?=$status?></h2> </div>
+                              <div class="col-md-3"><h2>Status : <?=$status?></h2> </div>
+                              <div class="col-md-1"><button type="button" onclick="print_do(<?=$val->delivery_detail_id?>)" class="btn btn-warning btn-xs">Print DO</button></div>
                             </div>
                             <div class="box-content">
                               <div class="form-group">
