@@ -116,7 +116,7 @@ class Nota extends MY_Controller {
 						$val->customer_name,
 						$val->employee_name,
 						$status,
-						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->nota_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->nota_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'.$retail.''
+						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->nota_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->nota_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'.$retail.'&nbsp;&nbsp;<button class="btn btn-print btn-xs" type="button" onclick="lihat('.$val->nota_id.')" class="btn btn-primary"><i class="glyphicon glyphicon-print"></i>cetak</button>'
 					);
 					$no++;	
 				}
@@ -1016,4 +1016,10 @@ class Nota extends MY_Controller {
 
 	/* end Function */
 
+	function printpdf($id){
+		$sql = "SELECT * FROM 'notas' join nota_details on nota_details.nota_id=notas.nota_id 
+				join nota_detail_orders on nota_detail_orders.nota_detail_id=nota_details.nota_detail_id 
+				join items on items.item_id=nota_details.item_id 
+				join units on units.unit_id=items.unit_id where nota_id = $id";
+	}
 }
