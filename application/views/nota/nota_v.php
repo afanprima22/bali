@@ -891,8 +891,8 @@
         });
     }
 
-    function printpdf(id){
-      window.open('<?php echo base_url();?>Nota/cetak_nota_pdf/',+id);
+    function print_pdf(id){
+      window.open('<?php echo base_url();?>Nota/print_nota_pdf?id='+id);
     }
 </script>
 </body>

@@ -8,6 +8,7 @@ class Nota extends MY_Controller {
 	public function __construct() {
         parent::__construct();
         $this->check_user_access();
+        $this->load->library('PdfGenerator');
 
         $akses = $this->g_mod->get_user_acces($this->user_id,72);
 		$this->permit = $akses['permit_acces'];
@@ -116,7 +117,7 @@ class Nota extends MY_Controller {
 						$val->customer_name,
 						$val->employee_name,
 						$status,
-						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->nota_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->nota_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'.$retail.'&nbsp;&nbsp;<button class="btn btn-print btn-xs" type="button" onclick="printpdf('.$val->nota_id.')" class="btn btn-primary"><i class="glyphicon glyphicon-print"></i>cetak</button>'
+						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->nota_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->nota_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'.$retail.'&nbsp;&nbsp;<button class="btn btn-warning btn-xs" type="button" onclick="print_pdf('.$val->nota_id.')" class="btn btn-primary"><i class="glyphicon glyphicon-print"></i></button>'
 					);
 					$no++;	
 				}
@@ -1016,11 +1017,32 @@ class Nota extends MY_Controller {
 
 	/* end Function */
 
-	function cetak_nota_pdf($id){
-		$sql = "SELECT * FROM 'notas' join nota_details on nota_details.nota_id=notas.nota_id 
-				join nota_detail_orders on nota_detail_orders.nota_detail_id=nota_details.nota_detail_id 
-				join items on items.item_id=nota_details.item_id 
-				join units on units.unit_id=items.unit_id where nota_id = $id";
-		$row = $this->g_mod->select_manual($sql);
+	function print_nota_pdf(){
+
+		$id = $this->input->get('id');
+
+		$sql = "SELECT a.*,b.customer_name,b.customer_telp,b.customer_address FROM notas a
+				Join customers b on b.customer_id = a.customer_id
+				where a.nota_id = $id";
+		$result = $this->g_mod->select_manual($sql);
+
+		$data = array(
+			'nota_id' 				=> $result['nota_id'],
+			'nota_code' 			=> $result['nota_code'],
+			'nota_date' 			=> $result['nota_date'], 
+			'nota_type' 			=> $result['nota_type'],
+			'customer_name' 		=> $result['customer_name'],
+			'customer_telp' 		=> $result['customer_telp'],
+			'customer_address' 		=> $result['customer_address']
+			);
+
+		$judul			= "Nota Penjualan";
+		$data['title'] 	= $judul;
+
+	    $html = $this->load->view('report/report_nota', $data, true);//SEND DATA TO VIEW
+	    $paper = 'A4';
+    	$orientation = 'potrait';
+	    
+	    $this->pdfgenerator->generate($html, str_replace(" ","_",$judul), $paper, $orientation);
 	}
 }

@@ -575,7 +575,7 @@ class Delivery extends MY_Controller {
 		$judul			= "Laporan Delivery Order Pending";
 		$data['title'] 	= $judul;
 
-	    $html = $this->load->view('laporan/report_list_do', $data, true);//SEND DATA TO VIEW
+	    $html = $this->load->view('report/report_list_do', $data, true);//SEND DATA TO VIEW
 	    $paper = 'A4';
     	$orientation = 'potrait';
 	    
@@ -603,7 +603,7 @@ class Delivery extends MY_Controller {
 		$judul			= "Laporan Delivery Order";
 		$data['title'] 	= $judul;
 
-	    $html = $this->load->view('laporan/report_do', $data, true);//SEND DATA TO VIEW
+	    $html = $this->load->view('report/report_do', $data, true);//SEND DATA TO VIEW
 	    $paper = 'A4';
     	$orientation = 'potrait';
 	    
