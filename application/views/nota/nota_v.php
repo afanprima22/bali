@@ -890,6 +890,10 @@
           }
         });
     }
+
+    function printpdf(id){
+      window.open('<?php echo base_url();?>Nota/cetak_nota_pdf/',+id);
+    }
 </script>
 </body>
 </html>
