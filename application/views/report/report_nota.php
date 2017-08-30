@@ -30,12 +30,11 @@
 
     ?>
     <h4 align="center" style="font-size: 16px;"><b><?php echo $title; ?></b></h4>
-
     <table class="table table-striped" border="0" width="100%" cellspacing="0">
       <thead>
         <tr>
-          <td>&nbsp;</td>
-          <td>No Nota</td>
+          <td width="50%">&nbsp;</td>
+          <td >No Nota</td>
           <td><?=$nota_code?></td>
         </tr>
         <tr>
@@ -55,8 +54,7 @@
         </tr>
       </thead>
     </table>
-
-    <table class="table table-striped" border="1" width="100%" cellspacing="0" style="padding-top: 20px">
+    <table class="table table-striped" border="1" width="100%" cellspacing="0" style="padding-top: 10px">
       <thead>
         <tr>
           <th>No</th>
@@ -93,8 +91,7 @@
         }?>
       </tbody>
     </table>
-    <p>&nbsp;</p>
-    <table class="table table-striped" border="0" width="100%" cellspacing="0">
+    <table class="table table-striped" border="0" width="100%" cellspacing="0" style="padding-top: 10px">
       <thead>
         <tr>
           <td>Terbilang</td>
