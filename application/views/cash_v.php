@@ -7,6 +7,7 @@
     <ul class="nav nav-tabs">
         <li class="active"><a href="#list" data-toggle="tab">List Data</a></li>
         <li><a href="#form" data-toggle="tab">Form Data</a></li>
+        <li><a href="#" data-toggle="tab">Review Kas Harian</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="list">
@@ -18,10 +19,11 @@
                     <table width="100%" id="table1" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                         <thead>
                             <tr>
-                                <th>Gudang</th>
                                 <th>Tanggal</th>
                                 <th>Nominal Kas</th>
                                 <th>Kode Akun</th>
+                                <th>Asal Akun</th>
+                                <th>Tujuan   Akun</th>
                                 <th>Config</th>
                             </tr>
                         </thead>
@@ -67,6 +69,14 @@
                             <label>Kode Akun</label>
                             <select class="form-control select2" name="i_coa" id="i_coa" style="width: 100%;" required="required" value=""></select>
                           </div>
+                          <div class="form-group">
+                            <label>Asal Akun</label>
+                            <select class="form-control select2" name="i_coa2" id="i_coa2" style="width: 100%;" required="required" value=""></select>
+                          </div>
+                          <div class="form-group">
+                            <label>Tujuan Akun</label>
+                            <select class="form-control select2" name="i_coa3" id="i_coa3" style="width: 100%;" required="required" value=""></select>
+                          </div>
                           
                         </div>
                         <div class="col-md-6">
@@ -76,7 +86,7 @@
                               <div class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar"></i>
                               </div>
-                              <input type="text" class="form-control pull-right" id="datepicker" name="i_cash_date" placeholder="Masokkan Tanggal Kas" value="" required="required">
+                              <input type="text" class="form-control pull-right" id="datepicker" name="i_cash_date" placeholder="Masukkan Tanggal Kas" value="" required="required">
                             </div>
                           </div>
                           <div class="form-group">
@@ -113,6 +123,8 @@
         search_data();
         select_list_warehouse();
         select_list_coa();
+        select_list_coa2();
+        select_list_coa3();
 
        // $.fn.modal.Constructor.prototype.enforceFocus = function() {};
     });
@@ -126,10 +138,11 @@
               url: '<?php echo base_url();?>Cash/load_data/'
             },
             "columns": [
-              {"name": "coa_name"},
               {"name": "cash_date"},
               {"name": "cash_nominal"},
-              {"name": "cash_code"},
+              {"name": "coa_name.' '.coa_nomor"},
+              {"name": "name1.' '.nomor1"},
+              {"name": "name2.' '.nomor2"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
             "order": [
@@ -191,6 +204,8 @@
               document.getElementById("i_nominal").value           = data.val[i].cash_nominal;
 
               $("#i_coa").append('<option value="'+data.val[i].coa_id+'" selected>'+data.val[i].coa_nomor+' '+data.val[i].coa_name+'</option>');
+              $("#i_coa2").append('<option value="'+data.val[i].coa_id2+'" selected>'+data.val[i].nomor1+' '+data.val[i].name1+'</option>');
+              $("#i_coa3").append('<option value="'+data.val[i].coa_id3+'" selected>'+data.val[i].nomor2+' '+data.val[i].name2+'</option>');
               $("#i_warehouse").append('<option value="'+data.val[i].warehouse_id+'" selected>'+data.val[i].warehouse_name+'</option>');
 
               if (data.val[i].cash_type == '0') {
@@ -245,6 +260,74 @@
       function select_list_coa() {
         $('#i_coa').select2({
           placeholder: 'Pilih Kode Akun',
+          multiple: false,
+          allowClear: true,
+          ajax: {
+            url: '<?php echo base_url();?>Coa/load_data_select_coa/',
+            dataType: 'json',
+            delay: 100,
+            cache: true,
+            data: function (params) {
+              return {
+                q: params.term, // search term
+                page: params.page
+              };
+            },
+            processResults: function (data, params) {
+              params.page = params.page || 1;
+
+              return {
+                results: data.items,
+                pagination: {
+                  more: (params.page * 30) < data.total_count
+                }
+              };
+            }
+          },
+          escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+          minimumInputLength: 1,
+          templateResult: FormatResult,
+          templateSelection: FormatSelection,
+        });
+      }
+
+      function select_list_coa2() {
+        $('#i_coa2').select2({
+          placeholder: 'Pilih Asal Akun',
+          multiple: false,
+          allowClear: true,
+          ajax: {
+            url: '<?php echo base_url();?>Coa/load_data_select_coa/',
+            dataType: 'json',
+            delay: 100,
+            cache: true,
+            data: function (params) {
+              return {
+                q: params.term, // search term
+                page: params.page
+              };
+            },
+            processResults: function (data, params) {
+              params.page = params.page || 1;
+
+              return {
+                results: data.items,
+                pagination: {
+                  more: (params.page * 30) < data.total_count
+                }
+              };
+            }
+          },
+          escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
+          minimumInputLength: 1,
+          templateResult: FormatResult,
+          templateSelection: FormatSelection,
+        });
+      }
+
+      function select_list_coa3() {
+        $('#i_coa3').select2({
+          placeholder: 'Pilih Tuhuan Akun',
           multiple: false,
           allowClear: true,
           ajax: {

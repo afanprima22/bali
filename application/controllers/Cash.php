@@ -60,7 +60,7 @@ class Cash extends MY_Controller {
 			$d = '';
 		}
 		$tbl = 'cashs a';
-		$select = 'a.*,b.coa_nomor,b.coa_name,c.warehouse_name';
+		$select = 'a.*,b.coa_nomor,b.coa_name,c.coa_nomor as nomor1,c.coa_name as name1,d.coa_nomor as  nomor2,d.coa_name as name2';
 		//LIMIT
 		$limit = array(
 			'start'  => $this->input->get('start'),
@@ -68,7 +68,7 @@ class Cash extends MY_Controller {
 		);
 		//WHERE LIKE
 		$where_like['data'][] = array(
-			'column' => 'coa_name',
+			'column' => 'b.coa_name',
 			'param'	 => $this->input->get('search[value]')
 		);
 		//ORDER
@@ -84,10 +84,14 @@ class Cash extends MY_Controller {
 			'join'	=> 'b.coa_id=a.coa_id',
 			'type'	=> 'inner'
 		);
-		//JOIN
 		$join['data'][] = array(
-			'table' => 'warehouses c',
-			'join'	=> 'c.warehouse_id=a.warehouse_id',
+			'table' => 'coas c',
+			'join'	=> 'c.coa_id=a.coa_id2',
+			'type'	=> 'inner'
+		);
+		$join['data'][] = array(
+			'table' => 'coas d',
+			'join'	=> 'd.coa_id=a.coa_id3',
 			'type'	=> 'inner'
 		);
 
@@ -102,10 +106,11 @@ class Cash extends MY_Controller {
 			foreach ($query->result() as $val) {
 				if ($val->cash_id>0) {
 					$response['data'][] = array(
-						$val->warehouse_name,
 						$val->cash_date,
 						$val->cash_nominal,
-						$val->coa_nomor.'  '.$val->coa_name,
+						$val->coa_name.'  '.$val->coa_nomor,
+						$val->name1.'  '.$val->nomor1,
+						$val->name2.'  '.$val->nomor2,
 						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->cash_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->cash_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
 					);
 					$no++;	
@@ -126,7 +131,7 @@ class Cash extends MY_Controller {
 	}
 
 	public function load_data_where(){
-	    $select = 'a.*,b.coa_name,b.coa_nomor,c.warehouse_name';
+	    $select = 'a.*,b.coa_name,b.coa_nomor,c.coa_nomor as nomor1,c.coa_name as name1,d.coa_nomor as  nomor2,d.coa_name as name2,e.warehouse_name';
 	    $tbl = 'cashs a';
 	    //WHERE
 	    $where['data'][] = array(
@@ -139,10 +144,20 @@ class Cash extends MY_Controller {
 	      'join'  => 'b.coa_id=a.coa_id',
 	      'type'  => 'inner'
 	    );
+	    $join['data'][] = array(
+			'table' => 'coas c',
+			'join'	=> 'c.coa_id=a.coa_id2',
+			'type'	=> 'inner'
+		);
+		$join['data'][] = array(
+			'table' => 'coas d',
+			'join'	=> 'd.coa_id=a.coa_id3',
+			'type'	=> 'inner'
+		);
 	    //JOIN
 		$join['data'][] = array(
-			'table' => 'warehouses c',
-			'join'	=> 'c.warehouse_id=a.warehouse_id',
+			'table' => 'warehouses d',
+			'join'	=> 'd.warehouse_id=a.warehouse_id',
 			'type'	=> 'inner'
 		);
 	    
@@ -155,6 +170,10 @@ class Cash extends MY_Controller {
 	          'coa_id'    			=> $val->coa_id,
 	          'coa_name'    		=> $val->coa_name,
 	          'coa_nomor'			=> $val->coa_nomor,
+	          'name1'    		=> $val->name1,
+	          'nomor1'			=> $val->nomor1,
+	          'name2'    		=> $val->name2,
+	          'nomor2'			=> $val->nomor2,
 	          'cash_date'     		=>$this->format_date_day_mid2($val->cash_date),
 	          'cash_nominal'    	=> $val->cash_nominal,
 	          'cash_type'    		=> $val->cash_type,
@@ -309,6 +328,8 @@ class Cash extends MY_Controller {
 		}
 
 		$data['coa_id'] = $this->input->post('i_coa', TRUE);
+		$data['coa_id2'] = $this->input->post('i_coa2', TRUE);
+		$data['coa_id3'] = $this->input->post('i_coa3', TRUE);
 		$data['cash_type'] = $this->input->post('i_type', TRUE);
 		$data['cash_date'] = $this->format_date_day_mid($this->input->post('i_cash_date', TRUE));
 		$data['cash_nominal'] =$this->input->post('i_nominal', TRUE);
