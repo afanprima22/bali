@@ -49,6 +49,7 @@
                             <select class="form-control select2" name="i_customer" id="i_customer" style="width: 50%;" onchange="get_customer(this.value)">
                             </select>
                             <a href="#customerModal" class="btn btn-info btn-xs" data-toggle="modal"><i class="glyphicon glyphicon-plus"></i>Customer</a>
+                            <a href="#scanModal" class="btn btn-info btn-xs" data-toggle="modal" onclick="get_focus()">Scan</a>
                             <input type="hidden" class="form-control i_id" name="i_id" id="i_id" value="" >
                           </div>
                           <div class="form-group">
@@ -64,10 +65,10 @@
                             <select class="form-control select2" name="i_sales" id="i_sales" style="width: 100%;">
                             </select>
                           </div>
-                          <div class="form-group">
+                          <!--<div class="form-group">
                             <label>Scan Member Card</label>
                             <input type="text" class="form-control" name="i_scan_card" id="i_scan_card" placeholder="Scan Member Card" value="" >
-                          </div>
+                          </div>-->
 
                         </div>
                         <div class="col-md-6">
@@ -286,6 +287,19 @@
                   </div>
                   <div class="modal-footer">
                       <a href="#" class="btn btn-primary" data-dismiss="modal" onclick="save_customer()">Simpan</a>
+                  </div>
+              </div>
+          </form>
+          </div>
+      </div>
+      <div style="padding-top: 50px;" class="modal fade" id="scanModal" role="dialog" aria-labelledby="myModalLabel"
+         aria-hidden="true" >
+
+          <div class="modal-dialog" style="width: 15%;">
+          <form id="formscan" role="form" action="" method="post" enctype="multipart/form-data" onkeypress="return event.keyCode != 13;">
+              <div class="modal-content">
+                  <div class="modal-body">
+                    <input type="text" class="form-control" name="i_member_card" id="i_member_card" placeholder="Scan Member Card" value="" onkeydown="if (event.keyCode == 13) { scan_member_card(this.value); }">
                   </div>
               </div>
           </form>
@@ -893,6 +907,31 @@
 
     function print_pdf(id){
       window.open('<?php echo base_url();?>Nota/print_nota_pdf?id='+id);
+    }
+
+    function scan_member_card(data){
+      //alert(data)
+      $.ajax({
+          type : "GET",
+          url  : '<?php echo base_url();?>nota/load_data_customer/',
+          data : "id="+data,
+          dataType : "json",
+          success:function(data){
+            for(var i=0; i<data.val.length;i++){
+              document.getElementById("i_addres").value         = data.val[i].customer_address;
+              document.getElementById("i_telp").value           = data.val[i].customer_telp;  
+
+              $("#i_customer").append('<option value="'+data.val[i].customer_id+'" selected>'+data.val[i].customer_name+'</option>');           
+            }
+          }
+        });
+
+      $('#scanModal').modal('hide');
+    }
+
+    function get_focus(){
+      //alert("test")
+      document.getElementById("i_member_card").focus();
     }
 </script>
 </body>

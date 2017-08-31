@@ -391,6 +391,31 @@ class Nota extends MY_Controller {
 		}
 	}
 
+	public function load_data_customer(){
+		$tbl = 'customers a';
+		$select = 'a.*';
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'a.customer_card_no',
+			'param'	 => $this->input->get('id')
+		);
+
+		$query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,NULL,$where);
+		if ($query<>false) {
+
+			foreach ($query->result() as $val) {
+				$response['val'][] = array(
+					'customer_id' 			=> $val->customer_id,
+					'customer_name' 		=> $val->customer_name,
+					'customer_address' 		=> $val->customer_address,
+					'customer_telp' 		=> $val->customer_telp
+				);
+			}
+
+			echo json_encode($response);
+		}
+	}
+
 	public function action_data(){
 		$id = $this->input->post('i_id');
 		if (strlen($id)>0) {
@@ -1040,8 +1065,8 @@ class Nota extends MY_Controller {
 		$data['title'] 	= $judul;
 
 	    $html = $this->load->view('report/report_nota', $data, true);//SEND DATA TO VIEW
-	    $paper = 'A4';
-    	$orientation = 'potrait';
+	    $paper = 'A5';
+    	$orientation = 'landscape';
 	    
 	    $this->pdfgenerator->generate($html, str_replace(" ","_",$judul), $paper, $orientation);
 	}

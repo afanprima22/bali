@@ -29,12 +29,15 @@
     }
 
     ?>
-    <h4 align="center" style="font-size: 16px;"><b><?php echo $title; ?></b></h4>
+    <!--<h4 align="center" style="font-size: 16px;"><b><?php echo $title; ?></b></h4>-->
     <table class="table table-striped" border="0" width="100%" cellspacing="0">
       <thead>
         <tr>
+          <td colspan="3" style="font-size: 20px;text-align: center;"><b><?php echo $title; ?></b></td>
+        </tr>
+        <tr>
           <td width="50%">&nbsp;</td>
-          <td >No Nota</td>
+          <td width="10%">No Nota</td>
           <td><?=$nota_code?></td>
         </tr>
         <tr>
@@ -58,75 +61,81 @@
       <thead>
         <tr>
           <th>No</th>
-            <th>Barcode</th>
-            <th>Nama Barang</th>
-            <th>Satuan</th>
-            <th>Isi</th>
-            <th>Qty Order</th>
-            <th>Qty Dikirim</th>
+          <th>Qty</th>
+          <th>Ambil</th>
+          <th>Nama Barang</th>
+          <th>Satuan (Rp)</th>
+          <th>Potongan (Rp)</th>
+          <th>Jumlah (Rp)</th>
         </tr>
       </thead>
       <tbody>
       <?php
-        $sql = "select a.*,c.item_barcode,c.item_name,item_per_unit,d.unit_name,e.foreman_detail_qty from delivery_sends a
-                join nota_detail_orders b on b.nota_detail_order_id = a.nota_detail_order_id
-                join items c on c.item_id = b.item_id
-                join units d on d.unit_id = c.unit_id
-                left join foreman_details e on e.delivery_send_id = a.delivery_send_id
-                where a.delivery_detail_id = $nota_id";
+        $sql = "SELECT a.*,b.item_name,c.unit_name,d.qty_order,d.qty_ambil from nota_details a
+                join items b on b.item_id = a.item_id
+                join units c on c.unit_id = b.unit_id
+                join (SELECT z.nota_detail_id,(SUM(z.nota_detail_order_qty + z.nota_detail_order_now)) as qty_order,(SUM(z.nota_detail_order_now)) as qty_ambil from nota_detail_orders z group by z.nota_detail_id) d on d.nota_detail_id = a.nota_detail_id
+                where a.nota_id = $nota_id";
         $detail = $this->g_mod->select_manual_for($sql);
         $no = 1;
-        foreach ($detail->result() as $val2) {?>
+        $grand_total = 0;
+        $potongan = 0;
+        foreach ($detail->result() as $val2) {
+          $qty_order = $val2->qty_order + $val2->nota_detail_retail;
+          $total = $qty_order * $val2->nota_detail_price;
+          ?>
           <tr>
             <td><?=$no?></td>
-            <td><?=$val2->item_barcode?></td>
+            <td><?= number_format($qty_order).'('.$val2->unit_name.')'?></td>
+            <td><?=$val2->qty_ambil?></td>
             <td><?=$val2->item_name?></td>
-            <td><?=$val2->unit_name?></td>
-            <td><?=$val2->item_per_unit?></td>
-            <td><?=$val2->delivery_send_qty?></td>
-            <td><?=$val2->foreman_detail_qty?></td>
+            <td align="right"><?= number_format($val2->nota_detail_price)?></td>
+            <td align="right"><?= number_format($val2->nota_detail_promo)?></td>
+            <td align="right"><?= number_format($total)?></td>
           </tr>
         <? 
         $no++;
+        $grand_total += $total;
+        $potongan += $val2->nota_detail_promo;
         }?>
       </tbody>
     </table>
     <table class="table table-striped" border="0" width="100%" cellspacing="0" style="padding-top: 10px">
       <thead>
         <tr>
-          <td>Terbilang</td>
-          <td>Total</td>
-          <td>&nbsp;</td>
+          <td width="70%">Terbilang:</td>
+          <td width="10%">Total</td>
+          <td align="right"><?= number_format($grand_total)?></td>
         </tr>
         <tr>
-          <td>&nbsp;</td>
+          <td><?= ucwords(Terbilang($grand_total - $potongan))?></td>
           <td>Potongan</td>
-          <td>&nbsp;</td>
+          <td align="right"><?= number_format($potongan)?></td>
         </tr>
         <tr>
           <td>&nbsp;</td>
           <td>Uang Muka</td>
-          <td>&nbsp;</td>
+          <td align="right"><?= number_format($grand_total - $potongan)?></td>
         </tr>
         <tr>
           <td>&nbsp;</td>
           <td>Netto</td>
-          <td>&nbsp;</td>
+          <td align="right" ><p style="text-decoration: underline overline line-through;"><u><?= number_format($grand_total - $potongan)?></u></p></td>
         </tr>
         <tr>
           <td>&nbsp;</td>
           <td>Status</td>
-          <td>&nbsp;</td>
+          <td align="right"><?=$status?></td>
         </tr>
       </thead>
     </table>
     <table width="100%" border="0">
       <tr>
         <td align="center">Kasir</td>
-        <td align="center">Singaraja, 06-Jul-2017 13:37</td>
+        <td align="center">Singaraja, <?= date('d-M-Y H:i')?></td>
       </tr>
       <tr>
-        <td height="52">&nbsp;</td>
+        <td height="30">&nbsp;</td>
         <td>&nbsp;</td>
       </tr>
       <tr>
@@ -145,3 +154,27 @@
   </div>
 </body>
 </html>
+
+<?php
+function Terbilang($x)
+{
+  $abil = array("", "satu", "dua", "tiga", "empat", "lima", "enam", "tujuh", "delapan", "sembilan", "sepuluh", "sebelas");
+  if ($x < 12)
+    return " " . $abil[$x];
+  elseif ($x < 20)
+    return Terbilang($x - 10) . "belas";
+  elseif ($x < 100)
+    return Terbilang($x / 10) . " puluh" . Terbilang($x % 10);
+  elseif ($x < 200)
+    return " seratus" . Terbilang($x - 100);
+  elseif ($x < 1000)
+    return Terbilang($x / 100) . " ratus" . Terbilang($x % 100);
+  elseif ($x < 2000)
+    return " seribu" . Terbilang($x - 1000);
+  elseif ($x < 1000000)
+    return Terbilang($x / 1000) . " ribu" . Terbilang($x % 1000);
+  elseif ($x < 1000000000)
+    return Terbilang($x / 1000000) . " juta" . Terbilang($x % 1000000);
+}
+
+?>

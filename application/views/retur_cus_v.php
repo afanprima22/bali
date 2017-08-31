@@ -98,6 +98,7 @@
                                       <th>Qty Order</th>
                                       <th>Qty Return</th>
                                       <th>Keterangan</th>
+                                      <th>Status</th>
                                       <th>Config</th>
                                     </tr>
                                   </thead>
@@ -190,6 +191,7 @@
               {"name": "order","orderable": false},
               {"name": "retur_cus_detail_qty"},
               {"name": "retur_cus_detail_desc"},
+              {"name": "retur_cus_detail_status"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
             "order": [

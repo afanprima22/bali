@@ -206,8 +206,10 @@ class Retur_cus extends MY_Controller {
 
 					if ($val->retur_cus_detail_status == 0) {
 						$aksi = '<button class="btn btn-primary btn-xs" type="button" onclick="edit_data_detail('.$val->retur_cus_detail_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-danger btn-xs" onclick="delete_data_detail('.$val->retur_cus_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-xs" onclick="receipt_data_detail('.$val->retur_cus_detail_id.')"><i class="glyphicon glyphicon-check"></i></button>';
+						$status = "Belum Diterima";
 					}else{
-						$aksi = '';
+						$aksi = '<button class="btn btn-primary btn-xs" type="button" onclick="edit_data_detail('.$val->retur_cus_detail_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-danger btn-xs" onclick="delete_data_detail('.$val->retur_cus_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<button type="button" class="btn btn-info btn-xs" onclick="receipt_data_detail('.$val->retur_cus_detail_id.')"><i class="glyphicon glyphicon-check"></i></button>';
+						$status = "Sudah Diterima";
 					}
 
 					$response['data'][] = array(
@@ -215,6 +217,7 @@ class Retur_cus extends MY_Controller {
 						$order,
 						$val->retur_cus_detail_qty,
 						$val->retur_cus_detail_desc,
+						$status,
 						$aksi
 					);
 					$no++;	
