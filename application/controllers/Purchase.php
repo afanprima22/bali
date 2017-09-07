@@ -178,9 +178,6 @@ class Purchase extends MY_Controller {
 						$val->purchase_detail_qty,
 						$val->purchase_detail_price,
 						$val->purchase_detail_discount,
-						$val->purchase_detail_cost_transport,
-						$val->purchase_detail_cost_send,
-						$val->purchase_detail_cost_etc,
 						$val->purchase_detail_total,
 						'<a href="#myModal" class="btn btn-info btn-xs" data-toggle="modal" onclick="edit_data_detail('.$val->purchase_detail_id.')"><i class="glyphicon glyphicon-edit"></i></a>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_detail('.$val->purchase_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
 					);
@@ -291,9 +288,6 @@ class Purchase extends MY_Controller {
 			'purchase_detail_qty' 				=> $this->input->post('i_qty', TRUE),
 			'purchase_detail_price' 				=> $this->input->post('i_price', TRUE),
 			'purchase_detail_discount' 				=> $this->input->post('i_diskon', TRUE),
-			'purchase_detail_cost_transport' 				=> $this->input->post('i_angkut', TRUE),
-			'purchase_detail_cost_send' 				=> $this->input->post('i_send', TRUE),
-			'purchase_detail_cost_etc' 				=> $this->input->post('i_etc', TRUE),
 			'purchase_detail_total' 				=> $this->input->post('i_total', TRUE)
 			);
 			
@@ -440,9 +434,6 @@ class Purchase extends MY_Controller {
 					'purchase_detail_qty' 		=> $val->purchase_detail_qty,
 					'purchase_detail_price' 	=> $val->purchase_detail_price,
 					'purchase_detail_discount' 	=> $val->purchase_detail_discount,
-					'purchase_detail_cost_transport' 	=> $val->purchase_detail_cost_transport,
-					'purchase_detail_cost_send' 	=> $val->purchase_detail_cost_send,
-					'purchase_detail_cost_etc' 	=> $val->purchase_detail_cost_etc,
 					'purchase_detail_total' 	=> $val->purchase_detail_total,
 				);
 			}

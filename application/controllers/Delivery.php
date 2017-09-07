@@ -247,6 +247,7 @@ class Delivery extends MY_Controller {
 					'employee_id' 			=> $val->employee_id,
 					'employee_name' 		=> $val->employee_name,
 					'delivery_cost' 		=> $val->delivery_cost,
+					'delifery_freight_cost' => $val->delifery_freight_cost
 				);
 			}
 
@@ -422,7 +423,8 @@ class Delivery extends MY_Controller {
 		$data = array(
 			'employee_id' 		=> $this->input->post('i_employee', TRUE),
 			'delivery_date' 	=> $this->format_date_day_mid($this->input->post('i_date', TRUE)),
-			'delivery_cost' 	=> $this->input->post('i_cost', TRUE)
+			'delivery_cost' 	=> $this->input->post('i_cost', TRUE),
+			'delifery_freight_cost' 	=> $this->input->post('i_freight', TRUE)
 			);
 			
 
@@ -604,8 +606,8 @@ class Delivery extends MY_Controller {
 		$data['title'] 	= $judul;
 
 	    $html = $this->load->view('report/report_do', $data, true);//SEND DATA TO VIEW
-	    $paper = 'A4';
-    	$orientation = 'potrait';
+	    $paper = 'A5';
+    	$orientation = 'landscape';
 	    
 	    $this->pdfgenerator->generate($html, str_replace(" ","_",$judul), $paper, $orientation);
 	}

@@ -115,7 +115,7 @@
         <tr>
           <td>&nbsp;</td>
           <td>Uang Muka</td>
-          <td align="right"><?= number_format($grand_total - $potongan)?></td>
+          <td align="right"><?= number_format($nota_dp)?></td>
         </tr>
         <tr>
           <td>&nbsp;</td>

@@ -9,7 +9,7 @@ class Stokopname extends MY_Controller {
         parent::__construct();
         $this->check_user_access();
 
-        $akses = $this->g_mod->get_user_acces($this->user_id,82);
+        $akses = $this->g_mod->get_user_acces($this->user_id,85);
 		$this->permit = $akses['permit_acces'];
 	}
 

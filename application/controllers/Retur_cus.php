@@ -8,6 +8,7 @@ class Retur_cus extends MY_Controller {
 	public function __construct() {
         parent::__construct();
         $this->check_user_access();
+        $this->load->library('PdfGenerator');
 
         $akses = $this->g_mod->get_user_acces($this->user_id,81);
 		$this->permit = $akses['permit_acces'];
@@ -107,11 +108,12 @@ class Retur_cus extends MY_Controller {
 					
 					$response['data'][] = array(
 						$val->retur_cus_code,
+						$val->nota_code,
 						$val->retur_cus_date,
 						$val->customer_name,
 						number_format($val->retur_cus_total),
 						$status,
-						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->retur_cus_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->retur_cus_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
+						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->retur_cus_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->retur_cus_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<button class="btn btn-warning btn-xs" type="button" onclick="print_pdf('.$val->retur_cus_id.')" class="btn btn-primary"><i class="glyphicon glyphicon-print"></i></button>'
 					);
 					$no++;	
 				}
@@ -476,7 +478,7 @@ class Retur_cus extends MY_Controller {
 		$select = 'MID(retur_cus_code,9,5) as id';
 		$where['data'][] = array(
 			'column' => 'MID(retur_cus_code,1,8)',
-			'param'	 => 'RC'.$thn.''.$bln.''
+			'param'	 => 'RK'.$thn.''.$bln.''
 		);
 		$order['data'][] = array(
 			'column' => 'retur_cus_code',
@@ -487,7 +489,7 @@ class Retur_cus extends MY_Controller {
 			'finish' => 1
 		);
 		$query = $this->g_mod->select($select,$this->tbl,$limit,NULL,$order,NULL,$where);
-		$new_code = $this->format_kode_transaksi('RC',$query);
+		$new_code = $this->format_kode_transaksi('RK',$query);
 		return $new_code;
 	}
 
@@ -635,6 +637,77 @@ class Retur_cus extends MY_Controller {
 
 		echo json_encode($row['total_order']);
  	}
+
+ 	function print_retur_cus_pdf(){
+
+		$id = $this->input->get('id');
+		$select = ' a.*,e.customer_name,b.retur_cus_id,b.retur_cus_date,b.retur_cus_code,b.nota_id,d.nota_detail_id';
+		$tbl = 'retur_cus_details a';
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'a.retur_cus_id',
+			'param'	 => $id
+		);
+
+		
+
+		//JOIN
+		$join['data'][] = array(
+			'table' => 'retur_cus b',
+			'join'	=> 'b.retur_cus_id=a.retur_cus_id',
+			'type'	=> 'inner'
+		);
+
+		//JOIN
+		$join['data'][] = array(
+			'table' => 'notas c',
+			'join'	=> 'c.nota_id=b.nota_id',
+			'type'	=> 'inner'
+		);
+		$join['data'][] = array(
+			'table' => 'nota_details d',
+			'join'	=> 'd.nota_detail_id=a.nota_detail_id',
+			'type'	=> 'inner'
+		);
+		$join['data'][] = array(
+			'table' => 'Customers e',
+			'join'	=> 'e.customer_id=c.customer_id',
+			'type'	=> 'inner'
+		);
+
+		
+		$query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
+		foreach ($query->result() as $row){ 
+			if ($row->retur_cus_detail_status == 0) {
+            $status = 'Belum Diterima';
+          }elseif ($row->retur_cus_detail_status == 1) {
+            $status = 'Sudah Diterima';
+          }
+			$data = array(
+				'retur_cus_report_date' 		=> date("Y/m/d"),
+				'retur_cus_id' 				=> $row->retur_cus_id,
+				'retur_cus_date' 			=> $row->retur_cus_date, 
+				'retur_cus_code' 		=> $row->retur_cus_code,
+				'customer_name' 		=> $row->customer_name,
+				'nota_id' 				=> $row->nota_id,
+				'retur_cus_detail_id' 				=> $row->retur_cus_detail_id,
+				'retur_cus_detail_qty' 		=> $row->retur_cus_detail_qty,
+				'retur_cus_detail_status' 		=> $status,
+				'retur_cus_detail_desc'		=> $row->retur_cus_detail_desc,
+				'nota_detail_id'				=> $row->nota_detail_id,
+
+				);
+			$insert = $this->g_mod->insert_data_table('retur_cus_reports', NULL, $data);
+		}
+		$judul			= "Return Customer";
+		$data['title'] 	= $judul;
+
+	    $html = $this->load->view('report/report_retur_cus', $data, true);//SEND DATA TO VIEW
+	    $paper = 'A4';
+    	$orientation = 'portraitid';
+	    
+	    $this->pdfgenerator->generate($html, str_replace(" ","_",$judul), $paper, $orientation);
+	}
 
 
 	/* end Function */

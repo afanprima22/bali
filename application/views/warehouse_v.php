@@ -552,6 +552,10 @@
         
     }
 
+    function print_pdf(id){
+      window.open('<?php echo base_url();?>Warehouse/print_stock_pdf?id='+id);
+    }
+
     
 </script>
 </body>

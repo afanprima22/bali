@@ -92,7 +92,6 @@
                                       <th>nama barang</th>
                                       <th>jumlah order</th>
                                       <th>Qty diterima</th>
-                                      <th>id</th>
                                       <th>Qty sisa</th>
                                       <th >Config</th>
                                     </tr>
@@ -252,7 +251,6 @@
               {"name": "item_name"},
               {"name": "reception_detail_order"},
               {"name": "reception_detail_qty"},
-              {"name": "purchase_detail_id"},
               {"name": "reception_detail_order-purchase_detail_qty_akumulation"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
@@ -296,8 +294,9 @@
           success:function(data){
             for(var i=0; i<data.val.length;i++){
               document.getElementById("i_id").value             = data.val[i].reception_id;
-              $("#i_code").append('<option value="'+data.val[i].purchase_id+'" selected>'+data.val[i].purchase_code+'</option>');
               document.getElementById("datepicker").value           = data.val[i].reception_date;
+
+              $("#i_code").append('<option value="'+data.val[i].purchase_id+'" selected>'+data.val[i].purchase_code+'</option>');
               $("#i_warehouse").append('<option value="'+data.val[i].warehouse_id+'" selected>'+data.val[i].warehouse_name+'</option>');
               get_reception_id();
               search_data_detail(data.val[i].reception_id);
@@ -406,41 +405,6 @@
     function reset1(){
       $("#i_code option").remove();
       $("#i_warehouse option").remove();
-    }
-
-    /*function select_list_unit() {
-        $('#i_unit').select2({
-          placeholder: 'Pilih Satuan',
-          multiple: false,
-          allowClear: true,
-          ajax: {
-            url: '<?php echo base_url();?>Item/load_data_select_unit/',
-            dataType: 'json',
-            delay: 100,
-            cache: true,
-            data: function (params) {
-              return {
-                q: params.term, // search term
-                page: params.page
-              };
-            },
-            processResults: function (data, params) {
-              params.page = params.page || 1;
-
-              return {
-                results: data.items,
-                pagination: {
-                  more: (params.page * 30) < data.total_count
-                }
-              };
-            }
-          },
-          escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-          minimumInputLength: 1,
-          templateResult: FormatResult,
-          templateSelection: FormatSelection,
-        });
-      }*/
 
       function save_detail(){
         var id = document.getElementById("i_reception").value;
@@ -473,89 +437,29 @@
         $('input[name="i_order"]').val("");
         $('input[name="i_Qty"]').val("");
       }
+    }      
 
-      function edit_data_detail(id){
-        $.ajax({
-          type : "GET",
-          url  : '<?php echo base_url();?>Reception/load_data_where_detail/',
-          data : "id="+id,
-          dataType : "json",
-          success:function(data){
-           var reception_id = $('input[name="i_id"]').val();
-      //alert(purchase_id);
-              $('input[name="i_reception"]').val(reception_id);
-            for(var i=0; i<data.val.length;i++){
-              $('input[name="i_detail_id"]').val(data.val[i].purchase_detail_id);
-              $('input[name="i_detail_reception"]').val(data.val[i].reception_detail_id);
-              $('input[name="i_barcode"]').val(data.val[i].item_barcode);
-              $('input[name="i_item"]').val(data.val[i].item_id).val(data.val[i].item_name);
-              $('input[name="i_order"]').val(data.val[i].reception_detail_order);
-              $('input[name="i_Qty"]').val(data.val[i].reception_detail_qty);
-
-            }
-          }
-        });
-      }
-
-      /*function select_list_item(id) {
-        $('#i_item').select2({
-          placeholder: 'Pilih Barang',
-          multiple: false,
-          allowClear: true,
-          ajax: {
-            url: '<?php echo base_url();?>Purchase/load_data_select_detail/'+id,
-            dataType: 'json',
-            delay: 100,
-            cache: true,
-            data: function (params) {
-              return {
-                q: params.term, // search term
-                page: params.page
-              };
-            },
-            processResults: function (data, params) {
-              params.page = params.page || 1;
-
-              return {
-                results: data.items,
-                pagination: {
-                  more: (params.page * 30) < data.total_count
-                }
-              };
-            }
-          },
-          escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-          minimumInputLength: 1,
-          templateResult: FormatResult,
-          templateSelection: FormatSelection,
-        });
-      }*/
-
-      
-
-      function delete_data_detail(id_detail) {
-        var id = document.getElementById("i_detail_reception").value;
-        if (id) {
-          var id_new = id;
-        }else{
-          var id_new = 0;
-        }
-
-        var a = confirm("Anda yakin ingin menghapus record ini ?");
-        if(a==true){
-            $.ajax({
-                url: '<?php echo base_url();?>Reception/delete_data_detail',
-                data: 'id='+id_detail,
-                type: 'POST',
-                dataType: 'json',
-                success: function (data) {
-                  if (data.status=='200') {
-                    search_data_detail(id_new);
-                  }
-                }
-            });
-        }
-        
+    function delete_data_detail(id_detail) {
+       var id = document.getElementById("i_detail_reception").value;
+       if (id) {
+         var id_new = id;
+       }else{
+         var id_new = 0;
+       }
+       var a = confirm("Anda yakin ingin menghapus record ini ?");
+       if(a==true){
+           $.ajax({
+               url: '<?php echo base_url();?>Reception/delete_data_detail',
+               data: 'id='+id_detail,
+               type: 'POST',
+               dataType: 'json',
+               success: function (data) {
+                 if (data.status=='200') {
+                   search_data_detail(id_new);
+                 }
+               }
+           });
+       }
     }
 
     function reception_detail(id){
@@ -730,9 +634,13 @@
     }
 
     function get_detail_reception(value,id){
-      //alert(warehouse_id);
-      
-       var id_reception = document.getElementById("i_detail_reception").value;
+     var qty =  $('input[name="i_sisa_qty"]').val();
+     if (value>qty) {
+      alert("Qty penerimaan tidak boleh lebih dari sisa");
+      var value = 0;
+
+     };
+       var id_reception = document.getElementById("i_id").value;
         if (id_reception) {
           var id_new = id_reception;
         }else{

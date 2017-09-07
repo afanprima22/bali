@@ -156,8 +156,8 @@ class Cash extends MY_Controller {
 		);
 	    //JOIN
 		$join['data'][] = array(
-			'table' => 'warehouses d',
-			'join'	=> 'd.warehouse_id=a.warehouse_id',
+			'table' => 'warehouses e',
+			'join'	=> 'e.warehouse_id=a.warehouse_id',
 			'type'	=> 'inner'
 		);
 	    
@@ -179,6 +179,7 @@ class Cash extends MY_Controller {
 	          'cash_type'    		=> $val->cash_type,
 	          'warehouse_id'   		=> $val->warehouse_id,
 	          'warehouse_name'    	=> $val->warehouse_name,
+	          'cash_desc'    	=> $val->cash_desc,
 	        );
 	      }
 
@@ -322,15 +323,18 @@ class Cash extends MY_Controller {
 
 
 	function general_post_data($id){
-
+		$type =$this->input->post('i_type', TRUE);
 		if (!$id) {
 			$data['cash_code'] = $this->get_code_cash();
+		}
+		if (!$type) {
+			$type = 0;
 		}
 
 		$data['coa_id'] = $this->input->post('i_coa', TRUE);
 		$data['coa_id2'] = $this->input->post('i_coa2', TRUE);
 		$data['coa_id3'] = $this->input->post('i_coa3', TRUE);
-		$data['cash_type'] = $this->input->post('i_type', TRUE);
+		$data['cash_type'] = $type;
 		$data['cash_date'] = $this->format_date_day_mid($this->input->post('i_cash_date', TRUE));
 		$data['cash_nominal'] =$this->input->post('i_nominal', TRUE);
 		$data['warehouse_id'] =$this->input->post('i_warehouse', TRUE);
@@ -357,6 +361,98 @@ class Cash extends MY_Controller {
 		echo json_encode($response);
 	}
 
+	public function load_data_review(){
 
+		$id =$this->input->get('id');
+		$id2 = $this->format_date_day_mid($id);
+		$u = 'disabled'; $d = 'disabled';
+		if (strpos($this->permit, 'u') !== false){
+			$u = '';
+		}else{
+
+		}
+		if (strpos($this->permit, 'd') !== false){
+			$d = '';
+		}
+		$tbl = 'cashs a';
+		$select = 'a.*,e.warehouse_name,b.coa_nomor,b.coa_name,c.coa_nomor as nomor1,c.coa_name as name1,d.coa_nomor as  nomor2,d.coa_name as name2';
+		//LIMIT
+		$limit = array(
+			'start'  => $this->input->get('start'),
+			'finish' => $this->input->get('length')
+		);
+		//WHERE LIKE
+		$where_like['data'][] = array(
+			'column' => 'b.coa_name',
+			'param'	 => $this->input->get('search[value]')
+		);
+		//ORDER
+		$index_order = $this->input->get('order[0][column]');
+		$order['data'][] = array(
+			'column' => $this->input->get('columns['.$index_order.'][name]'),
+			'type'	 => $this->input->get('order[0][dir]')
+		);		
+
+		//JOIN
+		$join['data'][] = array(
+			'table' => 'coas b',
+			'join'	=> 'b.coa_id=a.coa_id',
+			'type'	=> 'inner'
+		);
+		$join['data'][] = array(
+			'table' => 'coas c',
+			'join'	=> 'c.coa_id=a.coa_id2',
+			'type'	=> 'inner'
+		);
+		$join['data'][] = array(
+			'table' => 'coas d',
+			'join'	=> 'd.coa_id=a.coa_id3',
+			'type'	=> 'inner'
+		);
+		$join['data'][] = array(
+			'table' => 'warehouses e',
+			'join'	=> 'e.warehouse_id=a.warehouse_id',
+			'type'	=> 'inner'
+		);
+
+		$where['data'][]=array(
+			'column'	=>'cash_date',
+			'param'		=>$id2
+		);
+
+
+		$query_total = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
+		$query_filter = $this->g_mod->select($select,$tbl,NULL,$where_like,$order,$join,$where);
+		$query = $this->g_mod->select($select,$tbl,$limit,$where_like,$order,$join,$where);
+
+		$response['data'] = array();
+		if ($query<>false) {
+			$no = $limit['start']+1;
+			foreach ($query->result() as $val) {
+				if ($val->cash_id>0) {
+					$response['data'][] = array(
+						$val->cash_date,
+						$val->warehouse_name,
+						$val->cash_nominal,
+						$val->coa_name.'  '.$val->coa_nomor,
+						$val->name1.'  '.$val->nomor1,
+						$val->name2.'  '.$val->nomor2,
+					);
+					$no++;	
+				}
+			}
+		}
+
+		$response['recordsTotal'] = 0;
+		if ($query_total<>false) {
+			$response['recordsTotal'] = $query_total->num_rows();
+		}
+		$response['recordsFiltered'] = 0;
+		if ($query_filter<>false) {
+			$response['recordsFiltered'] = $query_filter->num_rows();
+		}
+
+		echo json_encode($response);
+	}
 
 }

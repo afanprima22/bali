@@ -8,6 +8,7 @@ class Warehouse extends MY_Controller {
 	public function __construct() {
         parent::__construct();
         $this->check_user_access();
+        $this->load->library('PdfGenerator');
 
         $akses = $this->g_mod->get_user_acces($this->user_id,69);
 		$this->permit = $akses['permit_acces'];
@@ -89,7 +90,7 @@ class Warehouse extends MY_Controller {
 						$val->warehouse_telp,
 						$val->warehouse_fax,
 						$val->warehouse_pic,
-						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->warehouse_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->warehouse_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
+						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->warehouse_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->warehouse_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<button class="btn btn-warning btn-xs" type="button" onclick="print_pdf('.$val->warehouse_id.')" class="btn btn-primary"><i class="glyphicon glyphicon-print"></i></button>'
 					);
 					$no++;	
 				}
@@ -690,6 +691,71 @@ class Warehouse extends MY_Controller {
 		}
 
 		echo json_encode($response);
+	}
+
+	function print_stock_pdf(){
+
+		$id = $this->input->get('id');
+		$tbl = 'racks a';
+		$select = 'a.*,b.rack_detail_id,c.item_id,c.item_per_unit,d.stock_qty';
+				
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'warehouse_id',
+			'param'	 => $id
+		);
+
+		//JOIN
+		$join['data'][] = array(
+			'table' => 'rack_details b',
+			'join'	=> 'b.rack_id=a.rack_id',
+			'type'	=> 'inner'
+		);
+
+		//JOIN
+		$join['data'][] = array(
+			'table' => 'items c',
+			'join'	=> 'c.item_id=b.item_id',
+			'type'	=> 'inner'
+		);
+
+		//JOIN
+		$join['data'][] = array(
+			'table' => 'stocks d',
+			'join'	=> 'd.item_id=b.item_id and d.rack_id=b.rack_id',
+			'type'	=> 'inner'
+		);
+
+		
+		$query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
+		foreach ($query->result() as $row){ 
+			if ($row->stock_qty == 0) {
+						$stock = 0;
+					}else{
+						$mod = fmod($row->stock_qty, $row->item_per_unit);
+						$stock = ($row->stock_qty - $mod) / $row->item_per_unit;
+
+					}
+					
+			$data = array(
+				'stock_report_date' 		=> date("Y/m/d"),
+				'rack_id' 				=> $row->rack_id,
+				'item_id' 		=> $row->item_id,
+				'stock_report_qty' 			=> $stock, 
+				'stock_qty' 		=> $row->stock_qty,
+				'warehouse_id' 				=> $row->warehouse_id,
+
+				);
+			$insert = $this->g_mod->insert_data_table('stock_reports', NULL, $data);
+		}
+		$judul			= "Stock Barang Per Gudang";
+		$data['title'] 	= $judul;
+
+	    $html = $this->load->view('report/report_stock', $data, true);//SEND DATA TO VIEW
+	    $paper = 'A4';
+    	$orientation = 'portraitid';
+	    
+	    $this->pdfgenerator->generate($html, str_replace(" ","_",$judul), $paper, $orientation);
 	}
 
 	/* end Function */

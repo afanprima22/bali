@@ -90,9 +90,6 @@
                                       <th>Qty</th>
                                       <th>Harga</th>
                                       <th>Diskon</th>
-                                      <th>Biaya angkut</th>
-                                      <th>Biaya kirim</th>
-                                      <th>Biaya lain</th>
                                       <th>Total</th>
                                       <th >Config</th>
                                     </tr>
@@ -132,7 +129,7 @@
                             
                             <div class="box-content">
                               <div class="row">
-                      <div class="col-md-3">
+                      <div class="col-md-4">
                           <input type="hidden" class="form-control" name="i_purchase_detail_id" id="i_purchase_detail_id" placeholder="Auto" value="" readonly="">
                           
                           <div class="form-group">
@@ -144,7 +141,7 @@
                             <input type="number" class="form-control" onchange="total(this.value)" name="i_qty" placeholder="Masukkan Quantity" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                           </div>
                       </div>
-                      <div class="col-md-3">
+                      <div class="col-md-4">
                         <div class="form-group">
                             <label>Harga</label>
                             <input type="number" class="form-control" onchange="total2(this.value)" name="i_price" id="i_price" placeholder="Masukkan Harga" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
@@ -154,22 +151,7 @@
                             <input type="number" class="form-control" onchange="diskon(this.value)" name="i_diskon" placeholder="Masukkan Diskon" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                           </div>
                       </div>
-                      <div class="col-md-3">
-                        <div class="form-group">
-                            <label>Biaya angkut</label>
-                            <input type="number" class="form-control" onchange="angkut(this.value)" name="i_angkut" placeholder="Masukkan biaya angkut" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
-                        </div>
-                        <div class="form-group">
-                            <label>Biaya Kirim</label>
-                            <input type="number" class="form-control" onchange="send(this.value)" name="i_send" placeholder="masukkan biaya kirim" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
-                        </div>
-                      </div>
-                      <div class="col-md-3">
-                          <div class="form-group">
-                            <label>Biaya Lain</label>
-                            <input type="number" class="form-control" onchange="etc(this.value)" name="i_etc" placeholder="masukkan biaya lain" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
-                          </div>
-                          
+                      <div class="col-md-4">
                           <div class="form-group">
                             <label>Total</label>
                             <input type="text" class="form-control" readonly="" name="i_total" placeholder="Total" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
@@ -248,9 +230,6 @@
               {"name": "purchase_detail_qty"},
               {"name": "purchase_detail_price"},
               {"name": "purchase_detail_discount"},
-              {"name": "purchase_detail_cost_transport"},
-              {"name": "purchase_detail_cost_send"},
-              {"name": "purchase_detail_cost_etc"},
               {"name": "purchase_detail_total"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
@@ -331,13 +310,11 @@
             for(var i=0; i<data.val.length;i++){
               document.getElementById("i_id").value             = data.val[i].purchase_id;
               document.getElementById("datepicker").value           = data.val[i].purchase_date;
-/*              document.getElementById("i_partner").value         = data.val[i].partner_id;
-*/              $("#i_partner").append('<option value="'+data.val[i].partner_id+'" selected>'+data.val[i].partner_name+'</option>');
+              $("#i_partner").append('<option value="'+data.val[i].partner_id+'" selected>'+data.val[i].partner_name+'</option>');
               document.getElementById("datepicker2").value      = data.val[i].purchase_tempo;
               document.getElementById("i_desc").value         = data.val[i].purchase_desc;
               get_purchase_id();
-              search_data_detail(data.val[i].purchase_id);/*
-               $("#i_item").append('<option value="'+data.val[i].item_clas_name+'" selected></option>');*/
+              search_data_detail(data.val[i].purchase_id);
             }
           }
         });
@@ -453,9 +430,6 @@
               $('input[name="i_qty"]').val("");
               $('input[name="i_price"]').val("");
               $('input[name="i_diskon"]').val("");
-              $('input[name="i_angkut"]').val("");
-              $('input[name="i_send"]').val("");
-              $('input[name="i_etc"]').val("");
               $('input[name="i_total"]').val("");
       }
 
@@ -475,9 +449,6 @@
               $('input[name="i_qty"]').val(data.val[i].purchase_detail_qty);
               $('input[name="i_price"]').val(data.val[i].purchase_detail_price);
               $('input[name="i_diskon"]').val(data.val[i].purchase_detail_discount);
-              $('input[name="i_angkut"]').val(data.val[i].purchase_detail_cost_transport);
-              $('input[name="i_send"]').val(data.val[i].purchase_detail_cost_send);
-              $('input[name="i_etc"]').val(data.val[i].purchase_detail_cost_etc);
               $('input[name="i_total"]').val(data.val[i].purchase_detail_total);
 
             }
@@ -535,28 +506,12 @@
       function reset5(){
               $('input[name="i_qty"]').val("");
               $('input[name="i_diskon"]').val("");
-              $('input[name="i_angkut"]').val("");
-              $('input[name="i_send"]').val("");
-              $('input[name="i_etc"]').val("");
       }
 //TOTAL
       function total(id){
         var price = $('input[name="i_price"]').val();
-        var angkut = $('input[name="i_angkut"]').val();
-        var send = $('input[name="i_send"]').val();
-        var etc = $('input[name="i_etc"]').val();
-        var price = $('input[name="i_price"]').val();
         var diskon = $('input[name="i_diskon"]').val();
-        if (!angkut) {
-          var angkut =0;
-          
-        };if (!send) {
-          var send =0;
-          
-        };if (!etc) {
-          var etc =0;
-          
-        };if (!price) {
+       if (!price) {
           var price =0;
           
         };if (!diskon) {
@@ -572,7 +527,7 @@
         var total = (parseFloat(total2)/100)
         var total4 = (parseFloat(total1)-parseFloat(total));
 
-        var subtotal = (parseFloat(total4)+parseFloat(angkut)+parseFloat(send)+parseFloat(etc));
+        var subtotal = parseFloat(total4);
       $('input[name="i_total"]').val(parseFloat(subtotal));
       }
 
@@ -591,21 +546,9 @@
     }
       function price(){
         var price = $('input[name="i_price"]').val();
-        var angkut = $('input[name="i_angkut"]').val();
-        var send = $('input[name="i_send"]').val();
-        var etc = $('input[name="i_etc"]').val();
         var Qty = $('input[name="i_qty"]').val();
         var diskon = $('input[name="i_diskon"]').val();
-        if (!angkut) {
-          var angkut =0;
-          
-        };if (!send) {
-          var send =0;
-          
-        };if (!etc) {
-          var etc =0;
-          
-        };if (!diskon) {
+        if (!diskon) {
           var diskon =0;
           
         };if (!Qty) {
@@ -622,7 +565,7 @@
         var total = (parseFloat(total2)/100)
         var total4 = (parseFloat(total1)-parseFloat(total));
 
-        var subtotal = (parseFloat(total4)+parseFloat(angkut)+parseFloat(send)+parseFloat(etc));
+        var subtotal = parseFloat(total4);
       $('input[name="i_total"]').val(parseFloat(subtotal));
       }
       function reset4(){
@@ -630,21 +573,9 @@
       }
 
       function diskon(id){
-        var angkut = $('input[name="i_angkut"]').val();
-        var send = $('input[name="i_send"]').val();
-        var etc = $('input[name="i_etc"]').val();
         var price = $('input[name="i_price"]').val();
         var Qty = $('input[name="i_qty"]').val();
-        if (!angkut) {
-          var angkut =0;
-          
-        };if (!send) {
-          var send =0;
-          
-        };if (!etc) {
-          var etc =0;
-          
-        };if (!Qty) {
+        if (!Qty) {
           var Qty =0;
           
         };
@@ -667,124 +598,9 @@
         var total2 = (parseFloat(id)*parseFloat(total1));
         var total = (parseFloat(total2)/100)
         var total4 = (parseFloat(total1)-parseFloat(total));
-        var subtotal = (parseFloat(total4)+parseFloat(angkut)+parseFloat(send)+parseFloat(etc));
+        var subtotal = parseFloat(total4);
        
       $('input[name="i_total"]').val(subtotal);
-      }
-
-      function angkut(id){
-
-        var send = $('input[name="i_send"]').val();
-        var etc = $('input[name="i_etc"]').val();
-        var price = $('input[name="i_price"]').val();
-        var Qty = $('input[name="i_qty"]').val();
-        var diskon = $('input[name="i_diskon"]').val();
-        if (!diskon) {
-          var diskon =0;
-          
-        };if (!send) {
-          var send =0;
-          
-        };if (!etc) {
-          var etc =0;
-          
-        };if (!Qty) {
-          var Qty =0;
-          
-        };
-        if (!id) {
-          var id =0;
-          
-        };if (!price) {
-          var price =0;
-          
-        };
-
-        
-        var total1 = (parseFloat(Qty)*parseFloat(price));
-        var total2 = (parseFloat(diskon)*parseFloat(total1));
-        var total = (parseFloat(total2)/100)
-        var total4 = (parseFloat(total1)-parseFloat(total));
-
-        var subtotal = (parseFloat(id)+parseFloat(total4)+parseFloat(send)+parseFloat(etc));
-
-        $('input[name="i_total"]').val(subtotal);
-      }
-      function send(id){
-        var price = $('input[name="i_price"]').val();
-        var Qty = $('input[name="i_qty"]').val();
-        var diskon = $('input[name="i_diskon"]').val();
-        var angkut = $('input[name="i_angkut"]').val();
-        var etc = $('input[name="i_etc"]').val();
-        if (!diskon) {
-          var diskon =0;
-          
-        };
-        if (!etc) {
-          var etc =0;
-          
-        };
-        if (!angkut) {
-          var angkut =0;
-          
-        };
-        if (!Qty) {
-          var Qty =0;
-          
-        };
-        if (!id) {
-          var id =0;
-          
-        };if (!price) {
-          var price =0;
-          
-        };
-        var total1 = (parseFloat(Qty)*parseFloat(price));
-        var total2 = (parseFloat(diskon)*parseFloat(total1));
-        var total = (parseFloat(total2)/100)
-        var total4 = (parseFloat(total1)-parseFloat(total));
-
-        var subtotal = (parseFloat(id)+parseFloat(total4)+parseFloat(angkut));
-
-        $('input[name="i_total"]').val(subtotal);
-      }
-      function etc(id){
-        var price = $('input[name="i_price"]').val();
-        var Qty = $('input[name="i_qty"]').val();
-        var diskon = $('input[name="i_diskon"]').val();
-        var angkut = $('input[name="i_angkut"]').val();
-        var send = $('input[name="i_send"]').val();
-        if (!diskon) {
-          var diskon =0;
-          
-        };
-        if (!send) {
-          var send =0;
-          
-        };
-        if (!angkut) {
-          var angkut =0;
-          
-        };
-        if (!Qty) {
-          var Qty =0;
-          
-        };
-        if (!id) {
-          var id =0;
-          
-        };if (!price) {
-          var price =0;
-          
-        };
-        var total1 = (parseFloat(Qty)*parseFloat(price));
-        var total2 = (parseFloat(diskon)*parseFloat(total1));
-        var total = (parseFloat(total2)/100)
-        var total4 = (parseFloat(total1)-parseFloat(total));
-
-        var subtotal = (parseFloat(id)+parseFloat(total4)+parseFloat(angkut)+parseFloat(send));
-
-        $('input[name="i_total"]').val(subtotal);
       }
     
     

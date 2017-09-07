@@ -98,6 +98,7 @@ class Price extends MY_Controller {
 						$val->brand_name,
 						$val->change_price_type,
 						$val->change_price_persentase,
+						$val->change_price_date,
 						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->change_price_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->change_price_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
 					);
 					$no++;	
@@ -140,6 +141,7 @@ class Price extends MY_Controller {
 					'brand_name' 		=> $val->brand_name,
 					'change_price_type' 		=> $val->change_price_type,
 					'change_price_persentase' 		=> $val->change_price_persentase,
+					'change_price_date' 		=> $val->change_price_date,
 				);
 			}
 
@@ -161,6 +163,7 @@ class Price extends MY_Controller {
 				'param'	 => $id
 			);
 			$update = $this->g_mod->update_data_table($this->tbl, $where, $data);
+			$this->action_data_item($id3);
 			if($update->status) {
 				$response['status'] = '200';
 				$response['alert'] = '2';
@@ -172,6 +175,7 @@ class Price extends MY_Controller {
 			$data = $this->general_post_data();
 			//echo $data['purchase_img'];
 			$insert = $this->g_mod->insert_data_table($this->tbl, NULL, $data);
+			$this->action_data_item($id3);
 			$data2['change_price_id'] = $insert->output;
 			//WHERE
 			$where2['data'][] = array(
@@ -204,6 +208,7 @@ class Price extends MY_Controller {
 			'brand_id' 				=> $this->input->post('i_brand', TRUE),
 			'change_price_type' 		=> $this->input->post('i_type',TRUE),
 			'change_price_persentase' 		=> $this->input->post('i_persentase',TRUE),
+			'change_price_date' 		=> $this->format_date_day_mid($this->input->post('i_date_price',TRUE))
 			);
 
 		return $data;
@@ -475,19 +480,7 @@ class Price extends MY_Controller {
 			);
 
 		$insert = $this->g_mod->insert_data_table('change_price_details', NULL, $data2);
-		$where3['data'][]=array(
-			'column'	=>'item_id',
-			'param'		=>$row->item_id
-			);
-		$data3 = array(
-			'item_id' 				=>  $this->input->post('item_id<?='.$row->item_id.'?>'),
-			'item_price1' 				=> $this->input->post('item_price1<?='.$row->item_id.'?>'),
-			'item_price2' 				=>  $this->input->post('item_price2<?='.$row->item_id.'?>'),
-			'item_price3' 				=>  $this->input->post('item_price3<?='.$row->item_id.'?>'),
-			'item_price4' 				=>  $this->input->post('item_price4<?='.$row->item_id.'?>'),
-			'item_price5' 				=>  $this->input->post('item_price5<?='.$row->item_id.'?>'),
-			);
-		$update = $this->g_mod->update_data_table('items', $where3, $data3);
+		
 		if($insert->status) {
 			$response['status'] = '200';
 			$response['alert'] = '3';
@@ -504,15 +497,15 @@ class Price extends MY_Controller {
 			$price5 = $row->item_price5;
 
 			$value1 = $price1*$persen/100;
-			$values1 = $price1-$value1;
+			$values1 = $price1+$value1;
 			$value2 = $price2*$persen/100;
-			$values2 = $price2-$value2;
+			$values2 = $price2+$value2;
 			$value3 = $price3*$persen/100;
-			$values3 = $price3-$value3;
+			$values3 = $price3+$value3;
 			$value4 = $price4*$persen/100;
-			$values4 = $price4-$value4;
+			$values4 = $price4+$value4;
 			$value5 = $price5*$persen/100;
-			$values5 = $price5-$value5;
+			$values5 = $price5+$value5;
 
 
 
@@ -534,6 +527,110 @@ class Price extends MY_Controller {
 
 			
 		$insert = $this->g_mod->insert_data_table('change_price_details', NULL, $data2);
+		
+		}
+	}
+
+
+		}
+		if($insert->status) {
+			$response['status'] = '200';
+			$response['alert'] = '3';
+		} else {
+			$response['status'] = '204';
+		}
+		echo json_encode($response);
+	}
+
+	public function delete_data_detail(){
+		$id = 0;
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'change_price_id',
+			'param'	 => $id
+		);
+		$delete = $this->g_mod->delete_data_table('change_price_details', $where);
+		if($delete->status) {
+			$response['status'] = '200';
+			$response['alert'] = '3';
+		} else {
+			$response['status'] = '204';
+		}
+
+		echo json_encode($response);
+	}
+
+
+	public function action_data_item($id3){
+		$id2 = $this->input->post('i_brand');
+		$type = $this->input->post('i_type');
+		$persen = $this->input->post('i_persentase');
+		$tbl = 'items';
+		$select = '*';
+		//LIMIT
+		$limit = array(
+			'start'  => $this->input->get('start'),
+			'finish' => $this->input->get('length')
+		);
+		//WHERE LIKE
+		$where_like['data'][] = array(
+			'column' => 'item_name',
+			'param'	 => $this->input->get('search[value]')
+		);
+		$where['data'][] = array(
+			'column'	=>'brand_id',
+			'param'	=>$id2
+			);
+		
+		//ORDER
+		$index_order = $this->input->get('order[0][column]');
+		$order['data'][] = array(
+			'column' => $this->input->get('columns['.$index_order.'][name]'),
+			'type'	 => $this->input->get('order[0][dir]')
+		);
+			
+		
+		$query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,NULL,$where);
+		foreach ($query->result() as $row){ 
+			if ($id3==2) {
+			$row->item_id;
+		$where3['data'][]=array(
+			'column'	=>'item_id',
+			'param'		=>$row->item_id
+			);
+		$data3 = array(
+			'item_id' 				=>  $this->input->post('item_id<?='.$row->item_id.'?>'),
+			'item_price1' 				=> $this->input->post('item_price1<?='.$row->item_id.'?>'),
+			'item_price2' 				=>  $this->input->post('item_price2<?='.$row->item_id.'?>'),
+			'item_price3' 				=>  $this->input->post('item_price3<?='.$row->item_id.'?>'),
+			'item_price4' 				=>  $this->input->post('item_price4<?='.$row->item_id.'?>'),
+			'item_price5' 				=>  $this->input->post('item_price5<?='.$row->item_id.'?>'),
+			);
+		$update = $this->g_mod->update_data_table('items', $where3, $data3);
+		
+		
+		}else{
+			if ($this->input->post('item_id<?='.$row->item_id.'?>',TRUE)) {
+			$price1 = $row->item_price1;
+			$price2 = $row->item_price2;
+			$price3 = $row->item_price3;
+			$price4 = $row->item_price4;
+			$price5 = $row->item_price5;
+
+			$value1 = $price1*$persen/100;
+			$values1 = $price1+$value1;
+			$value2 = $price2*$persen/100;
+			$values2 = $price2+$value2;
+			$value3 = $price3*$persen/100;
+			$values3 = $price3+$value3;
+			$value4 = $price4*$persen/100;
+			$values4 = $price4+$value4;
+			$value5 = $price5*$persen/100;
+			$values5 = $price5+$value5;
+
+
+
+			$row->item_id;
 		$where3['data'][]=array(
 			'column'	=>'item_id',
 			'param'		=>$row->item_id
@@ -552,12 +649,5 @@ class Price extends MY_Controller {
 
 
 		}
-		if($insert->status) {
-			$response['status'] = '200';
-			$response['alert'] = '3';
-		} else {
-			$response['status'] = '204';
-		}
-		echo json_encode($response);
 	}
 }

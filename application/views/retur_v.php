@@ -44,7 +44,7 @@
                           </div>
                           <div class="form-group">
                             <label>code Pembelian</label>
-                            <select class="form-control select2" onchange="select_list_item(this.value)" name="i_code" id="i_code" style="width: 100%;" required="required" value=""></select>
+                            <select class="form-control select2" onchange="select_list_item(this.value), supplier(this.value)" name="i_code" id="i_code" style="width: 100%;" required="required" value=""></select>
                           </div>
                         </div>
                         <div class="col-md-6">
@@ -56,6 +56,10 @@
                               </div>
                               <input type="text" class="form-control pull-right" id="datepicker" name="i_date" placeholder="Tanggal return" value="" required="required">
                             </div>
+                          </div>
+                          <div class="form-group">
+                            <label>Supplier</label>
+                            <input type="text" class="form-control" name="i_partner" id="i_partner" placeholder="Nama supplier" value="" readonly="">
                           </div>
                         </div>
                         
@@ -71,15 +75,23 @@
                                   <thead>
                                     <tr>
                                         <td><input type="text" class="form-control" name="i_detail" id="i_detail" placeholder="Auto" value="" readonly=""></td>
-                                        <td><select class="form-control select2" style="width: 100%;" onchange="retur_detail(this.value)" name="i_item" id="i_item" style="width: 85%;" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
-                                        <td><input type="text" class="form-control" name="i_qty" id="i_qty" placeholder="jumlah return" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                        <td><select class="form-control select2" style="width: 100%;" onchange="retur_detail(this.value),reception(this.value)" name="i_item" id="i_item" style="width: 85%;" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
+                                        <td><input type="text" class="form-control" readonly="" name="i_qty" id="i_qty" placeholder="qty pembelian" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                        <td><input type="text" class="form-control" readonly="" name="i_qty_terima" id="i_qty_terima" placeholder="Qty diterima" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                        <td><input type="text" class="form-control" readonly="" name="i_qty_sisa" id="i_qty_sisa" placeholder="Qty sisa" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                        <td><input type="number" class="form-control" onchange="cek(this.value)" name="i_qty_return" id="i_qty_return" placeholder="jumlah return" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                        <td><input type="text" class="form-control" name="i_desc" id="i_desc" placeholder="keterangan" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
                                          <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan detail</button></td>
                                         
                                     </tr>
                                     <tr>
                                       <th>id</th>
                                       <th>Nama barang</th>
-                                      <th>Qty</th>
+                                      <th>Qty pembelian</th>
+                                      <th>Qty terima</th>
+                                      <th>Qty sisa</th>
+                                      <th>Qty return</th>
+                                      <th>Keterangan</th>
                                       <th >Config</th>
                                     </tr>
                                   </thead>
@@ -287,6 +299,10 @@
         $('input[name="i_detail"]').val("");
         $("#i_item option").remove("");
         $('input[name="i_qty"]').val("");
+        $('input[name="i_qty_terima"]').val("");
+        $('input[name="i_qty_sisa"]').val("");
+        $('input[name="i_qty_return"]').val("");
+        $('input[name="i_desc"]').val("");
       }
 
       function search_data_detail(id) { 
@@ -302,7 +318,11 @@
             "columns": [
               {"name": "retur_supplier_detail_id"},
               {"name": "item_name"},
+              {"name": "purchase_detail_qty"},
+              {"name": "reception_detail_qty"},
+              {"name": "purchase_detail_qty-purchase_detail_qty_akumulation"},
               {"name": "retur_supplier_detail_qty"},
+              {"name": "retur_supplier_detail_desc"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
             "order": [
@@ -328,6 +348,10 @@
               $('input[name="i_detail"]').val(data.val[i].retur_supplier_detail_id);
               $("#i_item").append('<option value="'+data.val[i].purchase_detail_id+'" selected>'+data.val[i].item_name+'</option>');
               $('input[name="i_qty"]').val(data.val[i].retur_supplier_detail_qty);
+              $('input[name="i_qty_terima"]').val(data.val[i].reception_detail_qty);
+              $('input[name="i_qty_sisa"]').val(data.val[i].purchase_detail_qty_akumulation);
+              $('input[name="i_qty_return"]').val(data.val[i].retur_supplier_detail_qty);
+              $('input[name="i_desc"]').val(data.val[i].retur_supplier_detail_desc);
 
             }
           }
@@ -367,13 +391,13 @@
       $('input[name="i_retur"]').val(retur_supplier_id);
     }
 
-    function select_list_item() {
+    function select_list_item(id) {
         $('#i_item').select2({
           placeholder: 'Pilih Barang',
           multiple: false,
           allowClear: true,
           ajax: {
-            url: '<?php echo base_url();?>Purchase/load_data_select_detail/',
+            url: '<?php echo base_url();?>Retur/load_data_select_detail/'+id,
             dataType: 'json',
             delay: 100,
             cache: true,
@@ -410,11 +434,58 @@
           success:function(data){
             for(var i=0; i<data.val.length;i++){
               $('input[name="i_qty"]').val(data.val[i].purchase_detail_qty);
+              $('input[name="i_qty_sisa"]').val(data.val[i].purchase_detail_qty_akumulation);
 
             }
           }
         });
       }
+
+      function reception(id){
+        $.ajax({
+          type : "GET",
+          url  : '<?php echo base_url();?>Retur/load_data_reception_detail/'+id,
+          data : "id="+id,
+          dataType : "json",
+          success:function(data){
+            for(var i=0; i<data.val.length;i++){
+              $('input[name="i_qty_terima"]').val(data.val[i].reception_detail_qty);
+
+            }
+          }
+        });
+      }
+
+      function supplier(id){
+        $.ajax({
+          type : "GET",
+          url  : '<?php echo base_url();?>Retur/load_data_where_supplier/'+id,
+          data : "id="+id,
+          dataType : "json",
+          success:function(data){
+            for(var i=0; i<data.val.length;i++){
+              $('input[name="i_partner"]').val(data.val[i].partner_name);
+
+            }
+          }
+        });
+      }
+      function cek(id){
+        var sisa = document.getElementById('i_qty_sisa').value;
+      if (id>sisa) {
+         $('input[name="i_qty_return"]').val("");
+        alert("pengembalian tidak boleh lebih dari sisa");
+        var id = 0;
+      };
+      if (id<0) {
+         $('input[name="i_qty_return"]').val("");
+        alert("pengembalian tidak boleh kurang dari 0");
+      };
+      }
+
+      function print_pdf(id){
+      window.open('<?php echo base_url();?>Retur/print_retur_sup_pdf?id='+id);
+    }
 </script>
 </body>
 </html>

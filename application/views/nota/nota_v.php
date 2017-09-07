@@ -62,7 +62,7 @@
                           </div>
                           <div class="form-group">
                             <label>Nama Sales</label>
-                            <select class="form-control select2" name="i_sales" id="i_sales" style="width: 100%;">
+                            <select class="form-control select2" name="i_sales" id="i_sales" style="width: 100%;" required="">
                             </select>
                           </div>
                           <!--<div class="form-group">
@@ -155,6 +155,44 @@
                                       <th>Config</th>
                                     </tr>
                                   </thead>
+                                  <tfoot>
+                                    <tr>
+                                      <th colspan="8" style="text-align: right;">Total Harga</th>
+                                      <th colspan="3"><input type="text" class="form-control" name="total_harga" readonly="" style="border: none;background: transparent;text-align: right;font-size: 18px;"></th>
+                                    </tr>
+                                    <tr>
+                                      <th colspan="8" style="text-align: right;">Total Potongan</th>
+                                      <th colspan="3"><input type="text" class="form-control" name="total_potongan" readonly="" style="border: none;background: transparent;text-align: right;font-size: 18px;"></th>
+                                    </tr>
+                                    <tr>
+                                      <th colspan="8" style="text-align: right;">Netto</th>
+                                      <th colspan="3"><input type="text" class="form-control" name="netto" readonly="" style="border: none;background: transparent;text-align: right;font-size: 18px;"></th>
+                                    </tr>
+                                    <tr>
+                                      <th colspan="8" style="text-align: right;">
+                                        <label>Type Uang Muka :</label>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
+                                        <label>
+                                            <input type="radio" name="i_type_dp" onclick="type_dp(1)" id="inlineRadio4" value="0"> Cash
+                                        </label>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;
+                                        <label>
+                                            <input type="radio" name="i_type_dp" onclick="type_dp(2)" id="inlineRadio5" value="1"> Kartu Debit
+                                        </label>
+                                        &nbsp;&nbsp;&nbsp;&nbsp;
+                                        <label>
+                                            <input type="radio" name="i_type_dp" onclick="type_dp(3)" id="inlineRadio6" value="2"> Kartu Kredit
+                                        </label>
+                                        
+                                      </th>
+                                      <th colspan="3">
+                                        <div id="nomor_card" style="display: none;">
+                                          <input type="text" class="form-control" placeholder="Masukkan Nomor Kartu" name="i_nomor_card" id="i_nomor_card">
+                                        </div>
+                                        <input type="text" class="form-control money" placeholder="Masukkan Uang Muka" name="i_dp" id="i_dp">
+                                      </th>
+                                    </tr>
+                                  </tfoot>
                                 </table>                                
                               </div>
                               <div class="form-group">
@@ -165,6 +203,7 @@
                                 </select>
                               
                               </div>
+
                             </div>
                           </div>
                         </div>
@@ -394,6 +433,8 @@
             ],
             "iDisplayLength": 10
         });
+
+        get_grand_total(id);
     }
 
     function search_data_stock(id,detail_id) { 
@@ -487,12 +528,14 @@
             for(var i=0; i<data.val.length;i++){
               document.getElementById("i_id").value             = data.val[i].nota_id;
               document.getElementById("datepicker").value           = data.val[i].nota_date;
-              document.getElementById("datepicker2").value         = data.val[i].nota_telp;
+              document.getElementById("datepicker2").value         = data.val[i].nota_tempo;
               document.getElementById("i_card").value      = data.val[i].nota_credit_card;
               document.getElementById("i_desc").value         = data.val[i].nota_desc;
               document.getElementById("i_addres").value      = data.val[i].customer_address;
               document.getElementById("i_telp").value         = data.val[i].customer_telp;
-              document.getElementById("i_scan_card").value         = data.val[i].nota_member_card;
+              //document.getElementById("i_scan_card").value         = data.val[i].nota_member_card;
+              document.getElementById("i_dp").value         = data.val[i].nota_dp;
+              document.getElementById("i_nomor_card").value         = data.val[i].nota_number_dp;
 
               $("#i_customer").append('<option value="'+data.val[i].customer_id+'" selected>'+data.val[i].customer_name+'</option>');
               $("#i_sales").append('<option value="'+data.val[i].employee_id+'" selected>'+data.val[i].employee_name+'</option>');
@@ -506,6 +549,18 @@
               }else if (data.val[i].nota_type == '3') {
                 document.getElementById("inlineRadio3").checked = true;
                 document.getElementById('credit_card').style.display = 'block';
+              }
+
+              if (data.val[i].nota_type_dp == '0') {
+                document.getElementById("inlineRadio4").checked = true;
+                document.getElementById('nomor_card').style.display = 'none';
+              } else if (data.val[i].nota_type_dp == '1') {
+                document.getElementById("inlineRadio5").checked = true;
+                document.getElementById('nomor_card').style.display = 'block';
+
+              }else if (data.val[i].nota_type_dp == '2') {
+                document.getElementById("inlineRadio6").checked = true;
+                document.getElementById('nomor_card').style.display = 'block';
               }
 
               search_data_detail(data.val[i].nota_id);
@@ -931,7 +986,35 @@
 
     function get_focus(){
       //alert("test")
-      document.getElementById("i_member_card").focus();
+      //document.getElementById("i_member_card").focus();
+      $('#scanModal').on('shown.bs.modal', function () {
+          $('#i_member_card').focus();
+      })  
+
+    }
+
+    function get_grand_total(id){
+        $.ajax({
+          type : "GET",
+          url  : '<?php echo base_url();?>nota/get_grand_total/',
+          data : "id="+id,
+          dataType : "json",
+          success:function(data){
+            $('input[name="total_harga"]').val(data.total_price);
+            $('input[name="total_potongan"]').val(data.total_potongan);
+            $('input[name="netto"]').val(data.grand_total);
+          }
+        });
+      }
+
+    function type_dp(id){
+
+      if (id == 1) {
+        document.getElementById('nomor_card').style.display = 'none';
+      }else{
+        document.getElementById('nomor_card').style.display = 'block';
+      }
+
     }
 </script>
 </body>

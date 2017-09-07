@@ -259,14 +259,7 @@ class Reception extends MY_Controller {
 		$data['purchase_id'] = $this->input->post('i_code', TRUE);
 		$data['reception_date'] =$this->format_date_day_mid($this->input->post('i_date_reception', TRUE));
 		$data['warehouse_id'] = $this->input->post('i_warehouse', TRUE);
-		/*$data = array(
-			'purchase_date' 		=> $this->format_date_day_mid($this->input->post('i_date_purchase', TRUE)),
-			'partner_id' 		=> $this->input->post('i_partner', TRUE),
-			'purchase_tempo' 	=> $this->format_date_day_mid($this->input->post('i_date_tempo', TRUE)),
-			'purchase_desc' 		=> $this->input->post('i_desc', TRUE)
-			);*/
-			
-
+		
 		return $data;
 	}
 
@@ -381,16 +374,17 @@ class Reception extends MY_Controller {
 			foreach ($query->result() as $val) {
 				if ($val->reception_detail_id>0) {
 					
-					
+					$qty = $val->reception_detail_order-$val->purchase_detail_qty_akumulation;
 					$response['data'][] = array(
 						$val->reception_detail_id,
 						$val->item_barcode,
 						$val->item_name,
 						$val->reception_detail_order,
-						'<input type="text" class="form-control money" onchange="get_detail_reception(this.value,'.$val->purchase_detail_id.')" name="i_qty" value="'.$val->reception_detail_qty.'">',
-						'<input type="text" readonly class="form-control money"  name="i_detail_id" value="'.$val->purchase_detail_id.'">',
+						'<input type="text" class="form-control money" onchange="get_detail_reception(this.value,'.$val->purchase_detail_id.')" name="i_qty" value="'.$val->reception_detail_qty.'">
+						<input type="hidden" readonly class="form-control money"  name="i_detail_id" value="'.$val->purchase_detail_id.'">
+						<input type="hidden" readonly class="form-control money"  name="i_sisa_qty" value="'.$qty.'">',
 						$val->reception_detail_order-$val->purchase_detail_qty_akumulation,
-						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data_detail('.$val->reception_detail_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_detail('.$val->reception_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<a href="#myModal" class="btn btn-info btn-xs" data-toggle="modal" onclick="search_reception_detail('.$val->reception_detail_id.')"><i class="glyphicon glyphicon-list"></i></a>'
+						'<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_detail('.$val->reception_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<a href="#myModal" class="btn btn-info btn-xs" data-toggle="modal" onclick="search_reception_detail('.$val->reception_detail_id.')"><i class="glyphicon glyphicon-list"></i></a>'
 					);
 					$no++;	
 				}
@@ -407,48 +401,6 @@ class Reception extends MY_Controller {
 		}
 
 		echo json_encode($response);
-	}
-
-	public function load_data_where_detail(){
-		$select = 'a.*,c.item_id,c.item_barcode,c.item_name';
-		$tbl = 'receptions_details a';
-		//WHERE
-		$where['data'][] = array(
-			'column' => 'reception_detail_id',
-			'param'	 => $this->input->get('id')
-		);
-
-		//JOIN
-		$join['data'][] = array(
-			'table' => 'purchases_details b',
-			'join'	=> 'b.purchase_detail_id=a.purchase_detail_id',
-			'type'	=> 'inner'
-		);
-
-		//JOIN
-		$join['data'][] = array(
-			'table' => 'items c',
-			'join'	=> 'c.item_id=b.item_id',
-			'type'	=> 'inner'
-		);
-		$query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
-		if ($query<>false) {
-
-			foreach ($query->result() as $val) {
-				$response['val'][] = array(
-					'reception_id'			=> $val->reception_id,
-					'purchase_detail_id'			=> $val->purchase_detail_id,
-					'reception_detail_id'	=> $val->reception_detail_id,
-					'item_barcode' 	=> $val->item_barcode,
-					'item_id' 			=> $val->item_id,
-					'item_name' 			=> $val->item_name,
-					'reception_detail_order'=> $val->reception_detail_order,
-					'reception_detail_qty' 	=> $val->reception_detail_qty,
-				);
-			}
-
-			echo json_encode($response);
-		}
 	}
 
 	public function load_data_reception_detail($id){
@@ -686,6 +638,9 @@ class Reception extends MY_Controller {
 	}
 
 	public function action_data_reception($id){
+		$sql ="SELECT * FROM receptions_details where purchase_detail_id = $id";
+		$row = $this->g_mod->select_manual($sql);
+		$qty = $row['reception_detail_qty'];
 		$value 			= $this->input->post('value');
 		$value2 			= $this->input->post('value');
 		$id 	= $this->input->post('id');
@@ -697,10 +652,16 @@ class Reception extends MY_Controller {
 		
 		$data['reception_detail_qty'] = $value;
 		$update = $this->g_mod->update_data_table('receptions_details', $where, $data);
+		if ($qty==0) {
 		$data2['purchase_detail_qty_akumulation'] = $data['reception_detail_qty'];
 			
-		/*$update1 = $this->g_mod->update_data_table('purchases_details',$where2, $data2,$data);*/
 		$update1 = $this->g_mod->update_data_Qty('purchases_details', 'purchase_detail_qty_akumulation','purchase_detail_id',$data['reception_detail_qty'],$id	);
+		}else{
+			$data2 = $data['reception_detail_qty'];
+			$qty2 = $data2 - $qty;
+			
+		$update1 = $this->g_mod->update_data_Qty('purchases_details', 'purchase_detail_qty_akumulation','purchase_detail_id',$qty2,$id	);
+		}
 		if($update->status) {
 			$response['status'] = '200';
 			$response['alert'] = '2';

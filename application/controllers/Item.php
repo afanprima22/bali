@@ -11,6 +11,7 @@ class Item extends MY_Controller {
 	public function __construct() {
         parent::__construct();
         $this->check_user_access();
+        $this->load->library('PdfGenerator');
 
         $akses = $this->g_mod->get_user_acces($this->user_id,65);
 		$this->permit = $akses['permit_acces'];
@@ -248,7 +249,7 @@ class Item extends MY_Controller {
 						$val->brand_name,
 						$val->unit_name,
 						number_format($val->item_last_price),
-						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data_item('.$val->item_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_item('.$val->item_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
+						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data_item('.$val->item_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_item('.$val->item_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<button class="btn btn-warning btn-xs" type="button" onclick="print_pdf('.$val->item_id.')" class="btn btn-primary"><i class="glyphicon glyphicon-print"></i></button>'
 					);
 					$no++;	
 				}
@@ -982,6 +983,47 @@ class Item extends MY_Controller {
 
 			echo json_encode($response);
 		}
+	}
+
+	function print_item_pdf(){
+
+		$id = $this->input->get('id');
+
+		$sql = "SELECT a.*,b.item_clas_id,c.item_sub_clas_id,d.brand_id,e.unit_id FROM items a
+				Join item_clases b on b.item_clas_id = a.item_clas_id join item_sub_clases c on c.item_sub_clas_id=a.item_sub_clas_id
+				join brands d on d.brand_id = a.brand_id join units e on e.unit_id = a.unit_id
+				where a.item_id = $id";
+		$result = $this->g_mod->select_manual($sql);
+
+		$data = array(
+			'item_report_date' 		=> date("Y/m/d"),
+			'item_id' 				=> $result['item_id'],
+			'item_barcode' 			=> $result['item_barcode'],
+			'item_clas_id' 			=> $result['item_clas_id'], 
+			'item_sub_clas_id' 		=> $result['item_sub_clas_id'],
+			'brand_id' 				=> $result['brand_id'],
+			'unit_id' 				=> $result['unit_id'],
+			'item_per_unit' 		=> $result['item_per_unit'],
+			'item_last_price'		=> $result['item_last_price'],
+			'item_min'				=> $result['item_min'],
+			'item_max'				=> $result['item_max'],
+			'item_price1' 			=> $result['item_price1'],
+			'item_price2' 			=> $result['item_price2'],
+			'item_price3'			=> $result['item_price3'],
+			'item_price4'			=> $result['item_price4'],
+			'item_price5'			=> $result['item_price5'],
+			);
+
+		$insert = $this->g_mod->insert_data_table('item_reports', NULL, $data);
+
+		$judul			= "Item Price List";
+		$data['title'] 	= $judul;
+
+	    $html = $this->load->view('report/report_item', $data, true);//SEND DATA TO VIEW
+	    $paper = 'A4';
+    	$orientation = 'portraitid';
+	    
+	    $this->pdfgenerator->generate($html, str_replace(" ","_",$judul), $paper, $orientation);
 	}
 
 	/* end Function */

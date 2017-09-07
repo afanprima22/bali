@@ -88,6 +88,10 @@
                               <input type="text" class="form-control pull-right" id="datepicker" name="i_date" placeholder="Tanggal DO" value="" required="required">
                             </div>
                           </div>
+                          <div class="form-group">
+                            <label>Biaya Angkut</label>
+                            <input type="text" class="form-control money" placeholder="Masukkan Biaya Angkut" required="required" name="i_freight" id="i_freight" value="">
+                          </div>
 
                         </div>
                         
@@ -257,6 +261,7 @@
               document.getElementById("i_id").value           = data.val[i].delivery_id;
               document.getElementById("datepicker").value     = data.val[i].delivery_date;
               document.getElementById("i_cost").value         = data.val[i].delivery_cost;
+              document.getElementById("i_freight").value         = data.val[i].delifery_freight_cost;
 
               $("#i_employee").append('<option value="'+data.val[i].employee_id+'" selected>'+data.val[i].employee_name+'</option>');
 

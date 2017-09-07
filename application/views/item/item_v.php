@@ -677,6 +677,10 @@
         }
       });
     }
+
+    function print_pdf(id){
+      window.open('<?php echo base_url();?>Item/print_item_pdf?id='+id);
+    }
 </script>
 </body>
 </html>

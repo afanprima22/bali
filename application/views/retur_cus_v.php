@@ -22,6 +22,7 @@
                         <thead>
                             <tr>
                                 <th>Kode Retur</th>
+                                <th>Nomor Nota</th>
                                 <th>Tanggal</th>
                                 <th>Customer</th>
                                 <th>Total</th>
@@ -165,6 +166,7 @@
             },
             "columns": [
               {"name": "retur_cus_code"},
+              {"name": "nota_code"},
               {"name": "retur_cus_date"},
               {"name": "customer_name"},
               {"name": "sales_name"},
@@ -493,6 +495,10 @@
             });
         //}
         
+    }
+
+    function print_pdf(id){
+      window.open('<?php echo base_url();?>Retur_cus/print_retur_cus_pdf?id='+id);
     }
 
 </script>

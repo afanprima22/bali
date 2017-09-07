@@ -7,7 +7,7 @@
     <ul class="nav nav-tabs">
         <li class="active"><a href="#list" data-toggle="tab">List Data</a></li>
         <li><a href="#form" data-toggle="tab">Form Data</a></li>
-        <li><a href="#" data-toggle="tab">Review Kas Harian</a></li>
+        <li><a href="#Review" data-toggle="tab">Review Kas Harian</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="list">
@@ -34,6 +34,54 @@
             </div>
 
         </div>
+        <div class="tab-pane" id="Review">
+          <div class="box-inner">
+            <form id="form_modal" role="form" action="" method="post" enctype="multipart/form-data" onkeypress="return event.keyCode != 13;">
+              
+                 <div class="box-content">
+                      <div class="row">
+                        <div class="row">
+                          <div class="col-md-12">
+                            
+                              <form id="formclass" role="form" action="" method="post" enctype="multipart/form-data">
+                                <div class="box-content">
+                                <div class="col-md-6">
+                                  <div class="form-group">
+                                    <label>Tanggal Kas</label>
+                                    <div class="input-group date">
+                                      <div class="input-group-addon">
+                                        <i class="glyphicon glyphicon-calendar"></i>
+                                      </div>
+                                      <input type="text" class="form-control pull-right" onchange="review(this.value)" id="datepicker2" name="i_cash_date2" placeholder="Masukkan Tanggal Kas" value="" required="required">
+                                    </div>
+                                  </div>
+                                  
+                                </div>
+                                </div>
+                              </form>
+                          </div>
+                          </div>
+                          </div>
+                          <div class="box-inner">
+                              <div class="box-content" width="100%">
+                                      <table width="160%" id="table3" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
+                                          <thead>
+                                              <tr>
+                                                  <th>Tanggal</th>
+                                                  <th>Cabang</th>
+                                                  <th>Nominal Kas</th>
+                                                  <th>Kode Akun</th>
+                                                  <th>Asal Akun</th>
+                                                  <th>Tujuan   Akun</th>
+                                              </tr>
+                                          </thead>
+                                      </table>
+                                </div>
+                          </div>
+              </div>
+          </form>
+          </div>
+        </div>
         <div class="tab-pane" id="form">
             <div class="box-inner">
 
@@ -41,7 +89,7 @@
                     <div class="box-content">
                       <div class="row">
                         <div class="col-md-6">
-                          <div class="form-group">
+                          <div hidden class="form-group">
                             <label>Alokasi Kas :</label>
                             &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;
                             <label>
@@ -202,6 +250,7 @@
               document.getElementById("i_id").value             = data.val[i].cash_id;
               document.getElementById("datepicker").value           = data.val[i].cash_date;
               document.getElementById("i_nominal").value           = data.val[i].cash_nominal;
+              document.getElementById("i_desc").value           = data.val[i].cash_desc;
 
               $("#i_coa").append('<option value="'+data.val[i].coa_id+'" selected>'+data.val[i].coa_nomor+' '+data.val[i].coa_name+'</option>');
               $("#i_coa2").append('<option value="'+data.val[i].coa_id2+'" selected>'+data.val[i].nomor1+' '+data.val[i].name1+'</option>');
@@ -210,11 +259,11 @@
 
               if (data.val[i].cash_type == '0') {
                 document.getElementById("inlineRadio1").checked = true;
-              }else if (data.val[i].nota_type == '1') {
+              }else if (data.val[i].cash_type == '1') {
                 document.getElementById("inlineRadio2").checked = true;
-              }else if (data.val[i].nota_type == '2') {
+              }else if (data.val[i].cash_type == '2') {
                 document.getElementById("inlineRadio3").checked = true;
-              }else if (data.val[i].nota_type == '3') {
+              }else if (data.val[i].cash_type == '3') {
                 document.getElementById("inlineRadio4").checked = true;
               }
           }
@@ -380,6 +429,30 @@
             });
         }
         
+    }
+
+    function review(id){
+      $('#table3').DataTable({
+            destroy: true,
+            "processing": true,
+            "serverSide": true,
+            ajax: {
+              url: '<?php echo base_url();?>Cash/load_data_review?id='+id,
+              data : "id="+id,
+            },
+            "columns": [
+              {"name": "cash_date"},
+              {"name": "warehouse_name"},
+              {"name": "cash_nominal"},
+              {"name": "coa_name.' '.coa_nomor"},
+              {"name": "name1.' '.nomor1"},
+              {"name": "name2.' '.nomor2"},
+            ],
+            "order": [
+              [0, 'asc']
+            ],
+            "iDisplayLength": 10
+        });
     }
 
 </script>

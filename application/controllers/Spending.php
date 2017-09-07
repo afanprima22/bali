@@ -560,7 +560,7 @@ class Spending extends MY_Controller {
 		);
 		$where['data'][]=array(
 			'column'	=>'coa_parent',
-			'param'		=>0
+			'param'		=>3
 			);
 		$query = $this->g_mod->select('*',$this->tbl2,NULL,$where_like,$order,NULL,$where);
 		$response['items'] = array();

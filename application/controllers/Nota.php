@@ -103,7 +103,7 @@ class Nota extends MY_Controller {
 					if ($val->nota_status == 0) {
 						$status = 'Proses';
 					}elseif ($val->nota_status == 1) {
-						$status = 'Cancel';
+						$status = 'DO';
 					}
 
 					if ($val->retail) {
@@ -208,7 +208,7 @@ class Nota extends MY_Controller {
 					$row = $this->g_mod->select_manual($sql);
 
 					$order = $row['qty_order'] + $val->nota_detail_retail;
-					$total = $val->nota_detail_price * $order - $val->nota_detail_promo;
+					$total = $val->nota_detail_price * $order;// - $val->nota_detail_promo;
 
 					$response['data'][] = array(
 						$val->item_barcode,
@@ -383,7 +383,10 @@ class Nota extends MY_Controller {
 					'code_referance' 		=> $val->code_referance,
 					'customer_address' 		=> $val->customer_address,
 					'customer_telp' 		=> $val->customer_telp,
-					'nota_member_card'		=> $val->nota_member_card
+					'nota_member_card'		=> $val->nota_member_card,
+					'nota_dp'				=> $val->nota_dp,
+					'nota_type_dp'			=> $val->nota_type_dp,
+					'nota_number_dp'		=> $val->nota_number_dp
 				);
 			}
 
@@ -740,18 +743,21 @@ class Nota extends MY_Controller {
 	function general_post_data($id){
 
 		if (!$id) {
-			$data['nota_code'] 		= $this->get_code_nota();
+			$data['nota_code'] 			= $this->get_code_nota();
 		}
 
-		$data['customer_id'] 		= $this->input->post('i_customer', TRUE);
+		$data['customer_id'] 			= $this->input->post('i_customer', TRUE);
 		$data['employee_id'] 			= $this->input->post('i_sales', TRUE);
-		$data['nota_date'] 			= $this->format_date_day_mid($this->input->post('i_date', TRUE));
-		$data['nota_type'] 			= $this->input->post('i_type', TRUE);
-		$data['coa_detail_id'] 		= $this->input->post('i_coa', TRUE);
-		$data['nota_tempo'] 		= $this->format_date_day_mid($this->input->post('i_date_tempo', TRUE));
-		$data['nota_credit_card'] 	= $this->input->post('i_card', TRUE);
-		$data['nota_desc'] 			= $this->input->post('i_desc', TRUE);
-		$data['nota_member_card'] 	= $this->input->post('i_scan_card', TRUE);
+		$data['nota_date'] 				= $this->format_date_day_mid($this->input->post('i_date', TRUE));
+		$data['nota_type'] 				= $this->input->post('i_type', TRUE);
+		$data['coa_detail_id'] 			= $this->input->post('i_coa', TRUE);
+		$data['nota_tempo'] 			= $this->format_date_day_mid($this->input->post('i_date_tempo', TRUE));
+		$data['nota_credit_card'] 		= $this->input->post('i_card', TRUE);
+		$data['nota_desc'] 				= $this->input->post('i_desc', TRUE);
+		//$data['nota_member_card'] 	= $this->input->post('i_scan_card', TRUE);
+		$data['nota_dp'] 				= $this->input->post('i_dp', TRUE);
+		$data['nota_type_dp'] 			= $this->input->post('i_type_dp', TRUE);
+		$data['nota_number_dp'] 		= $this->input->post('i_nomor_card', TRUE);
 
 		$nota = $this->input->post('i_nota_id', TRUE);
 		if ($nota) {
@@ -1056,6 +1062,7 @@ class Nota extends MY_Controller {
 			'nota_code' 			=> $result['nota_code'],
 			'nota_date' 			=> $result['nota_date'], 
 			'nota_type' 			=> $result['nota_type'],
+			'nota_dp' 				=> $result['nota_dp'],
 			'customer_name' 		=> $result['customer_name'],
 			'customer_telp' 		=> $result['customer_telp'],
 			'customer_address' 		=> $result['customer_address']
@@ -1069,5 +1076,42 @@ class Nota extends MY_Controller {
     	$orientation = 'landscape';
 	    
 	    $this->pdfgenerator->generate($html, str_replace(" ","_",$judul), $paper, $orientation);
+	}
+
+	public function get_grand_total(){
+		$select = 'a.*';
+		$tbl = 'nota_details a';
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'nota_id',
+			'param'	 => $this->input->get('id')
+		);
+		
+		$query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,NULL,$where);
+		$total_price = 0;
+		$total_potongan = 0;
+		$grand_total = 0;
+		if ($query<>false) {
+			foreach ($query->result() as $val) {
+
+				$sql = "SELECT SUM(nota_detail_order_now) as nota_detail_order_now,SUM(nota_detail_order_qty + nota_detail_order_now) as qty_order
+						FROM nota_detail_orders a
+						WHERE nota_detail_id = $val->nota_detail_id";
+
+				$row = $this->g_mod->select_manual($sql);
+
+				$order = $row['qty_order'] + $val->nota_detail_retail;
+
+				$total_price 		+= $val->nota_detail_price * $order;
+				$total_potongan 	+= $val->nota_detail_promo;
+				$grand_total 		+= $val->nota_detail_price * $order - $val->nota_detail_promo;
+			}
+		}
+
+		$response['total_price'] 		= number_format($total_price);
+		$response['total_potongan'] 	= number_format($total_potongan);
+		$response['grand_total'] 		= number_format($grand_total);
+
+		echo json_encode($response);
 	}
 }

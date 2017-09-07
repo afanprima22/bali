@@ -16,6 +16,7 @@
                                 <th>Nama Merek</th>
                                 <th>Type</th>
                                 <th>Persentase</th>
+                                <th>tanggal</th>
                                 <th>Config</th>
                             </tr>
                             
@@ -43,15 +44,24 @@
                       <div class="row">
                         <div class="col-md-6">
                           <div class="form-group">
-                            <label>Id COA (Auto)</label>
+                            <label>Id Harga (Auto)</label>
                             <input type="text" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
                           </div>
                           <div class="form-group">
-                            <label>merk</label>
+                            <label>Merk</label>
                             <select class="form-control select2" onchange="search_data_view(this.value)" name="i_brand" id="i_brand" required style="width: 100%;"  value=""></select>
                           </div>   
                         </div>
                         <div class="col-md-6">
+                        <div class="form-group">
+                          <label>Tanggal Ubah</label>
+                          <div class="input-group date">
+                            <div class="input-group-addon">
+                              <i class="glyphicon glyphicon-calendar"></i>
+                            </div>
+                            <input type="text" class="form-control pull-right" id="datepicker" name="i_date_price" placeholder="Masukkan Tanggal" value="" required="required">
+                          </div>
+                        </div> 
                         <div id="credit_card" style="display: none;">
                           <div class="form-group">
                             <label>Presentase</label>
@@ -123,7 +133,7 @@
                       <div class="form-group"></div>
                       <div class="box-footer text-right">
                         <!--<a href="#myModal" class="btn btn-info" data-toggle="modal">Click for dialog</a>-->
-                        <button type="button" onclick="reset(),reset2()" class="btn btn-warning">Batal</button>
+                        <button type="button" onclick="reset2()" class="btn btn-warning">Batal</button>
                         <button type="submit" class="btn btn-primary" <?php if(isset($c)) echo $c;?>>Simpan</button>
                       </div>
 
@@ -156,6 +166,7 @@
               {"name": "brand_id"},
               {"name": "change_price_type"},
               {"name": "change_price_persentase"},
+              {"name": "change_price_date"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
             "order": [
@@ -212,6 +223,13 @@
         $('#i_brand option').remove();
         $('input[name="i_persentase"]').val("");
       }
+    function reset2(){
+            $('#i_brand option').remove();
+            $('input[name="i_persentase"]').val("");
+            search_data_view(0);
+            delete_data_detail();
+            search_data_detail(0);
+          }
 
     
     function edit_data(id) {
@@ -223,6 +241,7 @@
           success:function(data){
             for(var i=0; i<data.val.length;i++){
              document.getElementById("i_id").value             = data.val[i].change_price_id;
+             document.getElementById("datepicker").value             = data.val[i].change_price_date;
               $("#i_brand").append('<option value="'+data.val[i].brand_id+'" selected>'+data.val[i].brand_name+'</option>');
               document.getElementById("i_persentase").value           = data.val[i].change_price_persentase;
               if (data.val[i].change_price_type == '1') {
@@ -388,6 +407,21 @@
           }
         });
       }
+
+      function delete_data_detail() {
+            $.ajax({
+                url: '<?php echo base_url();?>Price/delete_data_detail',
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                  if (data.status=='200') {
+                    search_data_detail();
+
+                  }
+                }
+            });
+        
+    }
 </script>
 </body>
 </html>
