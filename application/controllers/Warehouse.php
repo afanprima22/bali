@@ -267,7 +267,7 @@ class Warehouse extends MY_Controller {
 
 	public function load_data_stock($id){
 		$tbl = 'racks a';
-		$select = 'a.*,b.rack_detail_id,c.item_name,c.item_per_unit,d.stock_qty';
+		$select = 'a.*,b.rack_detail_id,c.item_name,c.item_per_unit,d.stock_qty,e.warehouse_name';
 		//LIMIT
 		$limit = array(
 			'start'  => $this->input->get('start'),
@@ -287,7 +287,7 @@ class Warehouse extends MY_Controller {
 		
 		//WHERE
 		$where['data'][] = array(
-			'column' => 'warehouse_id',
+			'column' => 'a.warehouse_id',
 			'param'	 => $id
 		);
 
@@ -295,6 +295,11 @@ class Warehouse extends MY_Controller {
 		$join['data'][] = array(
 			'table' => 'rack_details b',
 			'join'	=> 'b.rack_id=a.rack_id',
+			'type'	=> 'inner'
+		);
+		$join['data'][] = array(
+			'table' => 'Warehouses e',
+			'join'	=> 'e.warehouse_id=a.warehouse_id',
 			'type'	=> 'inner'
 		);
 
@@ -331,6 +336,7 @@ class Warehouse extends MY_Controller {
 					}
 
 					$response['data'][] = array(
+						$val->warehouse_name,
 						$val->rack_name,
 						$val->item_name,
 						$stock,
@@ -697,11 +703,11 @@ class Warehouse extends MY_Controller {
 
 		$id = $this->input->get('id');
 		$tbl = 'racks a';
-		$select = 'a.*,b.rack_detail_id,c.item_id,c.item_per_unit,d.stock_qty';
+		$select = 'a.*,b.rack_detail_id,c.item_name,c.item_per_unit,d.stock_qty,e.warehouse_name,e.warehouse_address,f.unit_name';
 				
 		//WHERE
 		$where['data'][] = array(
-			'column' => 'warehouse_id',
+			'column' => 'a.warehouse_id',
 			'param'	 => $id
 		);
 
@@ -712,10 +718,22 @@ class Warehouse extends MY_Controller {
 			'type'	=> 'inner'
 		);
 
+		$join['data'][] = array(
+			'table' => 'Warehouses e',
+			'join'	=> 'e.warehouse_id=a.warehouse_id',
+			'type'	=> 'inner'
+		);
+
 		//JOIN
 		$join['data'][] = array(
 			'table' => 'items c',
 			'join'	=> 'c.item_id=b.item_id',
+			'type'	=> 'inner'
+		);
+
+		$join['data'][] = array(
+			'table' => 'units f',
+			'join'	=> 'f.unit_id=c.unit_id',
 			'type'	=> 'inner'
 		);
 
@@ -739,16 +757,21 @@ class Warehouse extends MY_Controller {
 					
 			$data = array(
 				'stock_report_date' 		=> date("Y/m/d"),
-				'rack_id' 				=> $row->rack_id,
-				'item_id' 		=> $row->item_id,
+				'rack_name' 				=> $row->rack_name,
+				'item_name' 				=> $row->item_name,
+				'unit_name' 				=> $row->unit_name,
 				'stock_report_qty' 			=> $stock, 
-				'stock_qty' 		=> $row->stock_qty,
-				'warehouse_id' 				=> $row->warehouse_id,
+				'stock_qty' 			=> $row->stock_qty,
+				'warehouse_name' 				=> $row->warehouse_name,
+				'warehouse_address' 				=> $row->warehouse_address,
+				
 
 				);
 			$insert = $this->g_mod->insert_data_table('stock_reports', NULL, $data);
 		}
 		$judul			= "Stock Barang Per Gudang";
+		$data['warehouse_address'] = $row->warehouse_address;
+		$data['warehouse_id'] = $row->warehouse_id;
 		$data['title'] 	= $judul;
 
 	    $html = $this->load->view('report/report_stock', $data, true);//SEND DATA TO VIEW

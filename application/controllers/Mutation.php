@@ -167,7 +167,24 @@ class Mutation extends MY_Controller {
 
   public function action_data(){
 		$id = $this->input->post('i_id');
+		
 		if (strlen($id)>0) {
+			$sql ="SELECT * FROM mutation_details a join items b on b.item_id = a.item_id where mutation_id=$id";
+			$row = $this->g_mod->select_manual($sql);
+			$id3 = $row['mutation_detail_qty'];
+			$item1 = $row['item_id'];
+			$rack1 = $row['rack_id'];
+			$rack3 = $row['rack_id2'];
+
+			$mutasi = $this->input->post('i_qty_cek', TRUE);
+			$item =$row['item_per_unit'];
+			$stock =$id3-$mutasi;
+			$qty =$stock*$item;
+			$qty2 =$mutasi*$item;
+			$qty3 =$id3*$item;
+			$item = $this->input->post('i_item_cek', TRUE);
+			$rack = $this->input->post('i_rack_cek', TRUE);
+			$rack2 = $this->input->post('i_rack2_cek', TRUE);
 			//UPDATE
 			$data = $this->general_post_data();
 			//WHERE
@@ -176,6 +193,17 @@ class Mutation extends MY_Controller {
 				'param'	 => $id
 			);
 			$update = $this->g_mod->update_data_table($this->tbl, $where, $data);
+
+			if ($item =$item1 && $rack = $rack1 && $rack2 = $rack3 ) {
+			$update2 = $this->g_mod->update_data_stock('stocks', 'stock_qty','rack_id',$qty,$this->input->post('i_rack_cek', TRUE), 'and item_id = '.$this->input->post('i_item_cek', TRUE));
+			$update3 = $this->g_mod->update_data_Qty('stocks', 'stock_qty','rack_id',$qty,$rack2, 'and item_id = '.$item);
+			}elseif($item =$item1 && $rack != $rack1 && $rack2 = $rack3){
+				//$update2 = $this->g_mod->update_data_Qty('stocks', 'stock_qty','rack_id',$qty2,$this->input->post('i_rack_cek', TRUE), 'and item_id = '.$this->input->post('i_item_cek', TRUE));
+				//$update3 = $this->g_mod->update_data_stock('stocks', 'stock_qty','rack_id',$qty2,$rack2, 'and item_id = '.$item);
+
+				$update2 = $this->g_mod->update_daata_stock('stocks', 'stock_qty','rack_id',$row['rack_id'], 'and item_id = '.$row['item_id']);
+				$update3 = $this->g_mod->update_data_Qty('stocks', 'stock_qty','rack_id',$qty3,$row['rack_id2'], 'and item_id = '.$row['item_id']);
+			}
 			if($update->status) {
 				$response['status'] = '200';
 				$response['alert'] = '2';
@@ -183,9 +211,10 @@ class Mutation extends MY_Controller {
 				$response['status'] = '204';
 			}
 		} else {
+
 			//INSERT
 			$data = $this->general_post_data();
-			//echo $data['purchase_img'];
+			
 			$insert = $this->g_mod->insert_data_table($this->tbl, NULL, $data);
 
 			$data2['mutation_id'] = $insert->output;
@@ -200,6 +229,23 @@ class Mutation extends MY_Controller {
 				'param'	 =>$this->user_id
 			);
 			$update = $this->g_mod->update_data_table('mutation_details', $where2, $data2);
+			$id2 = $data2['mutation_id'];
+			$sql ="SELECT * FROM mutation_details a join items b on b.item_id = a.item_id  where mutation_id=$id2";
+			$row = $this->g_mod->select_manual($sql);
+
+			$stock =$row['mutation_detail_qty'];
+			$item =$row['item_per_unit'];
+			$qty =$stock*$item;
+			$rack = $row['rack_id'];
+			$rack2 = $row['rack_id2'];
+			$item = $row['item_id'];
+
+
+			/*$data3 = $this->general_post_data_rack_detail($id);
+			$insert2 = $this->g_mod->insert_data_table('rack_details', NULL, $data3);*/
+
+			$update2 = $this->g_mod->update_data_stock('stocks', 'stock_qty','rack_id',$qty,$rack, 'and item_id = '.$item);
+			$update3 = $this->g_mod->update_data_Qty('stocks', 'stock_qty','rack_id',$qty,$rack2, 'and item_id = '.$item);
 			if($insert->status) {
 				$response['status'] = '200';
 				$response['alert'] = '1';
@@ -398,9 +444,6 @@ class Mutation extends MY_Controller {
 	public function action_data_detail(){
 		$id = $this->input->post('i_detail');
 		if (strlen($id)>0) {
-			$sql ="SELECT * FROM mutation_details";
-			$row = $this->g_mod->select_manual($sql);
-			$id3 = $row['mutation_detail_qty'];
 			//UPDATE
 			$data = $this->general_post_data_detail();
 			//WHERE
@@ -410,11 +453,6 @@ class Mutation extends MY_Controller {
 			);
 			$update = $this->g_mod->update_data_table('mutation_details', $where, $data);
 
-			$qty =$data['mutation_detail_qty']-$id3;
-			$rack = $this->input->post('i_rack', TRUE);
-			$rack2 = $this->input->post('i_rack2', TRUE);
-			$update2 = $this->g_mod->update_data_stock('stocks', 'stock_qty','rack_id',$qty,$rack, 'and item_id = '. $this->input->post('i_item', TRUE));
-			$update3 = $this->g_mod->update_data_Qty('stocks', 'stock_qty','rack_id',$qty,$rack2, 'and item_id = '. $this->input->post('i_item', TRUE));
 			if($update->status) {
 				$response['status'] = '200';
 				$response['alert'] = '2';
@@ -427,12 +465,7 @@ class Mutation extends MY_Controller {
 			$data = $this->general_post_data_detail();
 			//echo $data['warehouse_img'];
 			$insert = $this->g_mod->insert_data_table('mutation_details', NULL, $data);
-			$data2 = $this->general_post_data_rack_detail();
-			//echo $data['warehouse_img'];
-			$insert2 = $this->g_mod->insert_data_table('rack_details', NULL, $data2);
-			$rack = $this->input->post('i_rack', TRUE);
-			$update = $this->g_mod->update_data_stock('stocks', 'stock_qty','rack_id',$this->input->post('i_qty_mutasi'),$rack, 'and item_id = '. $this->input->post('i_item', TRUE));
-			$update2 = $this->g_mod->update_data_Qty('stocks', 'stock_qty','rack_id',$this->input->post('i_qty_mutasi'),$data2['rack_id'], 'and item_id = '. $this->input->post('i_item', TRUE));
+			
 			if($insert->status) {
 				$response['status'] = '200';
 				$response['alert'] = '1';
@@ -460,20 +493,9 @@ class Mutation extends MY_Controller {
 		return $data;
 	}
 
-	function general_post_data_rack_detail(){
-
-		$data2 = array(
-			'rack_id' 				=> $this->input->post('i_rack2', TRUE),
-			'item_id' 				=> $this->input->post('i_item', TRUE)
-			);
-		
-
-		return $data2;
-	}
-
 	public function load_data_where_detail($id){
 		$tbl = 'mutation_details a';
-		$select = 'a.*,c.rack_name,d.item_name,d.item_barcode,d.item_per_unit,e.warehouse_name,b.unit_name,f.rack_name as name';
+		$select = 'a.*,c.rack_id as id1,c.rack_name as name1,d.item_name,d.item_barcode,d.item_per_unit,e.warehouse_name,b.unit_name,f.rack_id as id2,f.rack_name as name2';
 		
 		//WHERE
 		$where['data'][] = array(
@@ -502,7 +524,7 @@ class Mutation extends MY_Controller {
 
 		$join['data'][] = array(
 			'table' => 'warehouses e',
-			'join'	=> 'e.warehouse_id=c.warehouse_id',
+			'join'	=> 'e.warehouse_id=a.warehouse_id',
 			'type'	=> 'inner'
 		);
 
@@ -525,12 +547,12 @@ class Mutation extends MY_Controller {
 					'unit_name' 	=> $val->unit_name,
 					'item_per_unit' 	=> $val->item_per_unit,
 					'mutation_detail_qty' 	=> $val->mutation_detail_qty,
-					'rack_id' 	=> $val->rack_id,
-					'rack_name' 	=> $val->rack_name,
+					'id1' 	=> $val->id1,
+					'name1' 	=> $val->name1,
 					'warehouse_id' 	=> $val->warehouse_id,
 					'warehouse_name' 	=> $val->warehouse_name,
-					'rack_id2' 	=> $val->rack_id2,
-					'name' 	=> $val->name,
+					'id2' 	=> $val->id2,
+					'name2' 	=> $val->name2,
 				);
 			}
 

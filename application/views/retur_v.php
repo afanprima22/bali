@@ -268,7 +268,7 @@
 
 
      function save_detail(){
-        var id = document.getElementById("i_retur").value;
+        var id = document.getElementById("i_id").value;
         if (id) {
           var id_new = id;
         }else{
@@ -347,7 +347,7 @@
             for(var i=0; i<data.val.length;i++){
               $('input[name="i_detail"]').val(data.val[i].retur_supplier_detail_id);
               $("#i_item").append('<option value="'+data.val[i].purchase_detail_id+'" selected>'+data.val[i].item_name+'</option>');
-              $('input[name="i_qty"]').val(data.val[i].retur_supplier_detail_qty);
+              $('input[name="i_qty"]').val(data.val[i].purchase_detail_qty);
               $('input[name="i_qty_terima"]').val(data.val[i].reception_detail_qty);
               $('input[name="i_qty_sisa"]').val(data.val[i].purchase_detail_qty_akumulation);
               $('input[name="i_qty_return"]').val(data.val[i].retur_supplier_detail_qty);
@@ -471,8 +471,10 @@
         });
       }
       function cek(id){
-        var sisa = document.getElementById('i_qty_sisa').value;
-      if (id>sisa) {
+        var order = document.getElementById('i_qty').value;
+        var terima = document.getElementById('i_qty_terima').value;
+        var jumlah = parseFloat(order)-parseFloat(terima);
+      if (id>jumlah) {
          $('input[name="i_qty_return"]').val("");
         alert("pengembalian tidak boleh lebih dari sisa");
         var id = 0;

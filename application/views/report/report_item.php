@@ -69,7 +69,7 @@
         $sql = "SELECT a.*,b.item_clas_name,c.item_sub_clas_name,d.brand_name,e.unit_name FROM items a
         Join item_clases b on b.item_clas_id = a.item_clas_id join item_sub_clases c on c.item_sub_clas_id=a.item_sub_clas_id
         join brands d on d.brand_id = a.brand_id join units e on e.unit_id = a.unit_id
-        where a.item_id = $item_id";
+        ";
         $row = $this->g_mod->select_manual_for($sql);
         $no = 1;
         foreach ($row->result() as $val2) {

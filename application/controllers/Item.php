@@ -249,7 +249,7 @@ class Item extends MY_Controller {
 						$val->brand_name,
 						$val->unit_name,
 						number_format($val->item_last_price),
-						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data_item('.$val->item_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_item('.$val->item_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<button class="btn btn-warning btn-xs" type="button" onclick="print_pdf('.$val->item_id.')" class="btn btn-primary"><i class="glyphicon glyphicon-print"></i></button>'
+						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data_item('.$val->item_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_item('.$val->item_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
 					);
 					$no++;	
 				}
@@ -987,12 +987,10 @@ class Item extends MY_Controller {
 
 	function print_item_pdf(){
 
-		$id = $this->input->get('id');
-
 		$sql = "SELECT a.*,b.item_clas_id,c.item_sub_clas_id,d.brand_id,e.unit_id FROM items a
 				Join item_clases b on b.item_clas_id = a.item_clas_id join item_sub_clases c on c.item_sub_clas_id=a.item_sub_clas_id
 				join brands d on d.brand_id = a.brand_id join units e on e.unit_id = a.unit_id
-				where a.item_id = $id";
+				";
 		$result = $this->g_mod->select_manual($sql);
 
 		$data = array(

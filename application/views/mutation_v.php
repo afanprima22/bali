@@ -71,13 +71,25 @@
                                           <input type="hidden" class="form-control" name="i_detail" id="i_detail" value=""  >
                                           <input type="text" class="form-control" readonly="" placeholder="Barcode"  name="i_barcode" id="i_barcode" value="" readonly onkeydown="if (event.keyCode == 13) { save_detail(); }">
                                         </td>
-                                        <td><select class="form-control select2" onchange="search_item(this.value)" class="form-control"  name="i_item" id="i_item"  style="width: 100%;" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>                                         
+                                        <td>
+                                          <select class="form-control select2" onchange="search_item(this.value)" class="form-control"  name="i_item" id="i_item"  style="width: 100%;" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                                          <input type="hidden" class="form-control"  name="i_item_cek" id="i_item_cek"  value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                                        </td>                                         
                                         <td><input type="text" readonly="" class="form-control" name="i_unit" id="i_unit" placeholder="satuan" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
                                         <td><input type="text" readonly="" class="form-control"  name="i_isi" id="i_isi" placeholder="isi per unit" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
-                                        <td><input type="number" class="form-control"  name="i_qty_mutasi" id="i_qty_mutasi" placeholder="Qty mutasi" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
-                                        <td><select class="form-control select2" style="width: 100%;" class="form-control" name="i_rack" id="i_rack" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
+                                        <td>
+                                          <input type="number" class="form-control"  name="i_qty_mutasi" id="i_qty_mutasi" placeholder="Qty mutasi" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                                          <input type="hidden" class="form-control"  name="i_qty_cek" id="i_qty_cek"  value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                                        </td>
+                                        <td>
+                                          <select class="form-control select2" style="width: 100%;" class="form-control" name="i_rack" id="i_rack" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select>
+                                           <input type="hidden" class="form-control"  name="i_rack_cek" id="i_rack_cek"  value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                                        </td>
                                         <td><select class="form-control select2" onchange="select_list_rack2(this.value)" style="width: 100%;" class="form-control" name="i_warehouse2" id="i_warehouse2" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
-                                        <td><select class="form-control select2" style="width: 100%;" class="form-control" name="i_rack2" id="i_rack2" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
+                                        <td>
+                                          <select class="form-control select2" style="width: 100%;" class="form-control" name="i_rack2" id="i_rack2" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select>
+                                           <input type="hidden" class="form-control"  name="i_rack2_cek" id="i_rack2_cek"  value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                                        </td>
                                         <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan detail</button></td>
                                         
                                     </tr>
@@ -202,6 +214,7 @@
               $("#i_warehouse").append('<option value="'+data.val[i].warehouse_id+'" selected>'+data.val[i].warehouse_name+'</option>');
               
               search_data_detail(data.val[i].mutation_id);
+              select_list_rack(data.val[i].warehouse_id)
             }
           }
         });
@@ -500,10 +513,14 @@ function select_list_warehouse() {
               $('input[name="i_unit"]').val(data.val[i].unit_name);
               $('input[name="i_isi"]').val(data.val[i].item_per_unit);
               $('input[name="i_qty_mutasi"]').val(data.val[i].mutation_detail_qty);
-              $("#i_rack").append('<option value="'+data.val[i].rack_id+'" selected>'+data.val[i].rack_name+'</option>');
+              $("#i_rack").append('<option value="'+data.val[i].id1+'" selected>'+data.val[i].name1+'</option>');
               $("#i_warehouse2").append('<option value="'+data.val[i].warehouse_id+'" selected>'+data.val[i].warehouse_name+'</option>');
-              $("#i_rack2").append('<option value="'+data.val[i].rack_id2+'" selected>'+data.val[i].name+'</option>');
+              $("#i_rack2").append('<option value="'+data.val[i].id2+'" selected>'+data.val[i].name2+'</option>');
 
+              $('input[name="i_item_cek"]').val(data.val[i].item_id);
+              $('input[name="i_qty_cek"]').val(data.val[i].mutation_detail_qty);
+              $('input[name="i_rack_cek"]').val(data.val[i].id1);
+              $('input[name="i_rack2_cek"]').val(data.val[i].id2);
             }
           }
         });

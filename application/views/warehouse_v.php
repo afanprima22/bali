@@ -183,6 +183,7 @@
                                 <table width="100%" id="table4" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                                   <thead>
                                     <tr>
+                                      <th>gudang</th>
                                       <th>Rak</th>
                                       <th>Barang</th>
                                       <th>Qty</th>
@@ -288,6 +289,7 @@
               url: '<?php echo base_url();?>Warehouse/load_data_stock/'+id
             },
             "columns": [
+              {"name": "warehouse_name"},
               {"name": "rack_name"},
               {"name": "item_name"},
               {"name": "stock_qty_unit","orderable": false,"searchable": false},
