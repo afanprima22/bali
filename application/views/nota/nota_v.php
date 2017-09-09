@@ -31,6 +31,7 @@
                             </tr>
                         </thead>
                     </table>
+
                 </div>
 
                 
@@ -146,13 +147,13 @@
                                       <th>Nama Barang</th>
                                       <th>Satuan</th>
                                       <th>Isi</th>
-                                      <th>Harga</th>
                                       <th>Jumlah</th>
+                                      <th>Ambil Sndri</th>
                                       <th>Retail</th>
                                       <th>D Promo</th>
+                                      <th>Harga</th>
                                       <th>Total Harga</th>
-                                      <th>Ambil Sndri</th>
-                                      <th>Config</th>
+                                      <th>Lokasi Barang</th>
                                     </tr>
                                   </thead>
                                   <tfoot>
@@ -245,7 +246,7 @@
                                     <tr>
                                       <th>Gudang</th>
                                       <th>Qty Stok</th>
-                                      <th>OC</th>
+                                      <th>Blm Diambil</th>
                                       <th>Kirim</th>
                                       <th>Ambil Skrg</th>
                                     </tr>
@@ -421,11 +422,11 @@
               {"name": "unit_name"},
               {"name": "nota_detail_qty"},
               {"name": "nota_detail_retail"},
-              {"name": "nota_detail_price"},
+              {"name": "ambil","orderable": false,"searchable": false},
               {"name": "jml","orderable": false,"searchable": false},
               {"name": "nota_detail_promo"},
+              {"name": "nota_detail_price"},
               {"name": "harga","orderable": false,"searchable": false},
-              {"name": "ambil","orderable": false,"searchable": false},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
             "order": [

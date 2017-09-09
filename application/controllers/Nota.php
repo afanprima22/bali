@@ -215,12 +215,12 @@ class Nota extends MY_Controller {
 						$val->item_name,
 						$val->unit_name,
 						$val->nota_detail_qty,
-						number_format($val->nota_detail_price),
 						$order,
+						$row['nota_detail_order_now'],
 						'<input type="text" class="form-control" onchange="get_detail_update(this.value,'.$val->nota_detail_id.',1)" name="i_qty_retail" value="'.$val->nota_detail_retail.'">',
 						'<input type="text" class="form-control money" onchange="get_detail_update(this.value,'.$val->nota_detail_id.',2)" name="i_qty_order" value="'.$val->nota_detail_promo.'">',
+						number_format($val->nota_detail_price),
 						number_format($total),
-						$row['nota_detail_order_now'],
 						'<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_detail('.$val->nota_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>&nbsp;&nbsp;<a href="#myModal" class="btn btn-info btn-xs" data-toggle="modal" onclick="search_data_stock('.$val->item_id.','.$val->nota_detail_id.')"><i class="glyphicon glyphicon-search"></i></a>'
 					);
 					$no++;	
@@ -734,8 +734,15 @@ class Nota extends MY_Controller {
 			'start'  => 0,
 			'finish' => 1
 		);
+
+		$sql = "select c.warehouse_code from users a
+				join employees b on b.employee_id = a.employee_id
+				join warehouses c on c.warehouse_id = b.warehouse_id
+				where a.user_id = $this->user_id";
+		$code = $this->g_mod->select_manual($sql);
+
 		$query = $this->g_mod->select($select,$this->tbl,$limit,NULL,$order,NULL,$where);
-		$new_code = $this->format_kode_transaksi('NT',$query);
+		$new_code = $this->format_kode_nota($code['warehouse_code'],'NT',$query);
 		return $new_code;
 	}
 

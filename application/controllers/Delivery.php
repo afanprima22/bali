@@ -195,7 +195,7 @@ class Delivery extends MY_Controller {
 						$val->nota_code,
 						$val->delivery_date,
 						$val->employee_name,
-						number_format($val->delivery_cost),
+						number_format($val->delifery_freight_cost),
 						'<button class="btn btn-info btn-xs" type="button" onclick="edit_data('.$val->delivery_id.','.$val->nota_id.')" '.$d.'><i class="glyphicon glyphicon-pencil"></i></button>'
 					);
 					$no++;	
@@ -280,7 +280,7 @@ class Delivery extends MY_Controller {
 		$nota_id = $this->input->post('id');
 
 		$tbl  = 'notas a';
-		$select = 'a.*,c.warehouse_id,c.nota_detail_order_id,(nota_detail_order_qty - accumulation_qty) as qty_kirim,(nota_detail_order_now - accumulation_now) as qty_ambil';
+		$select = 'a.*,c.warehouse_id,c.nota_detail_order_id,(nota_detail_order_qty - accumulation_qty) as qty_kirim,(nota_detail_order_now - accumulation_now) as qty_ambil,d.item_cost';
 		//ORDER
 		$order['data'][] = array(
 			'column' => 'c.warehouse_id',
@@ -297,6 +297,13 @@ class Delivery extends MY_Controller {
 		$join['data'][] = array(
 			'table' => 'nota_detail_orders c',
 			'join'	=> 'c.nota_detail_id=b.nota_detail_id',
+			'type'	=> 'inner'
+		);	
+
+		//JOIN
+		$join['data'][] = array(
+			'table' => 'items d',
+			'join'	=> 'd.item_id=c.item_id',
 			'type'	=> 'inner'
 		);	
 
@@ -318,6 +325,8 @@ class Delivery extends MY_Controller {
 		$warehouse_id = '';
 		$detail_type1_id = '';
 		$detail_type2_id = '';
+		
+		$total_cost = 0;
 		$query = $this->g_mod->select($select,$tbl,NULL,NULL,$order,$join,$where,NULL);
 		foreach ($query->result() as $val) {
 			$warehouse_new_id = $val->warehouse_id;
@@ -361,14 +370,21 @@ class Delivery extends MY_Controller {
 			}
 
 			$warehouse_id = $warehouse_new_id;
+
+			$cost = ($val->qty_kirim + $val->qty_ambil) * $val->item_cost;
+
+			$total_cost += $cost;
+
+
 		}
 		
 
 		if($insert->status) {
-			$response['status'] = '200';
-			$response['alert'] = '1';
-			$response['delivery_id'] = $delivery_id;
-			$response['nota_id'] = $nota_id;
+			$response['status'] 		= '200';
+			$response['alert'] 			= '1';
+			$response['delivery_id'] 	= $delivery_id;
+			$response['nota_id'] 		= $nota_id;
+			$response['total_cost'] 	= $total_cost;
 		} else {
 			$response['status'] = '204';
 		}
@@ -423,7 +439,7 @@ class Delivery extends MY_Controller {
 		$data = array(
 			'employee_id' 		=> $this->input->post('i_employee', TRUE),
 			'delivery_date' 	=> $this->format_date_day_mid($this->input->post('i_date', TRUE)),
-			'delivery_cost' 	=> $this->input->post('i_cost', TRUE),
+			//'delivery_cost' 	=> $this->input->post('i_cost', TRUE),
 			'delifery_freight_cost' 	=> $this->input->post('i_freight', TRUE)
 			);
 			

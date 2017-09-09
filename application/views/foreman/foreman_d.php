@@ -1,9 +1,10 @@
     <div class="col-md-12" style="padding-bottom: 10px;">
                           <div class="box-inner">
                             <div class="box-header well" data-original-title="">
-                              <div class="col-md-4"><h2>No DO : <? if(isset($delivery_detail_code)) echo $delivery_detail_code?></h2> </div>
-                              <div class="col-md-4"><h2>Gudang : <? if(isset($warehouse_name)) echo $warehouse_name?></h2> </div>
-                              <div class="col-md-4"><h2>Type DO : <? if(isset($type)) echo $type?></h2> </div>
+                              <div class="col-md-3"><h2>Kode Nota : <? if(isset($nota_code)) echo $nota_code?></h2> </div>
+                              <div class="col-md-3"><h2>No DO : <? if(isset($delivery_detail_code)) echo $delivery_detail_code?></h2> </div>
+                              <div class="col-md-3"><h2>Gudang : <? if(isset($warehouse_name)) echo $warehouse_name?></h2> </div>
+                              <div class="col-md-3"><h2>Type DO : <? if(isset($type)) echo $type?></h2> </div>
                             </div>
                             <div class="box-content">
                               <div class="form-group">

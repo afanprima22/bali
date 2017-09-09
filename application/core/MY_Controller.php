@@ -175,6 +175,39 @@ class MY_Controller extends CI_Controller
 		return $kode_baru;
 	}
 
+	function format_kode_nota($code,$type,$query){
+		$bln = date('m');
+		$thn = date('y');
+		if ($query<>false) {
+			foreach ($query->result() as $row) {
+				$urut = intval($row->id);
+				if ($urut==0) {
+					$urut++;
+					$seq = '000'.$urut;
+				} else {
+					if ($urut<9) {
+						$urut++;
+						$seq = '000'.$urut;
+					} else if ($urut<99) {
+						$urut++;
+						$seq = '00'.$urut;
+					} else if ($urut<999) {
+						$urut++;
+						$seq = '0'.$urut;
+					} else {
+						$urut++;
+						$seq = $urut;
+					}
+				}
+			}
+		} else {
+			$seq = '0001';
+		}
+		//$kode_baru = $type.'/'.$thn.'/'.$bln.'/'.$seq;
+		$kode_baru = $type.''.$code.''.$thn.''.$bln.''.$seq;
+		return $kode_baru;
+	}
+
 	function nama_bulan_id($bln){
 		$Bulan = array("Januari", "Februari", "Maret", "April", "Mei", "Juni", "Juli", "Agustus", "September", "Oktober", "November", "Desember");
 		$result = $Bulan[(int)$bln-1];		

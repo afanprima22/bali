@@ -30,12 +30,9 @@
                       <div class="row">
                         <div class="col-md-6">
                           <div class="form-group">
-                            <label>Id Barang (Auto)</label>
-                            <input type="text" class="form-control" name="i_id_item" id="i_id_item" placeholder="Auto" value="" readonly="">
-                          </div>
-                          <div class="form-group">
                             <label>Nama Barang</label>
                             <input type="text" class="form-control" name="i_name_item" id="i_name_item" placeholder="Masukkan Nama Barang" required="required" value="">
+                            <input type="hidden" class="form-control" name="i_id_item" id="i_id_item" placeholder="Auto" value="" readonly="">
                           </div>
                           <div class="form-group">
                             <label>Class Item</label>
@@ -105,6 +102,10 @@
                           <div class="form-group">
                             <label>Stok Max</label>
                             <input type="number" class="form-control" placeholder="Masukkan Stok Max"  name="i_stok_max" id="i_stok_max" value="">
+                          </div>
+                          <div class="form-group">
+                            <label>Biaya Angkut</label>
+                            <input type="text" class="form-control money" placeholder="Masukkan Biaya Angkut"  name="i_cost" id="i_cost" value="">
                           </div>
 
                         </div>

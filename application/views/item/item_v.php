@@ -389,7 +389,8 @@
               document.getElementById("i_price3").value             = data.val[i].item_price3;
               document.getElementById("i_price4").value             = data.val[i].item_price4;
               document.getElementById("i_price5").value             = data.val[i].item_price5;
-              document.getElementById("i_qty_unit").value             = data.val[i].item_per_unit;
+              document.getElementById("i_qty_unit").value           = data.val[i].item_per_unit;
+              document.getElementById("i_cost").value               = data.val[i].item_cost;
 
               $("#i_class_item").append('<option value="'+data.val[i].item_clas_id+'" selected>'+data.val[i].item_clas_name+'</option>');
               $("#i_sub_class_item").append('<option value="'+data.val[i].item_sub_clas_id+'" selected>'+data.val[i].item_sub_clas_name+'</option>');

@@ -18,6 +18,7 @@
                     <table width="100%" id="table1" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                         <thead>
                             <tr>
+                                <th>Kode Gudang</th>
                                 <th>Nama Gudang</th>
                                 <th>Telepon</th>
                                 <th>No Fax</th>
@@ -40,8 +41,9 @@
                       <div class="row">
                         <div class="col-md-6">
                           <div class="form-group">
-                            <label>Id Gudang (Auto)</label>
-                            <input type="text" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
+                            <label>Kode Gudang</label>
+                            <input type="text" class="form-control" name="i_code" id="i_code" placeholder="Masukkan Kode Gudang" required="required" value="">
+                            <input type="hidden" class="form-control" name="i_id" id="i_id" value="">
                           </div>
                           <div class="form-group">
                             <label>Nama Gudang</label>
@@ -222,6 +224,7 @@
               url: '<?php echo base_url();?>Warehouse/load_data/'
             },
             "columns": [
+              {"name": "warehouse_code"},
               {"name": "warehouse_name"},
               {"name": "warehouse_telp"},
               {"name": "warehouse_fax"},
@@ -366,6 +369,7 @@
             for(var i=0; i<data.val.length;i++){
               document.getElementById("i_id").value             = data.val[i].warehouse_id;
               document.getElementById("i_name").value           = data.val[i].warehouse_name;
+              document.getElementById("i_code").value           = data.val[i].warehouse_code;
               document.getElementById("i_telp").value         = data.val[i].warehouse_telp;
               document.getElementById("i_addres").value      = data.val[i].warehouse_address;
               document.getElementById("i_fax").value         = data.val[i].warehouse_fax;
@@ -382,6 +386,7 @@
 
     function reset2(){
       document.getElementById('cek_stock').style.display = 'none';
+      search_data_rack(0);
     }
 
       function select_list_item() {

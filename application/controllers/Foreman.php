@@ -339,7 +339,7 @@ class Foreman extends MY_Controller {
 		$query = $this->g_mod->select($select,$tbl,NULL,NULL,$order,$join,$where);
 
 		$tbl2  = 'delivery_details a';
-		$select2 = 'a.*,c.warehouse_name,d.foreman_id';
+		$select2 = 'a.*,c.warehouse_name,d.foreman_id,f.nota_code';
 		
 		//JOIN
 		$join2['data'][] = array(
@@ -354,6 +354,19 @@ class Foreman extends MY_Controller {
 			'join'	=> 'd.delivery_detail_id=a.delivery_detail_id',
 			'type'	=> 'left'
 		);	
+
+		//JOIN
+		$join2['data'][] = array(
+			'table' => 'deliveries e',
+			'join'	=> 'e.delivery_id=a.delivery_id',
+			'type'	=> 'inner'
+		);
+		//JOIN
+		$join2['data'][] = array(
+			'table' => 'notas f',
+			'join'	=> 'f.nota_id=e.nota_id',
+			'type'	=> 'inner'
+		);
 		
 		$query2 = $this->g_mod->select($select2,$tbl2,NULL,NULL,NULL,$join2,$where);
 		if ($query2<>false) {
@@ -361,6 +374,7 @@ class Foreman extends MY_Controller {
 				$delivery_detail_code 	= $val->delivery_detail_code;
 				$warehouse_name 		= $val->warehouse_name;
 				$foreman_id 			= $val->foreman_id;
+				$nota_code 				= $val->nota_code;
 				if ($val->delivery_detail_type == 1) {
 			      $type = "Kirim";
 			    }else{
@@ -372,12 +386,13 @@ class Foreman extends MY_Controller {
 			$warehouse_name 		= '';
 			$type 					= '';
 			$foreman_id 			= '';
+			$nota_code 				= '';
 		}
 		
 		if ($type_list == 1) {
-			$this->load->view('foreman/foreman_d',array('query' => $query,'delivery_detail_code' => $delivery_detail_code,'warehouse_name' => $warehouse_name,'type' => $type,'foreman_id' => $foreman_id));
+			$this->load->view('foreman/foreman_d',array('query' => $query,'delivery_detail_code' => $delivery_detail_code,'warehouse_name' => $warehouse_name,'type' => $type,'foreman_id' => $foreman_id,'nota_code' => $nota_code));
 		}else{
-			$this->load->view('foreman/foreman_s',array('query' => $query,'delivery_detail_code' => $delivery_detail_code,'warehouse_name' => $warehouse_name,'type' => $type,'foreman_id' => $foreman_id));
+			$this->load->view('foreman/foreman_s',array('query' => $query,'delivery_detail_code' => $delivery_detail_code,'warehouse_name' => $warehouse_name,'type' => $type,'foreman_id' => $foreman_id,'nota_code' => $nota_code));
 		}
 		
 			

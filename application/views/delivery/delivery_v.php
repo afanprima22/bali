@@ -8,9 +8,9 @@
 </style>
 <div class="nav-tabs-custom">
     <ul class="nav nav-tabs">
-        <li class="active"><a href="#list" data-toggle="tab">List Nota</a></li>
+        <li class="active"><a href="#list" data-toggle="tab">List Nota Belum DO</a></li>
         <li><a href="#form" data-toggle="tab">Form Data</a></li>
-        <li><a href="#list_do" data-toggle="tab">List Nota DO</a></li>
+        <li><a href="#list_do" data-toggle="tab">List Nota Sudah DO</a></li>
     </ul>
     <div class="tab-content">
         <div class="tab-pane active" id="list">
@@ -50,7 +50,7 @@
                                 <th>Kode Nota</th>
                                 <th>Tanggal DO</th>
                                 <th>Sopir</th>
-                                <th>Ongkos Kirim</th>
+                                <th>Biaya Angkut</th>
                                 <th>Config</th>
                             </tr>
                         </thead>
@@ -72,10 +72,10 @@
                             </select>
                             <input type="hidden" class="form-control" name="i_id" id="i_id">
                           </div>
-                          <div class="form-group">
+                          <!--<div class="form-group">
                             <label>Ongkos Kirim</label>
                             <input type="text" class="form-control money" placeholder="Masukkan Ongkos Kirim" required="required" name="i_cost" id="i_cost" value="">
-                          </div>
+                          </div>-->
                           
                         </div>
                         <div class="col-md-6">
@@ -178,7 +178,7 @@
               {"name": "nota_code"},
               {"name": "delivery_date"},
               {"name": "employee_name"},
-              {"name": "delivery_cost"},
+              {"name": "delifery_freight_cost"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
             "order": [
@@ -260,7 +260,7 @@
             for(var i=0; i<data.val.length;i++){
               document.getElementById("i_id").value           = data.val[i].delivery_id;
               document.getElementById("datepicker").value     = data.val[i].delivery_date;
-              document.getElementById("i_cost").value         = data.val[i].delivery_cost;
+              //document.getElementById("i_cost").value         = data.val[i].delivery_cost;
               document.getElementById("i_freight").value         = data.val[i].delifery_freight_cost;
 
               $("#i_employee").append('<option value="'+data.val[i].employee_id+'" selected>'+data.val[i].employee_name+'</option>');
@@ -320,6 +320,7 @@
             if(data.status=='200'){
               //edit_data(data.delivery_id,data.nota_id);
               document.getElementById("i_id").value = data.delivery_id;
+              document.getElementById("i_freight").value         = data.total_cost;
               $("#view_detail").load("<?= site_url()?>delivery/load_view_detail/"+(data.delivery_id)+"/"+(data.nota_id));
               $('[href="#form"]').tab('show');
             } 

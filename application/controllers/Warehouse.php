@@ -66,7 +66,7 @@ class Warehouse extends MY_Controller {
 		);
 		//WHERE LIKE
 		$where_like['data'][] = array(
-			'column' => 'warehouse_name,warehouse_telp,warehouse_fax,warehouse_pic',
+			'column' => 'warehouse_name,warehouse_telp,warehouse_fax,warehouse_pic,warehouse_code',
 			'param'	 => $this->input->get('search[value]')
 		);
 		//ORDER
@@ -86,6 +86,7 @@ class Warehouse extends MY_Controller {
 			foreach ($query->result() as $val) {
 				if ($val->warehouse_id>0) {
 					$response['data'][] = array(
+						$val->warehouse_code,
 						$val->warehouse_name,
 						$val->warehouse_telp,
 						$val->warehouse_fax,
@@ -371,6 +372,7 @@ class Warehouse extends MY_Controller {
 					'warehouse_address' 	=> $val->warehouse_address,
 					'warehouse_fax' 		=> $val->warehouse_fax,
 					'warehouse_pic' 		=> $val->warehouse_pic,
+					'warehouse_code' 		=> $val->warehouse_code,
 				);
 			}
 
@@ -614,7 +616,8 @@ class Warehouse extends MY_Controller {
 			'warehouse_telp' 		=> $this->input->post('i_telp', TRUE),
 			'warehouse_address' 	=> $this->input->post('i_addres', TRUE),
 			'warehouse_fax' 		=> $this->input->post('i_fax', TRUE),
-			'warehouse_pic' 		=> $this->input->post('i_pic', TRUE)
+			'warehouse_pic' 		=> $this->input->post('i_pic', TRUE),
+			'warehouse_code' 		=> $this->input->post('i_code', TRUE)
 			);
 			
 

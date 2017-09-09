@@ -19,13 +19,10 @@
 		
 			<form id="formsub" role="form" action="" method="post" enctype="multipart/form-data">
 				<div class="box-content">
-					<div class="form-group">
-                        <label>Id Sub Class Item (Auto)</label>
-                        <input type="text" class="form-control" name="i_id_sub" id="i_id_sub" placeholder="Auto" value="" readonly="">
-                    </div>
                     <div class="form-group">
                         <label>Nama Sub Class Item</label>
                         <input type="text" class="form-control" name="i_name_sub" id="i_name_sub" placeholder="Masukkan Nama Class Item" required="required" value="">
+                        <input type="hidden" class="form-control" name="i_id_sub" id="i_id_sub" placeholder="Auto" value="" readonly="">
                     </div>
                     <div class="form-group">
                         <label>Nama Sub Class Item</label>

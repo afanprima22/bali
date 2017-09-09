@@ -459,6 +459,7 @@ class Item extends MY_Controller {
 					'item_price3' 				=> $val->item_price3,
 					'item_price4' 				=> $val->item_price4,
 					'item_price5' 				=> $val->item_price5,
+					'item_cost' 				=> $val->item_cost,
 					'item_per_unit' 			=> $val->item_per_unit
 				);
 			}
@@ -729,6 +730,7 @@ class Item extends MY_Controller {
 			'item_price3' 			=> $this->input->post('i_price3', TRUE),
 			'item_price4' 			=> $this->input->post('i_price4', TRUE),
 			'item_price5' 			=> $this->input->post('i_price5', TRUE),
+			'item_cost' 			=> $this->input->post('i_cost', TRUE),
 			'item_per_unit' 		=> $this->input->post('i_qty_unit', TRUE)
 		);
 			

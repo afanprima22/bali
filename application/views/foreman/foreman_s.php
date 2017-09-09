@@ -1,6 +1,7 @@
                           <div class="box-inner">
                           <form id="formspesific" role="form" action="" method="post" enctype="multipart/form-data">
                             <div class="box-header well" data-original-title="">
+                              <div class="col-md-3"><h2>Kode Nota : <? if(isset($nota_code)) echo $nota_code?></h2> </div>
                               <div class="col-md-4"><h2>No DO : <? if(isset($delivery_detail_code)) echo $delivery_detail_code?></h2> </div>
                               <div class="col-md-4"><h2>Gudang : <? if(isset($warehouse_name)) echo $warehouse_name?></h2> </div>
                               <div class="col-md-4"><h2>Type DO : <? if(isset($type)) echo $type?></h2> </div>
