@@ -1,6 +1,7 @@
 <div class="tab-pane active" id="list_data_item">
             <div class="box-inner">
                 <div class="box-content">
+                  <div class="btn-group pull-right"><button class="btn btn-warning btn-xl" type="button" onclick="print_pdf()" class="btn btn-primary">Print Pdf <i class="glyphicon glyphicon-print"></i></button></div>
                     <div id="create" class="alert alert-success" style="display: none;"><h4><i class="glyphicon glyphicon-check"></i> Sukses!</h4>Data telah Disimpan.</div>
                     <div id="update" class="alert alert-info" style="display: none;"><h4><i class="glyphicon glyphicon-info-sign"></i> Sukses!</h4>Data telah Direvisi.</div>
                     <div id="delete" class="alert alert-danger" style="display: none;"><h4><i class="glyphicon glyphicon-ban-circle"></i> Sukses!</h4>Data telah Dihapus.</div>

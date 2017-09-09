@@ -26,8 +26,13 @@
         </tr>
         <tr>
           <td width="50%">&nbsp;</td>
+          <td width="10%">Lokasi</td>
+          <td>: <?= $warehouse_name ?></td>
+        </tr>
+        <tr>
+          <td width="50%">&nbsp;</td>
           <td width="10%"></td>
-          <td></td>
+          <td>&nbsp;&nbsp;<?= $warehouse_address ?></td>
         </tr>
         <tr>
           <td>&nbsp;</td>
@@ -47,7 +52,6 @@
           <th>No</th>
           <th>Nama Rak </th>
           <th>Nama Barang</th>
-          <th>Nama Gudang</th>
           <th>jumlah</th> 
           <th>Stock Qty</th> 
         </tr>
@@ -76,7 +80,6 @@
             <td><?=$no?></td>
             <td><?=$val2->rack_name?></td>
             <td><?=$val2->item_name?></td>
-            <td><?=$val2->warehouse_name?></td>
             <td><?=$stock.' '.$val2->unit_name?></td>
             <td><?=$val2->stock_qty?></td>
           </tr>

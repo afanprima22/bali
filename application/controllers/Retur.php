@@ -341,6 +341,9 @@ class Retur extends MY_Controller {
 
 	public function action_data_detail(){
 		$id = $this->input->post('i_detail');
+		$sql ="SELECT * FROM returs_suppliers_details where retur_supplier_detail_id = $id";
+			$row = $this->g_mod->select_manual($sql);
+			$qty = $row['retur_supplier_detail_qty'];
 		if (strlen($id)>0) {
 			//UPDATE
 			$data = $this->general_post_data_detail();
@@ -350,7 +353,11 @@ class Retur extends MY_Controller {
 				'param'	 => $id
 			);
 			$update = $this->g_mod->update_data_table('returs_suppliers_details', $where, $data);
-			$update1 = $this->g_mod->update_data_Qty('purchases_details', 'purchase_detail_qty_akumulation','purchase_detail_id',$this->input->post('i_qty_return',TRUE),$this->input->post('i_item',TRUE)	);
+			
+			
+			$data2 = $data['retur_supplier_detail_qty'];
+			$qty2 = $data2 - $qty;
+			$update1 = $this->g_mod->update_data_Qty('purchases_details', 'purchase_detail_qty_akumulation','purchase_detail_id',$qty2,$this->input->post('i_item',TRUE)	);
 			if($update->status) {
 				$response['status'] = '200';
 				$response['alert'] = '2';
@@ -378,7 +385,7 @@ class Retur extends MY_Controller {
 	function general_post_data_detail(){
 
 		$data = array(
-			'retur_supplier_id' 			=> $this->input->post('i_retur', TRUE),
+			'retur_supplier_id' 			=> $this->input->post('i_id', TRUE),
 			'user_id' 						=> $this->user_id,
 			'purchase_detail_id' 						=> $this->input->post('i_item',TRUE),
 			'retur_supplier_detail_qty' 				=> $this->input->post('i_qty_return', TRUE),
@@ -571,7 +578,7 @@ class Retur extends MY_Controller {
 	function print_retur_sup_pdf(){
 
 		$id = $this->input->get('id');
-		$select = ' a.*,e.partner_name,b.retur_supplier_id,b.retur_supplier_date,b.retur_supplier_code,b.purchase_id,d.purchase_detail_id';
+		$select = ' a.*,e.partner_name,b.retur_supplier_id,b.retur_supplier_date,b.retur_supplier_code,b.purchase_id,c.purchase_code,d.purchase_detail_id';
 		$tbl = 'returs_suppliers_details a';
 		//WHERE
 		$where['data'][] = array(
@@ -612,13 +619,14 @@ class Retur extends MY_Controller {
 			$data = array(
 				'retur_supplier_report_date' 		=> date("Y/m/d"),
 				'retur_supplier_id' 				=> $row->retur_supplier_id,
-				'retur_supplier_date' 			=> $row->retur_supplier_date, 
+				/*'retur_supplier_date' 			=> $row->retur_supplier_date, 
 				'retur_supplier_code' 		=> $row->retur_supplier_code,
-				'partner_name' 		=> $row->partner_name,
+				'partner_name' 				=> $row->partner_name,*/
 				'purchase_id' 				=> $row->purchase_id,
+				/*'purchase_code' 				=> $row->purchase_code,*/
 				'retur_supplier_detail_id' 				=> $row->retur_supplier_detail_id,
-				'retur_supplier_detail_qty' 		=> $row->retur_supplier_detail_qty,
-				'retur_supplier_detail_desc'		=> $row->retur_supplier_detail_desc,
+				/*'retur_supplier_detail_qty' 		=> $row->retur_supplier_detail_qty,
+				'retur_supplier_detail_desc'		=> $row->retur_supplier_detail_desc,*/
 				'purchase_detail_id'				=> $row->purchase_detail_id,
 
 				);
@@ -626,6 +634,10 @@ class Retur extends MY_Controller {
 		}
 		$judul			= "Return Supplier";
 		$data['title'] 	= $judul;
+		$data['retur_supplier_code'] 	= $row->retur_supplier_code;
+		$data['purchase_code'] 	= $row->purchase_code;
+		$data['partner_name'] 	= $row->partner_name;
+		$data['retur_supplier_date'] 	=  $row->retur_supplier_date;
 
 	    $html = $this->load->view('report/report_retur_sup', $data, true);//SEND DATA TO VIEW
 	    $paper = 'A4';

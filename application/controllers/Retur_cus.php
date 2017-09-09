@@ -641,7 +641,7 @@ class Retur_cus extends MY_Controller {
  	function print_retur_cus_pdf(){
 
 		$id = $this->input->get('id');
-		$select = ' a.*,e.customer_name,b.retur_cus_id,b.retur_cus_date,b.retur_cus_code,b.nota_id,d.nota_detail_id';
+		$select = ' a.*,e.customer_name,b.retur_cus_id,b.retur_cus_date,b.retur_cus_code,b.nota_id,c.nota_code,d.nota_detail_id';
 		$tbl = 'retur_cus_details a';
 		//WHERE
 		$where['data'][] = array(
@@ -678,22 +678,12 @@ class Retur_cus extends MY_Controller {
 		
 		$query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
 		foreach ($query->result() as $row){ 
-			if ($row->retur_cus_detail_status == 0) {
-            $status = 'Belum Diterima';
-          }elseif ($row->retur_cus_detail_status == 1) {
-            $status = 'Sudah Diterima';
-          }
+			
 			$data = array(
 				'retur_cus_report_date' 		=> date("Y/m/d"),
 				'retur_cus_id' 				=> $row->retur_cus_id,
-				'retur_cus_date' 			=> $row->retur_cus_date, 
-				'retur_cus_code' 		=> $row->retur_cus_code,
-				'customer_name' 		=> $row->customer_name,
 				'nota_id' 				=> $row->nota_id,
 				'retur_cus_detail_id' 				=> $row->retur_cus_detail_id,
-				'retur_cus_detail_qty' 		=> $row->retur_cus_detail_qty,
-				'retur_cus_detail_status' 		=> $status,
-				'retur_cus_detail_desc'		=> $row->retur_cus_detail_desc,
 				'nota_detail_id'				=> $row->nota_detail_id,
 
 				);
@@ -701,6 +691,10 @@ class Retur_cus extends MY_Controller {
 		}
 		$judul			= "Return Customer";
 		$data['title'] 	= $judul;
+		$data['nota_code'] 	= $row->nota_id;
+		$data['retur_cus_date'] 	= $row->retur_cus_date;
+		$data['retur_cus_code'] 	= $row->retur_cus_code;
+		$data['customer_name'] 	= $row->customer_name;
 
 	    $html = $this->load->view('report/report_retur_cus', $data, true);//SEND DATA TO VIEW
 	    $paper = 'A4';
