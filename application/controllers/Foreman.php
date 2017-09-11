@@ -270,6 +270,7 @@ class Foreman extends MY_Controller {
 		echo json_encode($response);
 	}
 
+
 	/* Saving $data as array to database */
 	function general_post_data(){
 		/*$data = array(
