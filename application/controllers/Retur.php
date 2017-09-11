@@ -618,22 +618,23 @@ class Retur extends MY_Controller {
 
 			$data = array(
 				'retur_supplier_report_date' 		=> date("Y/m/d"),
-				'retur_supplier_id' 				=> $row->retur_supplier_id,
-				/*'retur_supplier_date' 			=> $row->retur_supplier_date, 
+				/*'retur_supplier_id' 				=> $row->retur_supplier_id,*/
+				'retur_supplier_date' 			=> $row->retur_supplier_date, 
 				'retur_supplier_code' 		=> $row->retur_supplier_code,
-				'partner_name' 				=> $row->partner_name,*/
-				'purchase_id' 				=> $row->purchase_id,
-				/*'purchase_code' 				=> $row->purchase_code,*/
-				'retur_supplier_detail_id' 				=> $row->retur_supplier_detail_id,
-				/*'retur_supplier_detail_qty' 		=> $row->retur_supplier_detail_qty,
-				'retur_supplier_detail_desc'		=> $row->retur_supplier_detail_desc,*/
-				'purchase_detail_id'				=> $row->purchase_detail_id,
+				'partner_name' 				=> $row->partner_name,
+				/*'purchase_id' 				=> $row->purchase_id,*/
+				'purchase_code' 				=> $row->purchase_code,
+				/*'retur_supplier_detail_id' 				=> $row->retur_supplier_detail_id,*/
+				'retur_supplier_detail_qty' 		=> $row->retur_supplier_detail_qty,
+				'retur_supplier_detail_desc'		=> $row->retur_supplier_detail_desc,
+				/*'purchase_detail_id'				=> $row->purchase_detail_id,*/
 
 				);
 			$insert = $this->g_mod->insert_data_table('returs_supplier_reports', NULL, $data);
 		}
 		$judul			= "Return Supplier";
 		$data['title'] 	= $judul;
+		$data['retur_supplier_id'] 	= $row->retur_supplier_id;
 		$data['retur_supplier_code'] 	= $row->retur_supplier_code;
 		$data['purchase_code'] 	= $row->purchase_code;
 		$data['partner_name'] 	= $row->partner_name;
