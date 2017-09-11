@@ -169,7 +169,7 @@ class Mutation extends MY_Controller {
 		$id = $this->input->post('i_id');
 		
 		if (strlen($id)>0) {
-			$sql ="SELECT * FROM mutation_details a join items b on b.item_id = a.item_id where mutation_id=$id";
+			/*$sql ="SELECT * FROM mutation_details a join items b on b.item_id = a.item_id where mutation_id=$id";
 			$row = $this->g_mod->select_manual($sql);
 			$id3 = $row['mutation_detail_qty'];
 			$item1 = $row['item_id'];
@@ -184,7 +184,7 @@ class Mutation extends MY_Controller {
 			$qty3 =$id3*$item;
 			$item = $this->input->post('i_item_cek', TRUE);
 			$rack = $this->input->post('i_rack_cek', TRUE);
-			$rack2 = $this->input->post('i_rack2_cek', TRUE);
+			$rack2 = $this->input->post('i_rack2_cek', TRUE);*/
 			//UPDATE
 			$data = $this->general_post_data();
 			//WHERE
@@ -194,7 +194,7 @@ class Mutation extends MY_Controller {
 			);
 			$update = $this->g_mod->update_data_table($this->tbl, $where, $data);
 
-			if ($item =$item1 && $rack = $rack1 && $rack2 = $rack3 ) {
+			/*if ($item =$item1 && $rack = $rack1 && $rack2 = $rack3 ) {
 			$update2 = $this->g_mod->update_data_stock('stocks', 'stock_qty','rack_id',$qty,$this->input->post('i_rack_cek', TRUE), 'and item_id = '.$this->input->post('i_item_cek', TRUE));
 			$update3 = $this->g_mod->update_data_Qty('stocks', 'stock_qty','rack_id',$qty,$rack2, 'and item_id = '.$item);
 			}elseif($item =$item1 && $rack != $rack1 && $rack2 = $rack3){
@@ -203,7 +203,7 @@ class Mutation extends MY_Controller {
 
 				$update2 = $this->g_mod->update_daata_stock('stocks', 'stock_qty','rack_id',$row['rack_id'], 'and item_id = '.$row['item_id']);
 				$update3 = $this->g_mod->update_data_Qty('stocks', 'stock_qty','rack_id',$qty3,$row['rack_id2'], 'and item_id = '.$row['item_id']);
-			}
+			}*/
 			if($update->status) {
 				$response['status'] = '200';
 				$response['alert'] = '2';
@@ -359,7 +359,7 @@ class Mutation extends MY_Controller {
 						$val->rack_name,
 						$val->warehouse_name,
 						$val->name,
-						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data_detail('.$val->mutation_detail_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_detail('.$val->mutation_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
+						'<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_detail('.$val->mutation_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
 					);
 					$no++;	
 				}
@@ -564,8 +564,24 @@ class Mutation extends MY_Controller {
 		$id = $this->input->post('id');
 		//WHERE
 		$where['data'][] = array(
-			'column' => 'mutation_detail_id',
+			'column' => 'mutation_id',
 			'param'	 => $id
+		);
+		$delete = $this->g_mod->delete_data_table('mutation_details', $where);
+		if($delete->status) {
+			$response['status'] = '200';
+			$response['alert'] = '3';
+		} else {
+			$response['status'] = '204';
+		}
+
+		echo json_encode($response);
+	}
+	public function delete($id2){
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'mutation_id',
+			'param'	 => $id2
 		);
 		$delete = $this->g_mod->delete_data_table('mutation_details', $where);
 		if($delete->status) {

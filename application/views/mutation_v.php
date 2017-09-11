@@ -115,7 +115,7 @@
                       <div class="form-group"></div>
                       <div class="box-footer text-right">
                         <!--<a href="#myModal" class="btn btn-info" data-toggle="modal">Click for dialog</a>-->
-                        <button type="button" onclick="reset()" class="btn btn-warning">Batal</button>
+                        <button type="button" onclick="dlete(),reset1()" class="btn btn-warning">Batal</button>
                         <button type="submit" class="btn btn-primary" <?php if(isset($c)) echo $c;?>>Simpan</button>
                       </div>
 
@@ -550,6 +550,29 @@ function select_list_warehouse() {
                 }
             });
         }
+        
+    }
+    function dlete() {
+        var id = document.getElementById("i_id").value;
+        var id2 = 0;
+        if (id) {
+          var id_new = id;
+        }else{
+          var id_new = 0;
+        }
+
+        
+            $.ajax({
+                url: '<?php echo base_url();?>Mutation/delete/'+id2,
+                data: 'id='+id2,
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                  if (data.status=='200') {
+                    search_data_detail(id_new);
+                  }
+                }
+            });
         
     }
 
