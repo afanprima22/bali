@@ -76,6 +76,7 @@ $route['Setting/User']										= 'User';
 $route['Transaksi/Nota']									= 'Nota';
 $route['Transaksi/Delivery-Order']							= 'Delivery';
 $route['Transaksi/Mandor-Gudang']							= 'Foreman';
+$route['Transaksi-Pembayaran-Customer']						= 'Bill_cus';
 
 $route['Transaksi/Pembelian']								= 'Purchase';
 $route['Transaksi/Penerimaan-Barang']						= 'Reception';

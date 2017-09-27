@@ -765,6 +765,7 @@ class Nota extends MY_Controller {
 		$data['nota_dp'] 				= $this->input->post('i_dp', TRUE);
 		$data['nota_type_dp'] 			= $this->input->post('i_type_dp', TRUE);
 		$data['nota_number_dp'] 		= $this->input->post('i_nomor_card', TRUE);
+		$data['nota_netto'] 			= $this->input->post('i_netto', TRUE);
 
 		$nota = $this->input->post('i_nota_id', TRUE);
 		if ($nota) {
@@ -784,7 +785,7 @@ class Nota extends MY_Controller {
 		return $data;
 	}
 
-	public function load_data_select_nota(){
+	public function load_data_select_nota($type= 0){
 		//WHERE LIKE
 		$where_like['data'][] = array(
 			'column' => 'nota_code',
@@ -796,7 +797,12 @@ class Nota extends MY_Controller {
 			'type'	 => 'ASC'
 		);
 
-		$query = $this->g_mod->select('*',$this->tbl,NULL,$where_like,$order,NULL,NULL);
+		if ($type == 1) {
+			$where = "nota_type = 3 and nota_bill = 0";
+		}else{
+			$where = "";
+		}
+		$query = $this->g_mod->select('*',$this->tbl,NULL,$where_like,$order,NULL,NULL,$where);
 		$response['items'] = array();
 		if ($query<>false) {
 			foreach ($query->result() as $val) {
@@ -1118,6 +1124,7 @@ class Nota extends MY_Controller {
 		$response['total_price'] 		= number_format($total_price);
 		$response['total_potongan'] 	= number_format($total_potongan);
 		$response['grand_total'] 		= number_format($grand_total);
+		$response['grand_netto'] 		= $grand_total;
 
 		echo json_encode($response);
 	}

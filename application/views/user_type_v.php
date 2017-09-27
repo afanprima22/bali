@@ -82,14 +82,12 @@
                           <div class="form-group">
                             <label class="control-label col-md-9" for="name" style="text-align:left; padding-left:10em;"><?=$row3['side_menu_name']?></label>
                             <? if($row3['side_menu_url'] != '#'){?>
-                            <div class="col-md-3 col-sm-3 col-xs-3">
-                              <div class="col-sm-9 checkbo">
-                                 <input id="c<?=$row2['side_menu_id']?>" name="permit<?=$row3['side_menu_id']?>[]" type="checkbox" value="c" >&nbsp;&nbsp;&nbsp;&nbsp;
-                                 <input id="r<?=$row2['side_menu_id']?>" name="permit<?=$row3['side_menu_id']?>[]" type="checkbox" value="r" >&nbsp;&nbsp;&nbsp;&nbsp;
-                                 <input id="u<?=$row2['side_menu_id']?>" name="permit<?=$row3['side_menu_id']?>[]" type="checkbox" value="u" >&nbsp;&nbsp;&nbsp;&nbsp;
-                                 <input id="d<?=$row2['side_menu_id']?>" name="permit<?=$row3['side_menu_id']?>[]" type="checkbox" value="d" >&nbsp;&nbsp;&nbsp;&nbsp;
+                              <div class="col-md-3" style="text-align: center;">
+                                 <input id="c<?=$row3['side_menu_id']?>" name="permit<?=$row3['side_menu_id']?>[]" type="checkbox" value="c" >&nbsp;&nbsp;&nbsp;&nbsp;
+                                 <input id="r<?=$row3['side_menu_id']?>" name="permit<?=$row3['side_menu_id']?>[]" type="checkbox" value="r" >&nbsp;&nbsp;&nbsp;&nbsp;
+                                 <input id="u<?=$row3['side_menu_id']?>" name="permit<?=$row3['side_menu_id']?>[]" type="checkbox" value="u" >&nbsp;&nbsp;&nbsp;&nbsp;
+                                 <input id="d<?=$row3['side_menu_id']?>" name="permit<?=$row3['side_menu_id']?>[]" type="checkbox" value="d" >&nbsp;&nbsp;&nbsp;&nbsp;
                               </div>
-                            </div>
                                                         
                             <? }?>
                           </div>

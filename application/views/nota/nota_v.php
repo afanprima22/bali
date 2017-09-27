@@ -167,7 +167,10 @@
                                     </tr>
                                     <tr>
                                       <th colspan="8" style="text-align: right;">Netto</th>
-                                      <th colspan="3"><input type="text" class="form-control" name="netto" readonly="" style="border: none;background: transparent;text-align: right;font-size: 18px;"></th>
+                                      <th colspan="3">
+                                          <input type="text" class="form-control" name="netto" readonly="" style="border: none;background: transparent;text-align: right;font-size: 18px;">
+                                          <input type="hidden" name="i_netto" class="form-control">
+                                      </th>
                                     </tr>
                                     <tr>
                                       <th colspan="8" style="text-align: right;">
@@ -1004,6 +1007,7 @@
             $('input[name="total_harga"]').val(data.total_price);
             $('input[name="total_potongan"]').val(data.total_potongan);
             $('input[name="netto"]').val(data.grand_total);
+            $('input[name="i_netto"]').val(data.grand_netto);
           }
         });
       }
