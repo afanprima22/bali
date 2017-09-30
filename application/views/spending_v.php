@@ -39,12 +39,7 @@
                 <form id="formall" role="form" action="" method="post" enctype="multipart/form-data" onkeypress="return event.keyCode != 13;">
                     <div class="box-content">
                       <div class="row">
-                        <div class="col-md-6">
-                          <div class="form-group">
-                            <label>Id pengeluaran (Auto)</label>
-                            <input type="text" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
-                          </div>
-                          
+                        <div class="col-md-6">                          
                           <div class="form-group">
                             <label>tanggal operasional</label>
                             <div class="input-group date">
@@ -54,18 +49,19 @@
                               <input type="text" class="form-control pull-right" id="datepicker" name="i_date" placeholder="tanggal operasional" value="" required="required">
                             </div>
                           </div>
+                          <div class="form-group">
+                            <label>Asal Kas</label>
+                            <select class="form-control select2" name="i_cash" id="i_cash" style="width: 100%;" value="" placeholder="Keperluan" required></select>
+                          </div>
                         </div>
                       <div class="col-md-6">
 
                           <div class="form-group">
                             <label>Total Biaya</label>
+                             <input type="hidden" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
                             <input type="text" readonly class="form-control" style="{ border = transparent;}" name="i_cost" id="i_cost" value="" placeholder="Biaya" required>
                           </div>
 
-                          <div class="form-group">
-                            <label>Asal Kas</label>
-                            <select class="form-control select2" name="i_cash" id="i_cash" style="width: 100%;" value="" placeholder="Keperluan" required></select>
-                          </div>
                         
                       </div>
                         
@@ -80,18 +76,19 @@
                                 <table width="100%" id="table2" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                                   <thead>
                                     <tr>
-                                      <tr>
-                                        <td><input type="text" class="form-control" readonly="" name="i_detail" id="i_detail"  value="" ></td>
+                                      <tr>                                        
                                         <td><select class="form-control select2" style="width: 100%;" name="i_oprational" id="i_oprational"  value="" ></select></td>
                                         <td><select class="form-control select2" style="width: 100%;" name="i_warehouse" id="i_warehouse"  value="" ></select></td>
-                                        <td><input type="number"  class="form-control" placeholder="Biaya"  name="i_price" id="i_price" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                        <td>
+                                          <input type="hidden" class="form-control" readonly="" name="i_detail" id="i_detail"  value="" >
+                                          <input type="number"  class="form-control" placeholder="Biaya"  name="i_price" id="i_price" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                                        </td>
                                         <td><input type="text" class="form-control" name="i_needs" id="i_needs" value="" placeholder="Keperluan" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
                                         <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan detail</button></td>
                                         
                                     </tr>
                                     </tr>
                                     <tr>
-                                      <th>Id</th>
                                       <th>Oprational</th>
                                       <th>Cabang</th>
                                       <th>Biaya</th>
@@ -109,7 +106,7 @@
                       <div class="form-group"></div>
                       <div class="box-footer text-right">
                         <!--<a href="#myModal" class="btn btn-info" data-toggle="modal">Click for dialog</a>-->
-                        <button type="button" onclick="reset()" class="btn btn-warning">Batal</button>
+                        <button type="button" onclick="reset3()" class="btn btn-warning">Batal</button>
                         <button type="submit" class="btn btn-primary" <?php if(isset($c)) echo $c;?>>Simpan</button>
                       </div>
 
@@ -202,9 +199,17 @@
 
       function reset2(){
               $('input[name="i_id"]').val("");
-              $('input[name="datepicker"]').val("");
+              $('input[name="i_date"]').val("");
               $('input[name="i_cost"]').val("");
               $("#i_cash option").remove();
+      }
+      function reset3(){
+              $('input[name="i_id"]').val("");
+              $('input[name="i_date"]').val("");
+              $('input[name="i_cost"]').val("");
+              $("#i_cash option").remove();
+              search_data_detail(0);
+              hapus();
       }
 
     function edit_data(id) {
@@ -321,7 +326,7 @@
     }
 
     function save_detail(){
-        var id = document.getElementById("i_spending").value;
+        var id = document.getElementById("i_id").value;
         if (id) {
           var id_new = id;
         }else{
@@ -366,7 +371,6 @@
             
               
             "columns": [
-              {"name": "spending_detail_id"},
               {"name": "oprational_id"},
               {"name": "warehouse_id"},
               {"name": "spending_detail_cost"},
@@ -486,6 +490,19 @@
                 }
             });
         }
+        
+    }
+
+    function hapus() {
+            $.ajax({
+                url: '<?php echo base_url();?>Spending/hapus',
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                  if (data.status=='200') {
+                  }
+                }
+            });
         
     }
 

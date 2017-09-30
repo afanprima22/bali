@@ -40,10 +40,7 @@
                     <div class="box-content">
                       <div class="row">
                         <div class="col-md-6">
-                          <div class="form-group">
-                            <label>Id purchase (Auto)</label>
-                            <input type="text" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
-                          </div>
+                         
                           <div class="form-group">
                             <label>tanggal pembelian</label>
                             <div class="input-group date">
@@ -51,6 +48,7 @@
                                 <i class="glyphicon glyphicon-calendar"></i>
                               </div>
                               <input type="text" class="form-control pull-right" id="datepicker" name="i_date_purchase" placeholder="Tanggal pembelian" value="" required="required">
+                              <input type="hidden" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
                             </div>
                           </div>
                           <div class="form-group">
@@ -104,7 +102,7 @@
                       <div class="form-group"></div>
                       <div class="box-footer text-right">
                         <!--<a href="#myModal" class="btn btn-info" data-toggle="modal">Click for dialog</a>-->
-                        <button type="button" onclick="reset()" class="btn btn-warning">Batal</button>
+                        <button type="button" onclick="reset2(),hapus()" class="btn btn-warning">Batal</button>
                         <button type="submit" class="btn btn-primary" <?php if(isset($c)) echo $c;?>>Simpan</button>
                       </div>
 
@@ -272,8 +270,27 @@
 
     function reset2(){
       $("#i_partner option").remove();
+      $('input[name="i_id"]').val("");
+      $('input[name="i_date_purchase"]').val("");
+      $('input[name="i_date_tempo"]').val("");
+      $('input[name="i_desc"]').val("");
+      $('input[name="i_purchase_id"]').val("");
+      search_data_detail(0);
     }
 
+    function hapus() {
+            $.ajax({
+                url: '<?php echo base_url();?>Purchase/hapus',
+                data: 'id='+id_detail,
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                  if (data.status=='200') {
+                  }
+                }
+            });
+        
+    }
            
     
 
@@ -398,7 +415,7 @@
 
       
       function save_detail(type){
-        var id = document.getElementById("i_purchase_id").value;
+        var id = document.getElementById("i_id").value;
         if (id) {
           var id_new = id;
         }else{
@@ -481,6 +498,7 @@
         }
         
     }
+
 
     function get_purchase_id(){
       var purchase_id = $('input[name="i_id"]').val();

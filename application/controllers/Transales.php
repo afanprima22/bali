@@ -90,8 +90,8 @@ class Transales extends MY_Controller {
 			foreach ($query->result() as $val) {
 				if ($val->transales_id>0) {
 					$response['data'][] = array(
-						$val->transales_id,
-						$val->transales_periode,
+						$val->transales_periode_end,
+						$val->transales_periode_end,
 						$val->transales_code,
 						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data('.$val->transales_id.'),reset()" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data('.$val->transales_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
 					);
@@ -186,7 +186,8 @@ class Transales extends MY_Controller {
 			$data['transales_code'] = $this->get_code_transales();
 		}
 
-		$data['transales_periode'] = $this->format_date_day_mid($this->input->post('i_date', TRUE));
+		$data['transales_early_periode'] = $this->format_date_day_mid($this->input->post('i_date_awal', TRUE));
+		$data['transales_periode_end'] = $this->format_date_day_mid($this->input->post('i_date_akhir', TRUE));
 		/*$data = array(
 			'purchase_date' 		=> $this->format_date_day_mid($this->input->post('i_date_purchase', TRUE)),
 			'partner_id' 		=> $this->input->post('i_partner', TRUE),
@@ -211,7 +212,8 @@ class Transales extends MY_Controller {
 			foreach ($query->result() as $val) {
 				$response['val'][] = array(
 					'transales_id'			=> $val->transales_id,
-					'transales_periode' 		=>$this->format_date_day_mid2($val->transales_periode)
+					'transales_early_periode' 		=>$this->format_date_day_mid2($val->transales_early_periode),
+					'transales_periode_end' 		=>$this->format_date_day_mid2($val->transales_periode_end)
 				);
 			}
 
@@ -248,7 +250,7 @@ class Transales extends MY_Controller {
 			$d = '';
 		}
 		$tbl = 'transaless_details a';
-		$select = 'a.*,b.sales_name,d.warehouse_name';
+		$select = 'a.*,b.sales_name,c.coa_name';
 		//LIMIT
 		$limit = array(
 			'start'  => $this->input->get('start'),
@@ -288,19 +290,10 @@ class Transales extends MY_Controller {
 
 		//JOIN
 		$join['data'][] = array(
-			'table' => 'cashs c',
-			'join'	=> 'c.cash_id=a.cash_id',
+			'table' => 'coas c',
+			'join'	=> 'c.coa_id=a.coa_id',
 			'type'	=> 'inner'
 		);
-
-		//JOIN
-		$join['data'][] = array(
-			'table' => 'warehouses d',
-			'join'	=> 'd.warehouse_id=c.warehouse_id',
-			'type'	=> 'inner'
-		);
-
-		
 		$query_total = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
 		$query_filter = $this->g_mod->select($select,$tbl,NULL,$where_like,$order,$join,$where);
 		$query = $this->g_mod->select($select,$tbl,$limit,$where_like,$order,$join,$where);
@@ -315,7 +308,7 @@ class Transales extends MY_Controller {
 						$val->sales_name,
 						$val->transales_detail_cost_arround,
 						$val->transales_detail_cost_additional,
-						$val->warehouse_name,
+						$val->coa_name,
 						'<button class="btn btn-primary btn-xs" type="button" onclick="edit_data_detail('.$val->transales_detail_id.')" '.$u.'><i class="glyphicon glyphicon-edit"></i></button>&nbsp;&nbsp;<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_detail('.$val->transales_detail_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
 					);
 					$no++;	
@@ -372,12 +365,12 @@ class Transales extends MY_Controller {
 	function general_post_data_detail(){
 
 		$data = array(
-			'transales_id' 			=> $this->input->post('i_transales', TRUE),
+			'transales_id' 			=> $this->input->post('i_id', TRUE),
 			'sales_id' 						=> $this->input->post('i_sales', TRUE),
 			'user_id' 						=> $this->user_id,
 			'transales_detail_cost_arround' 				=> $this->input->post('i_arround', TRUE),
 			'transales_detail_cost_additional' 				=> $this->input->post('i_additional', TRUE),
-			'cash_id' 				=> $this->input->post('i_origin', TRUE),
+			'coa_id' 				=> $this->input->post('i_cash', TRUE),
 			);
 			
 
@@ -385,7 +378,7 @@ class Transales extends MY_Controller {
 	}
 
 	public function load_data_where_detail(){
-		$select = 'a.*,b.sales_name,d.warehouse_name';
+		$select = 'a.*,b.sales_name,c.coa_name';
 		$tbl = 'transaless_details a';
 		//WHERE
 		$where['data'][] = array(
@@ -402,19 +395,10 @@ class Transales extends MY_Controller {
 
 		//JOIN
 		$join['data'][] = array(
-			'table' => 'cashs c',
-			'join'	=> 'c.cash_id=a.cash_id',
+			'table' => 'coas c',
+			'join'	=> 'c.coa_id=a.coa_id',
 			'type'	=> 'inner'
 		);
-
-		//JOIN
-		$join['data'][] = array(
-			'table' => 'warehouses d',
-			'join'	=> 'd.warehouse_id=c.warehouse_id',
-			'type'	=> 'inner'
-		);
-
-		
 		$query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
 		if ($query<>false) {
 
@@ -425,8 +409,8 @@ class Transales extends MY_Controller {
 					'sales_name' 			=> $val->sales_name,
 					'transales_detail_cost_arround' 	=> $val->transales_detail_cost_arround,
 					'transales_detail_cost_additional'=> $val->transales_detail_cost_additional,
-					'cash_id' 	=> $val->cash_id,
-					'warehouse_name' 	=> $val->warehouse_name,
+					'coa_id' 	=> $val->coa_id,
+					'coa_name' 	=> $val->coa_name,
 				);
 			}
 
@@ -440,6 +424,23 @@ class Transales extends MY_Controller {
 		$where['data'][] = array(
 			'column' => 'transales_detail_id',
 			'param'	 => $id
+		);
+		$delete = $this->g_mod->delete_data_table('transaless_details', $where);
+		if($delete->status) {
+			$response['status'] = '200';
+			$response['alert'] = '3';
+		} else {
+			$response['status'] = '204';
+		}
+
+		echo json_encode($response);
+	}
+
+	public function hapus(){
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'transales_id',
+			'param'	 => 0
 		);
 		$delete = $this->g_mod->delete_data_table('transaless_details', $where);
 		if($delete->status) {

@@ -111,7 +111,7 @@
                                         </label>
                                         &nbsp;&nbsp;&nbsp;&nbsp;
                                         <label>
-                                            <input type="radio" onclick="type_payment(3)" name="i_type" id="inlineRadio3" value="2"> Giro
+                                            <input type="radio" onclick="type_payment(3)" name="i_type" id="inlineRadio3" value="3"> Giro
                                         </label>
                                       </th>
                                     </tr>
@@ -224,7 +224,7 @@
             "processing": true,
             "serverSide": true,
             ajax: {
-              url: '<?php echo base_url();?>bill_cus/load_data/'
+              url: '<?php echo base_url();?>bill_sup/load_data/'
             },
             "columns": [
               {"name": "bill_code"},
@@ -244,7 +244,7 @@
             "processing": true,
             "serverSide": true,
             ajax: {
-              url: '<?php echo base_url();?>bill_cus/load_data_detail/'+id
+              url: '<?php echo base_url();?>bill_sup/load_data_detail/'+id
             },
             "columns": [
               {"name": "nota_code"},
@@ -267,7 +267,7 @@
             "processing": true,
             "serverSide": true,
             ajax: {
-              url: '<?php echo base_url();?>bill_cus/load_data_payment/'+id
+              url: '<?php echo base_url();?>bill_sup/load_data_payment/'+id
             },
             "columns": [
               {"name": "bill_payment_date"},
@@ -296,7 +296,7 @@
     function action_data(){
         $.ajax({
           type : "POST",
-          url  : '<?php echo base_url();?>bill_cus/action_data/',
+          url  : '<?php echo base_url();?>bill_sup/action_data/',
           data : $( "#formall" ).serialize(),
           dataType : "json",
           success:function(data){
@@ -323,7 +323,7 @@
         var a = confirm("Anda yakin ingin menghapus record ini ?");
         if(a==true){
             $.ajax({
-                url: '<?php echo base_url();?>bill_cus/delete_data',
+                url: '<?php echo base_url();?>bill_sup/delete_data',
                 data: 'id='+id,
                 type: 'POST',
                 dataType: 'json',
@@ -347,7 +347,7 @@
 
         $.ajax({
           type : "GET",
-          url  : '<?php echo base_url();?>bill_cus/load_data_where/',
+          url  : '<?php echo base_url();?>bill_sup/load_data_where/',
           data : "id="+id,
           dataType : "json",
           success:function(data){
@@ -373,7 +373,7 @@
 
       function select_list_nota() {
         $('#i_nota').select2({
-          placeholder: 'Pilih Nota',
+          placeholder: 'Pilih Purchase',
           multiple: false,
           allowClear: true,
           ajax: {
@@ -416,7 +416,7 @@
 
         $.ajax({
           type : "POST",
-          url  : '<?php echo base_url();?>bill_cus/action_data_detail/',
+          url  : '<?php echo base_url();?>bill_sup/action_data_detail/',
           data : $( "#formall" ).serialize(),
           dataType : "json",
           success:function(data){
@@ -443,7 +443,7 @@
         var a = confirm("Anda yakin ingin menghapus record ini ?");
         if(a==true){
             $.ajax({
-                url: '<?php echo base_url();?>bill_cus/delete_data_detail',
+                url: '<?php echo base_url();?>bill_sup/delete_data_detail',
                 data: {id:id_detail,nota_id:nota_id},
                 type: 'POST',
                 dataType: 'json',
@@ -468,7 +468,7 @@
 
         $.ajax({
           type : "POST",
-          url  : '<?php echo base_url();?>bill_cus/action_data_detail_payment/',
+          url  : '<?php echo base_url();?>bill_sup/action_data_detail_payment/',
           data : $( "#formall" ).serialize(),
           dataType : "json",
           success:function(data){
@@ -482,7 +482,7 @@
 
     function reset4(){
        $('input[name="i_detail_rek"]').val("");
-       //$('input[name="i_type"]').val("");
+       $('input[name="i_type"]').val("");
        $('input[name="i_detail_bank"]').val("");
        $('input[name="i_nominal"]').val("");
        $('input[name="i_detail_date"]').val("");
@@ -500,7 +500,7 @@
         var a = confirm("Anda yakin ingin menghapus record ini ?");
         if(a==true){
             $.ajax({
-                url: '<?php echo base_url();?>bill_cus/delete_data_payment',
+                url: '<?php echo base_url();?>bill_sup/delete_data_payment',
                 data: {id:id_detail,entrusted:entrusted},
                 type: 'POST',
                 dataType: 'json',
@@ -532,7 +532,7 @@
     function get_grand_total(id){
         $.ajax({
           type : "GET",
-          url  : '<?php echo base_url();?>bill_cus/get_grand_total/',
+          url  : '<?php echo base_url();?>bill_sup/get_grand_total/',
           data : "id="+id,
           dataType : "json",
           success:function(data){

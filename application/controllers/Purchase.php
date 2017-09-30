@@ -409,6 +409,24 @@ class Purchase extends MY_Controller {
 		echo json_encode($response);
 	}
 
+	public function hapus(){
+		$id = $this->input->post('id');
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'purchase_id',
+			'param'	 => 0
+		);
+		$delete = $this->g_mod->delete_data_table('purchases_details', $where);
+		if($delete->status) {
+			$response['status'] = '200';
+			$response['alert'] = '3';
+		} else {
+			$response['status'] = '204';
+		}
+
+		echo json_encode($response);
+	}
+
 	public function load_data_where_detail(){
 		$select = 'a.*,b.item_name';
 		$tbl = 'purchases_details a';

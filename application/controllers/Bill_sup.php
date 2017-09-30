@@ -1,7 +1,7 @@
 <?php
 defined('BASEPATH') OR exit('No direct script access allowed');
 
-class Bill_cus extends MY_Controller {
+class Bill_sup extends MY_Controller {
 	private $any_error = array();
 	public $tbl = 'bills';
 
@@ -10,7 +10,7 @@ class Bill_cus extends MY_Controller {
         $this->check_user_access();
         $this->load->library('PdfGenerator');
 
-        $akses = $this->g_mod->get_user_acces($this->user_id,87);
+        $akses = $this->g_mod->get_user_acces($this->user_id,88);
 		$this->permit = $akses['permit_acces'];
 	}
 
@@ -40,12 +40,12 @@ class Bill_cus extends MY_Controller {
 
 		$data = array(
 			'aplikasi'		=> 'Bali System',
-			'title_page' 	=> 'Transaksi / Pembayaran - Customer',
+			'title_page' 	=> 'Transaksi / Pembayaran - Supplier',
 			'title' 		=> 'Kelolah Data',
 			'c'				=> $c
 			);
 
-		$this->open_page('bill_cus_v', $data);
+		$this->open_page('bill_sup_v', $data);
 	}
 
 	public function load_data(){
@@ -80,7 +80,7 @@ class Bill_cus extends MY_Controller {
 		//WHERE
 		$where['data'][] = array(
 			'column' => 'bill_type',
-			'param'	 => 1
+			'param'	 => 2
 		);
 				
 
@@ -154,7 +154,7 @@ class Bill_cus extends MY_Controller {
 		//WHERE
 		$where['data'][] = array(
 			'column' => 'bill_detail_type',
-			'param'	 => 1
+			'param'	 => 2
 		);
 
 		if (!$id) {
@@ -187,7 +187,7 @@ class Bill_cus extends MY_Controller {
 						$val->nota_code,
 						$val->nota_tempo,
 						number_format($nominal),
-						'<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_detail('.$val->bill_detail_id.','.$val->bill_detail_data_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
+						'<button class="btn btn-danger btn-xs" type="button" onclick="delete_data_detail('.$val->bill_detail_id.','.$val->nota_id.')" '.$d.'><i class="glyphicon glyphicon-trash"></i></button>'
 					);
 					$no++;	
 				}
@@ -346,10 +346,11 @@ class Bill_cus extends MY_Controller {
 				'column' => 'bill_id',
 				'param'	 => 0
 			);
+
 			//WHERE
 			$where2['data'][] = array(
 				'column' => 'bill_detail_type',
-				'param'	 => 1
+				'param'	 => 2
 			);
 			//WHERE
 			$where2['data'][] = array(
@@ -374,7 +375,7 @@ class Bill_cus extends MY_Controller {
 		$data['bill_id'] 				= $this->input->post('i_id');
 		$data['bill_detail_data_id'] 	= $this->input->post('i_nota');
 		$data['user_id'] 				= $this->user_id;
-		$data['bill_detail_type'] 		= 1;
+		$data['bill_detail_type'] 		= 2;
 
 		$data2['nota_bill'] 		= 1;
 
@@ -399,7 +400,7 @@ class Bill_cus extends MY_Controller {
 	public function action_data_detail_payment(){
 		
 		$type = $this->input->post('i_type',TRUE);
-		if ($type == 2) {
+		if ($type == 3) {
 			$data2['entrusted_date'] 			= $this->format_date_day_mid($this->input->post('i_detail_tempo'));
 			$data2['entrusted_code'] 			= $this->get_code_entrusted();
 			$data2['entrusted_total'] 			= $this->input->post('i_nominal');
@@ -505,7 +506,7 @@ class Bill_cus extends MY_Controller {
 		$select = 'MID(bill_code,9,5) as id';
 		$where['data'][] = array(
 			'column' => 'MID(bill_code,1,8)',
-			'param'	 => 'PC'.$thn.''.$bln.''
+			'param'	 => 'PS'.$thn.''.$bln.''
 		);
 		$order['data'][] = array(
 			'column' => 'bill_code',
@@ -517,7 +518,7 @@ class Bill_cus extends MY_Controller {
 		);
 
 		$query = $this->g_mod->select($select,$this->tbl,$limit,NULL,$order,NULL,$where);
-		$new_code = $this->format_kode_transaksi('PC',$query);
+		$new_code = $this->format_kode_transaksi('PS',$query);
 		return $new_code;
 	}
 
@@ -551,7 +552,7 @@ class Bill_cus extends MY_Controller {
 		}
 
 		$data['bill_date'] 				= $this->format_date_day_mid($this->input->post('i_date', TRUE));
-		$data['bill_type'] 				= 1;
+		$data['bill_type'] 				= 2;
 
 		return $data;
 	}
@@ -613,7 +614,7 @@ class Bill_cus extends MY_Controller {
 		//JOIN
 		$join['data'][] = array(
 			'table' => 'notas b',
-			'join'	=> 'b.nota_id=a.bill_detail_data_id and a.bill_detail_type = 1',
+			'join'	=> 'b.nota_id=a.nota_id',
 			'type'	=> 'inner'
 		);
 		

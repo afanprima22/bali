@@ -79,7 +79,6 @@
                                 </table>
                               </div>
                               <div class="box-footer text-right">
-                                <button type="button" onclick="reset()" class="btn btn-warning">Batal</button>
                                 <button type="button" onclick="save_stok()" class="btn btn-primary">Simpan stok</button>
                               </div>
                             </div>
@@ -115,7 +114,7 @@
                       </div>
                       <div class="form-group"></div>
                     <div class="box-footer text-right">
-                       <button type="button" onclick="reset()" class="btn btn-warning">Batal</button>
+                       <button type="button" onclick="reset2()" class="btn btn-warning">Batal</button>
                        <button type="submit" class="btn btn-primary" <?php if(isset($c)) echo $c;?>>Simpan</button>
                     </div>
                     </div>
@@ -198,6 +197,14 @@
       $("#i_rack option").remove();
     }
 
+    function reset2(){
+      $("#i_warehouse option").remove();
+      $("#i_rack option").remove();
+      $('input[name="i_id"]').val("");
+      search_data_detail(0);
+              search_data_stok(0);
+    }
+
 
     function edit_data(id) {
         $.ajax({
@@ -209,9 +216,14 @@
             for(var i=0; i<data.val.length;i++){
               document.getElementById("i_id").value             = data.val[i].stok_opname_id;
               $("#i_warehouse").append('<option value="'+data.val[i].warehouse_id+'" selected>'+data.val[i].warehouse_name+'</option>');
+              $("#i_rack").append('<option value="'+data.val[i].rack_id+'" selected>'+data.val[i].rack_name+'</option>');
               get_stok_opname_id();
               search_data_detail(data.val[i].stok_opname_id);
-              search_data_detail(data.val[i].warehouse_id);
+              if (data.val[i].rack_id==0) {
+              search_data_stok(data.val[i].warehouse_id);
+              }else{
+                search_data_stok_rack(data.val[i].rack_id);
+              }
             }
           }
         });

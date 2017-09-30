@@ -264,7 +264,6 @@ class Retur extends MY_Controller {
 			foreach ($query->result() as $val) {
 				if ($val->retur_supplier_detail_id>0) {
 					$response['data'][] = array(
-						$val->retur_supplier_detail_id,
 						$val->item_name,
 						$val->purchase_detail_qty,
 						$val->reception_detail_qty,
@@ -288,6 +287,7 @@ class Retur extends MY_Controller {
 			$response['recordsFiltered'] = $query_filter->num_rows();
 		}
 
+
 		echo json_encode($response);
 	}
 
@@ -310,7 +310,7 @@ class Retur extends MY_Controller {
 	}
 
 	public function load_data_where(){
-		$select = 'a.*,b.purchase_code';
+		$select = 'a.*,b.purchase_code,c.partner_name';
 		$tbl = 'returs_suppliers a';
 		//WHERE
 		$where['data'][] = array(
@@ -323,6 +323,13 @@ class Retur extends MY_Controller {
 			'join'	=> 'b.purchase_id=a.purchase_id',
 			'type'	=> 'inner'
 		);
+
+		$join['data'][] = array(
+			'table' => 'partners c',
+			'join'	=> 'c.partner_id=b.partner_id',
+			'type'	=> 'inner'
+		);
+
 		$query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
 		if ($query<>false) {
 
@@ -331,6 +338,7 @@ class Retur extends MY_Controller {
 					'retur_supplier_id'			=> $val->retur_supplier_id,
 					'purchase_id'			=>$val->purchase_id,
 					'purchase_code' 		=> $val->purchase_code,
+					'partner_name' 		=> $val->partner_name,
 					'retur_supplier_date' 		=>$this->format_date_day_mid2($val->retur_supplier_date),
 				);
 			}
@@ -341,10 +349,10 @@ class Retur extends MY_Controller {
 
 	public function action_data_detail(){
 		$id = $this->input->post('i_detail');
+		if (strlen($id)>0) {
 		$sql ="SELECT * FROM returs_suppliers_details where retur_supplier_detail_id = $id";
 			$row = $this->g_mod->select_manual($sql);
 			$qty = $row['retur_supplier_detail_qty'];
-		if (strlen($id)>0) {
 			//UPDATE
 			$data = $this->general_post_data_detail();
 			//WHERE
@@ -465,6 +473,23 @@ class Retur extends MY_Controller {
 		echo json_encode($response);
 	}
 
+	public function hapus(){
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'retur_supplier_id',
+			'param'	 => 0
+		);
+		$delete = $this->g_mod->delete_data_table('returs_suppliers_details', $where);
+		if($delete->status) {
+			$response['status'] = '200';
+			$response['alert'] = '3';
+		} else {
+			$response['status'] = '204';
+		}
+
+		echo json_encode($response);
+	}
+
 	public function load_data_retur_detail($id){
 		$select = '*';
 		$tbl2 = 'purchases_details';
@@ -479,6 +504,7 @@ class Retur extends MY_Controller {
 			foreach ($query->result() as $val) {
 				$response['val'][] = array(
 					'purchase_detail_qty'	=> $val->purchase_detail_qty,
+					'qty_akumulation'	=> $val->purchase_detail_qty_akumulation,
 					'purchase_detail_qty_akumulation'	=>$val->purchase_detail_qty-$val->purchase_detail_qty_akumulation,
 					
 				);

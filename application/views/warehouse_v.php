@@ -128,7 +128,7 @@
               <div class="modal-content">
                   <div class="modal-header">
                       <button type="button" class="close" data-dismiss="modal">×</button>
-                      <h4>List Detail Rak</h4><input type="text" class="form-control" name="i_detail_id" id="i_detail_id" placeholder="Auto" readonly="">
+                      <h4>List Detail Rak</h4><input type="hidden" class="form-control" name="i_detail_id" id="i_detail_id" placeholder="Auto">
                   </div>
                   <div class="modal-body">
                       <div class="box-inner">
@@ -139,7 +139,7 @@
                                   <thead>
                                     <tr>
                                       <td><input type="text" class="form-control" name="i_rack_detail_id" placeholder="Auto" readonly=""></td>
-                                      <td>
+                                      <td width="40%">
                                         <select class="form-control select2" name="i_item" id="i_item" style="width: 100%;">
                                         </select>
                                       </td>
@@ -178,9 +178,7 @@
                       <h4>List Stock Barang</h4>
                   </div>
                   <div class="modal-body">
-                      <div class="box-inner">
                             
-                            <div class="box-content">
                               <div class="form-group">
                                 <table width="100%" id="table4" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                                   <thead>
@@ -194,8 +192,6 @@
                                   </thead>
                                 </table>
                               </div>
-                            </div>
-                          </div>
                   </div>
                   <div class="modal-footer">
                       <a href="#" class="btn btn-warning" data-dismiss="modal">Selesai</a>
@@ -515,6 +511,7 @@
       function reset4(){
         $('#i_item option').remove();
         $('input[name="i_stock_qty"]').val("");
+        $('input[name="i_rack_detail_id"]').val("");
       }
 
       function edit_data_rack_detail(id){

@@ -18,8 +18,10 @@
                     <table width="100%" id="table1" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                         <thead>
                             <tr>
+                                <th>Kode Mutasi</th>
                                 <th>Tanggal Mutasi</th>
-                                <th>Nama Gudang</th>
+                                <th>Asal Gudang</th>
+                                <th>Gudang Tujuan</th>
                                 <th>Config</th>
                             </tr>
                         </thead>
@@ -39,7 +41,7 @@
                         <div class="col-md-6">
                           <div class="form-group">
                             <label>Tanggal Mutasi</label>
-                            <input type="hidden" class="form-control" name="i_id" id="i_id" value="">
+                              
                             <div class="input-group date">
                               <div class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar"></i>
@@ -50,8 +52,14 @@
                         </div>
                       <div class="col-md-6">
                           <div class="form-group">
-                            <label>Gudang</label>
+                            <label>Gudang Asal</label>
+                            <input type="hidden" class="form-control" name="i_id" id="i_id" value="">
                             <select class="form-control select2" onchange="select_list_rack(this.value)"  name="i_warehouse" id="i_warehouse" style="width: 100%;" required="required" value=""></select>
+                          </div>
+
+                          <div class="form-group">
+                            <label>Gudang Tujuan</label>
+                            <select class="form-control select2" style="width: 100%;" class="form-control" name="i_warehouse2" id="i_warehouse2" value=""></select>
                           </div>
                         
                       </div>
@@ -73,22 +81,14 @@
                                         </td>
                                         <td>
                                           <select class="form-control select2" onchange="search_item(this.value)" class="form-control"  name="i_item" id="i_item"  style="width: 100%;" onkeydown="if (event.keyCode == 13) { save_detail(); }">
-                                          <input type="hidden" class="form-control"  name="i_item_cek" id="i_item_cek"  value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                                         </td>                                         
                                         <td><input type="text" readonly="" class="form-control" name="i_unit" id="i_unit" placeholder="satuan" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
                                         <td><input type="text" readonly="" class="form-control"  name="i_isi" id="i_isi" placeholder="isi per unit" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
                                         <td>
                                           <input type="number" class="form-control"  name="i_qty_mutasi" id="i_qty_mutasi" placeholder="Qty mutasi" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
-                                          <input type="hidden" class="form-control"  name="i_qty_cek" id="i_qty_cek"  value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                                         </td>
                                         <td>
                                           <select class="form-control select2" style="width: 100%;" class="form-control" name="i_rack" id="i_rack" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select>
-                                           <input type="hidden" class="form-control"  name="i_rack_cek" id="i_rack_cek"  value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
-                                        </td>
-                                        <td><select class="form-control select2" onchange="select_list_rack2(this.value)" style="width: 100%;" class="form-control" name="i_warehouse2" id="i_warehouse2" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
-                                        <td>
-                                          <select class="form-control select2" style="width: 100%;" class="form-control" name="i_rack2" id="i_rack2" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select>
-                                           <input type="hidden" class="form-control"  name="i_rack2_cek" id="i_rack2_cek"  value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
                                         </td>
                                         <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan detail</button></td>
                                         
@@ -100,8 +100,6 @@
                                       <th>Isi</th>
                                       <th>Qty Mutasi</th>
                                       <th>Rak Asal</th>
-                                      <th>Tujuan gudang</th>
-                                      <th>Tujuan Rak</th>
                                       <th>config</th>
                                     </tr>
                                   </thead>
@@ -115,7 +113,7 @@
                       <div class="form-group"></div>
                       <div class="box-footer text-right">
                         <!--<a href="#myModal" class="btn btn-info" data-toggle="modal">Click for dialog</a>-->
-                        <button type="button" onclick="dlete(),reset1()" class="btn btn-warning">Batal</button>
+                        <button type="button" onclick="reset3()" class="btn btn-warning">Batal</button>
                         <button type="submit" class="btn btn-primary" <?php if(isset($c)) echo $c;?>>Simpan</button>
                       </div>
 
@@ -134,7 +132,6 @@
         select_list_warehouse();
         select_list_warehouse2();
         select_list_rack();
-        select_list_rack2();
         select_list_item();
         search_data_detail(0);
         $.fn.modal.Constructor.prototype.enforceFocus = function() {};
@@ -149,8 +146,10 @@
               url: '<?php echo base_url();?>mutation/load_data/'
             },
             "columns": [
+              {"name": "mutation_code"},
               {"name": "mutation_date"},
-              {"name": "warehouse_name"},
+              {"name": "name1"},
+              {"name": "name2"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
             "order": [
@@ -198,6 +197,15 @@
     function reset1(){
        $('input[name="i_date"]').val("");
       $("#i_warehouse option").remove();
+      $("#i_warehouse2 option").remove();
+    }
+    function reset3(){
+       $('input[name="i_id"]').val("");
+       $('input[name="i_date"]').val("");
+      $("#i_warehouse option").remove();
+      $("#i_warehouse2 option").remove();
+      search_data_detail(0);
+      hapus();
     }
 
 
@@ -211,10 +219,11 @@
             for(var i=0; i<data.val.length;i++){
               document.getElementById("i_id").value             = data.val[i].mutation_id;
               document.getElementById("datepicker").value           = data.val[i].mutation_date;
-              $("#i_warehouse").append('<option value="'+data.val[i].warehouse_id+'" selected>'+data.val[i].warehouse_name+'</option>');
+              $("#i_warehouse").append('<option value="'+data.val[i].id1+'" selected>'+data.val[i].name1+'</option>');
+              $("#i_warehouse2").append('<option value="'+data.val[i].id2+'" selected>'+data.val[i].name2+'</option>');
               
               search_data_detail(data.val[i].mutation_id);
-              select_list_rack(data.val[i].warehouse_id)
+              select_list_rack(data.val[i].id1)
             }
           }
         });
@@ -313,8 +322,6 @@ function select_list_warehouse() {
          $('input[name="i_isi"]').val("");
          $('input[name="i_qty_mutasi"]').val("");
          $("#i_rack option").remove();
-         $("#i_warehouse2 option").remove();
-         $("#i_rack2 option").remove();
       }
 
       function search_data_detail(id) { 
@@ -334,8 +341,6 @@ function select_list_warehouse() {
               {"name": "isi"},
               {"name": "muatation_detail_qty"},
               {"name": "rack_name"},
-              {"name": "warehouse_name"},
-              {"name": "rack_name2"},
               {"name": "action","orderable": false,"searchable": false, "className": "text-center"}
             ],
             "order": [
@@ -431,39 +436,7 @@ function select_list_warehouse() {
         });
       }
 
-      function select_list_rack2(id) {
-        $('#i_rack2').select2({
-          placeholder: 'Pilih rack tujuan',
-          multiple: false,
-          allowClear: true,
-          ajax: {
-            url: '<?php echo base_url();?>Mutation/load_data_select_rack/'+id,
-            dataType: 'json',
-            delay: 100,
-            cache: true,
-            data: function (params) {
-              return {
-                q: params.term, // search term
-                page: params.page
-              };
-            },
-            processResults: function (data, params) {
-              params.page = params.page || 1;
-
-              return {
-                results: data.items,
-                pagination: {
-                  more: (params.page * 30) < data.total_count
-                }
-              };
-            }
-          },
-          escapeMarkup: function (markup) { return markup; }, // let our custom formatter work
-          minimumInputLength: 1,
-          templateResult: FormatResult,
-          templateSelection: FormatSelection,
-        });
-      }
+      
 
       function select_list_warehouse2(id) {
         $('#i_warehouse2').select2({
@@ -514,13 +487,6 @@ function select_list_warehouse() {
               $('input[name="i_isi"]').val(data.val[i].item_per_unit);
               $('input[name="i_qty_mutasi"]').val(data.val[i].mutation_detail_qty);
               $("#i_rack").append('<option value="'+data.val[i].id1+'" selected>'+data.val[i].name1+'</option>');
-              $("#i_warehouse2").append('<option value="'+data.val[i].warehouse_id+'" selected>'+data.val[i].warehouse_name+'</option>');
-              $("#i_rack2").append('<option value="'+data.val[i].id2+'" selected>'+data.val[i].name2+'</option>');
-
-              $('input[name="i_item_cek"]').val(data.val[i].item_id);
-              $('input[name="i_qty_cek"]').val(data.val[i].mutation_detail_qty);
-              $('input[name="i_rack_cek"]').val(data.val[i].id1);
-              $('input[name="i_rack2_cek"]').val(data.val[i].id2);
             }
           }
         });
@@ -551,6 +517,18 @@ function select_list_warehouse() {
             });
         }
         
+    }
+
+    function hapus() {
+            $.ajax({
+                url: '<?php echo base_url();?>Mutation/hapus',
+                type: 'POST',
+                dataType: 'json',
+                success: function (data) {
+                  if (data.status=='200') {
+                  }
+                }
+            });
     }
     function dlete() {
         var id = document.getElementById("i_id").value;

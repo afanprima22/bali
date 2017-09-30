@@ -11,7 +11,7 @@ class Reception extends MY_Controller {
         parent::__construct();
         $this->check_user_access();
 
-        $akses = $this->g_mod->get_user_acces($this->user_id,76);
+        $akses = $this->g_mod->get_user_acces($this->user_id,90);
 		$this->permit = $akses['permit_acces'];
 	}
 
@@ -264,26 +264,6 @@ class Reception extends MY_Controller {
 	}
 
 	public function action_data_detail(){
-		$id = $this->input->post('i_detail_reception');
-		
-		if (strlen($id)>0) {
-			//UPDATE
-			$data = $this->general_post_data_detail();
-			//WHERE
-			$where['data'][] = array(
-				'column' => 'reception_detail_id',
-				'param'	 => $id
-			);
-			$update = $this->g_mod->update_data_table('receptions_details', $where, $data);
-			$update1 = $this->g_mod->update_data_Qty('purchases_details', 'purchase_detail_qty_akumulation','purchase_detail_id',$this->input->post('i_Qty'),$data['purchase_detail_id']);
-
-			if($update->status) {
-				$response['status'] = '200';
-				$response['alert'] = '2';
-			} else {
-				$response['status'] = '204';
-			}
-		} else {
 			//INSERT
 			$data = $this->general_post_data_detail();
 			//echo $data['warehouse_img'];
@@ -296,7 +276,6 @@ class Reception extends MY_Controller {
 			} else {
 				$response['status'] = '204';
 			}
-		}
 		
 		echo json_encode($response);
 	}
@@ -327,7 +306,7 @@ class Reception extends MY_Controller {
 			$d = '';
 		}
 		$tbl = 'receptions_details a';
-		$select = 'a.*,b.purchase_detail_qty_akumulation,c.item_barcode,c.item_name';
+		$select = 'a.*,b.purchase_detail_qty_akumulation,b.purchase_detail_qty,c.item_barcode,c.item_name';
 		//LIMIT
 		$limit = array(
 			'start'  => $this->input->get('start'),
@@ -374,7 +353,7 @@ class Reception extends MY_Controller {
 			foreach ($query->result() as $val) {
 				if ($val->reception_detail_id>0) {
 					
-					$qty = $val->reception_detail_order-$val->purchase_detail_qty_akumulation;
+					$qty = $val->purchase_detail_qty;
 					$response['data'][] = array(
 						$val->reception_detail_id,
 						$val->item_barcode,
@@ -446,6 +425,23 @@ class Reception extends MY_Controller {
 		$where['data'][] = array(
 			'column' => 'reception_detail_id',
 			'param'	 => $id
+		);
+		$delete = $this->g_mod->delete_data_table('receptions_details', $where);
+		if($delete->status) {
+			$response['status'] = '200';
+			$response['alert'] = '3';
+		} else {
+			$response['status'] = '204';
+		}
+
+		echo json_encode($response);
+	}
+
+	public function hapus(){
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'reception_id',
+			'param'	 => 0
 		);
 		$delete = $this->g_mod->delete_data_table('receptions_details', $where);
 		if($delete->status) {

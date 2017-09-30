@@ -151,7 +151,7 @@
                       <div class="form-group"></div>
                       <div class="box-footer text-right">
                         <!--<a href="#myModal" class="btn btn-info" data-toggle="modal">Click for dialog</a>-->
-                        <button type="button" onclick="reset()" class="btn btn-warning">Batal</button>
+                        <button type="button" onclick="reset2()" class="btn btn-warning">Batal</button>
                         <button type="submit" class="btn btn-primary" <?php if(isset($c)) echo $c;?>>Simpan</button>
                       </div>
 
@@ -217,7 +217,7 @@
           success:function(data){
             if(data.status=='200'){
               reset();
-              reset1();
+              reset2();
               search_data();
               $('[href="#list"]').tab('show');
               if (data.alert=='1') {
@@ -234,9 +234,15 @@
         });
     }
 
-    function reset1(){
-      $("#i_coa option").remove("");
-      $("#i_warehouse option").remove("");
+    function reset2(){
+      $("#i_coa option").remove();
+       $('[name="i_id"]').val("");
+       $('[name="i_cash_date"]').val("");
+       $('[name="i_nominal"]').val("");
+       $('[name="i_desc"]').val("");
+      $("#i_warehouse option").remove();
+      $("#i_coa2 option").remove();
+      $("#i_coa3 option").remove();
     }
 
     function edit_data(id) {

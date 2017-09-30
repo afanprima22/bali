@@ -139,7 +139,13 @@ class Stokopname extends MY_Controller {
 	}
 
 	public function load_data_where(){
-    $select = 'a.*,b.warehouse_name';
+		$id =$this->input->get('id');
+		$sql = "SELECT rack_id FROM stok_opnames where $id";
+		$row = $this->g_mod->select_manual($sql);
+		$rack = $row['rack_id'];
+
+	if ($rack==0) {
+		$select = 'a.*,b.warehouse_name';
     $tbl = 'stok_opnames a';
     //WHERE
     $where['data'][] = array(
@@ -156,15 +162,53 @@ class Stokopname extends MY_Controller {
     if ($query<>false) {
 
       foreach ($query->result() as $val) {
+      	$rack_name= "ALL";
         $response['val'][] = array(
           'stok_opname_id'     => $val->stok_opname_id,
           'warehouse_id'    => $val->warehouse_id,
           'warehouse_name'    => $val->warehouse_name,
+          'rack_id'    => $val->rack_id,
+          'rack_name'    => $rack_name,
         );
       }
 
       echo json_encode($response);
     }
+	}else{
+    $select = 'a.*,b.warehouse_name,c.rack_name';
+    $tbl = 'stok_opnames a';
+    //WHERE
+    $where['data'][] = array(
+      'column' => 'stok_opname_id',
+      'param'  => $this->input->get('id')
+    );
+    //JOIN
+    $join['data'][] = array(
+      'table' => 'warehouses b',
+      'join'  => 'b.warehouse_id=a.warehouse_id',
+      'type'  => 'inner'
+    );
+    $join['data'][] = array(
+      'table' => 'racks c',
+      'join'  => 'c.rack_id=a.rack_id',
+      'type'  => 'LEFT'
+    );
+    $query = $this->g_mod->select($select,$tbl,NULL,NULL,NULL,$join,$where);
+    if ($query<>false) {
+
+      foreach ($query->result() as $val) {
+        $response['val'][] = array(
+          'stok_opname_id'     => $val->stok_opname_id,
+          'warehouse_id'    => $val->warehouse_id,
+          'warehouse_name'    => $val->warehouse_name,
+          'rack_id'    => $val->rack_id,
+          'rack_name'    => $val->rack_name,
+        );
+      }
+
+      echo json_encode($response);
+    }
+  	}
   }
 
   public function action_data(){
@@ -242,6 +286,7 @@ class Stokopname extends MY_Controller {
 		}
 
 		$data['warehouse_id'] = $this->input->post('i_warehouse', TRUE);
+		$data['rack_id'] = $this->input->post('i_rack', TRUE);
 			
 
 		return $data;

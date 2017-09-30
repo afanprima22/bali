@@ -327,7 +327,6 @@ class Spending extends MY_Controller {
 			foreach ($query->result() as $val) {
 				if ($val->spending_detail_id>0) {
 					$response['data'][] = array(
-						$val->spending_detail_id,
 						$val->oprational_name,
 						$val->warehouse_name,
 						$val->spending_detail_cost,
@@ -399,7 +398,7 @@ class Spending extends MY_Controller {
 	function general_post_data_detail(){
 
 		$data = array(
-			'spending_id' 			=> $this->input->post('i_spending', TRUE),
+			'spending_id' 			=> $this->input->post('i_id', TRUE),
 			'oprational_id' 			=> $this->input->post('i_oprational', TRUE),
 			'warehouse_id' 			=> $this->input->post('i_warehouse', TRUE),
 			'user_id' 						=> $this->user_id,
@@ -466,6 +465,23 @@ class Spending extends MY_Controller {
 			$sql = "SELECT SUM(spending_detail_cost) as total FROM spendings_details where spending_id =$spending_id and user_id = $user_id ";
 			$row = $this->g_mod->select_manual($sql);
 			$response['total'] = $row['total'];
+		if($delete->status) {
+			$response['status'] = '200';
+			$response['alert'] = '3';
+		} else {
+			$response['status'] = '204';
+		}
+
+		echo json_encode($response);
+	}
+
+	public function hapus(){
+		//WHERE
+		$where['data'][] = array(
+			'column' => 'spending_id',
+			'param'	 => 0
+		);
+		$delete = $this->g_mod->delete_data_table('spendings_details', $where);
 		if($delete->status) {
 			$response['status'] = '200';
 			$response['alert'] = '3';

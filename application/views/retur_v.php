@@ -38,13 +38,15 @@
                     <div class="box-content">
                       <div class="row">
                         <div class="col-md-6">
-                          <div class="form-group">
-                            <label>Id Return (Auto)</label>
-                            <input type="text" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
-                          </div>
+                          
                           <div class="form-group">
                             <label>code Pembelian</label>
+                            <input type="hidden" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
                             <select class="form-control select2" onchange="select_list_item(this.value), supplier(this.value)" name="i_code" id="i_code" style="width: 100%;" required="required" value=""></select>
+                          </div>
+                          <div class="form-group">
+                            <label>Supplier</label>
+                            <input type="text" class="form-control" name="i_partner" id="i_partner" placeholder="Nama supplier" value="" readonly="">
                           </div>
                         </div>
                         <div class="col-md-6">
@@ -57,10 +59,7 @@
                               <input type="text" class="form-control pull-right" id="datepicker" name="i_date" placeholder="Tanggal return" value="" required="required">
                             </div>
                           </div>
-                          <div class="form-group">
-                            <label>Supplier</label>
-                            <input type="text" class="form-control" name="i_partner" id="i_partner" placeholder="Nama supplier" value="" readonly="">
-                          </div>
+                          
                         </div>
                         
                          <div class="col-md-12" id="detail_data">
@@ -74,9 +73,15 @@
                                 <table width="100%" id="table2" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                                   <thead>
                                     <tr>
-                                        <td><input type="text" class="form-control" name="i_detail" id="i_detail" placeholder="Auto" value="" readonly=""></td>
-                                        <td><select class="form-control select2" style="width: 100%;" onchange="retur_detail(this.value),reception(this.value)" name="i_item" id="i_item" style="width: 85%;" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select></td>
-                                        <td><input type="text" class="form-control" readonly="" name="i_qty" id="i_qty" placeholder="qty pembelian" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
+                                        <td>
+                                          <input type="hidden" class="form-control" name="i_detail" id="i_detail" placeholder="Auto" value="" readonly="">
+                                          <select class="form-control select2" style="width: 100%;" onchange="retur_detail(this.value),reception(this.value)" name="i_item" id="i_item" style="width: 85%;" onkeydown="if (event.keyCode == 13) { save_detail(); }"></select>
+                                        </td>
+                                        <td>
+                                          <input type="text" class="form-control" readonly="" name="i_qty" id="i_qty" placeholder="qty pembelian" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+                                          <input type="hidden" class="form-control" readonly="" name="i_qty_akumulation" id="i_qty_akumulation" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }">
+
+                                        </td>
                                         <td><input type="text" class="form-control" readonly="" name="i_qty_terima" id="i_qty_terima" placeholder="Qty diterima" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
                                         <td><input type="text" class="form-control" readonly="" name="i_qty_sisa" id="i_qty_sisa" placeholder="Qty sisa" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
                                         <td><input type="number" class="form-control" onchange="cek(this.value)" name="i_qty_return" id="i_qty_return" placeholder="jumlah return" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
@@ -85,7 +90,6 @@
                                         
                                     </tr>
                                     <tr>
-                                      <th>id</th>
                                       <th>Nama barang</th>
                                       <th>Qty pembelian</th>
                                       <th>Qty terima</th>
@@ -105,7 +109,7 @@
                       <div class="form-group"></div>
                       <div class="box-footer text-right">
                         <!--<a href="#myModal" class="btn btn-info" data-toggle="modal">Click for dialog</a>-->
-                        <button type="button" onclick="reset()" class="btn btn-warning">Batal</button>
+                        <button type="button" onclick="reset1()" class="btn btn-warning">Batal</button>
                         <button type="submit" class="btn btn-primary" <?php if(isset($c)) echo $c;?>>Simpan</button>
                       </div>
                 
@@ -222,6 +226,14 @@
     }
     
     
+      function reset1(){
+        $('input[name="i_id"]').val("");
+        $("#i_code option").remove("");
+        $('input[name="i_date"]').val("");
+        $('input[name="i_partner"]').val("");
+        search_data_detail(0);
+        hapus();
+      }
 
     function edit_data(id) {
         $.ajax({
@@ -234,6 +246,7 @@
               document.getElementById("i_id").value             = data.val[i].retur_supplier_id;
               $("#i_code").append('<option value="'+data.val[i].purchase_id+'" selected>'+data.val[i].purchase_code+'</option>');
               document.getElementById("datepicker").value           = data.val[i].retur_supplier_date;
+              document.getElementById("i_partner").value           = data.val[i].partner_name;
 
               search_data_detail(data.val[i].retur_supplier_id);
         get_retur_supplier_id();
@@ -290,11 +303,6 @@
         });
       }
 
-      function reset1(){
-        $('input[name="i_id"]').val("");
-        $("#i_code option").remove("");
-        $('input[name="i_date"]').val("");
-      }
       function reset2(){
         $('input[name="i_detail"]').val("");
         $("#i_item option").remove("");
@@ -316,7 +324,6 @@
             
               
             "columns": [
-              {"name": "retur_supplier_detail_id"},
               {"name": "item_name"},
               {"name": "purchase_detail_qty"},
               {"name": "reception_detail_qty"},
@@ -385,6 +392,18 @@
         
     }
 
+    function hapus() {
+      $.ajax({
+          url: '<?php echo base_url();?>Retur/hapus',
+          type: 'POST',
+          dataType: 'json',
+          success: function (data) {
+            if (data.status=='200') {
+            }
+          }
+      });
+    }
+    
     function get_retur_supplier_id(){
       var retur_supplier_id = $('input[name="i_id"]').val();
       //alert(retur_supplier_id);
@@ -434,6 +453,7 @@
           success:function(data){
             for(var i=0; i<data.val.length;i++){
               $('input[name="i_qty"]').val(data.val[i].purchase_detail_qty);
+              $('input[name="i_qty_akumulation"]').val(data.val[i].qty_akumulation);
               $('input[name="i_qty_sisa"]').val(data.val[i].purchase_detail_qty_akumulation);
 
             }
@@ -473,7 +493,8 @@
       function cek(id){
         var order = document.getElementById('i_qty').value;
         var terima = document.getElementById('i_qty_terima').value;
-        var jumlah = parseFloat(order)-parseFloat(terima);
+        var akumulation = document.getElementById('i_qty_akumulation').value;
+        var jumlah = parseFloat(order)-parseFloat(akumulation);
       if (id>jumlah) {
          $('input[name="i_qty_return"]').val("");
         alert("pengembalian tidak boleh lebih dari sisa");

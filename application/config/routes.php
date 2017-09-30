@@ -77,6 +77,7 @@ $route['Transaksi/Nota']									= 'Nota';
 $route['Transaksi/Delivery-Order']							= 'Delivery';
 $route['Transaksi/Mandor-Gudang']							= 'Foreman';
 $route['Transaksi-Pembayaran-Customer']						= 'Bill_cus';
+$route['Transaksi-Pembayaran-Supplier']						= 'Bill_sup';
 
 $route['Transaksi/Pembelian']								= 'Purchase';
 $route['Transaksi/Penerimaan-Barang']						= 'Reception';
@@ -87,3 +88,5 @@ $route['Transaksi/Pengeluaran-Operasional']					= 'Spending';
 $route['Transaksi/Retur-Customer']							= 'Retur_cus';
 $route['Transaksi/Stok-Opname']								= 'Stokopname';
 $route['Transaksi/Mutasi']									= 'Mutation';
+$route['Transaksi-Penerimaan-Mutasi']						= 'Mutation_recept';
+$route['Transaksi/Penerimaan-Barang']						= 'Reception';

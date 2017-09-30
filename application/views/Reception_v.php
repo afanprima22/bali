@@ -39,10 +39,7 @@
                     <div class="box-content">
                       <div class="row">
                         <div class="col-md-6">
-                          <div class="form-group">
-                            <label>Id Reception (Auto)</label>
-                            <input type="text" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
-                          </div>
+                          
                           <div class="form-group">
                             <label>Code Pembelian</label>
                             <select class="form-control select2"  onchange="get_reference(this.value)" name="i_code" id="i_code" style="width: 100%;" required="required" value=""></select>
@@ -53,6 +50,7 @@
                               <div class="input-group-addon">
                                 <i class="glyphicon glyphicon-calendar"></i>
                               </div>
+                              <input type="hidden" class="form-control" name="i_id" id="i_id" placeholder="Auto" value="" readonly="">
                               <input type="text" class="form-control pull-right" id="datepicker" name="i_date_reception" placeholder="Tanggal terima" value="" required="required">
                             </div>
                           </div>
@@ -76,16 +74,6 @@
                               <div class="form-group">
                                 <table width="100%" id="table2" class="table table-striped table-bordered bootstrap-datatable datatable responsive">
                                   <thead>
-                                        <td><input type="text" class="form-control" name="i_detail_reception" id="i_detail_reception" placeholder="Auto" value="" readonly=""></td>
-                                      <!-- <tr>
-                                        <td><input type="text" class="form-control" placeholder="Barcode"  name="i_barcode" id="i_barcode" value="" readonly onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
-                                        <td><input type="text" class="form-control"  name="i_item" id="i_item" readonly style="width: 85%;" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>                                         <td><input type="text" class="form-control" name="i_unit" id="i_unit" required="required" readonly onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
-                                         <td><input type="text" readonly="" class="form-control" name="i_order" id="i_order" placeholder="jumlah order" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
-                                        <td><input type="number" class="form-control" onchange="Qty(this.value)" name="i_Qty" id="i_Qty" placeholder="Qty deterima" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
-                                        <td><input type="hidden" class="form-control" name="i_sisa" id="i_sisa" required="required" value="" onkeydown="if (event.keyCode == 13) { save_detail(); }"></td>
-                                        <td width="10%"><button type="button" onclick="save_detail()" class="btn btn-primary">Simpan Barang</button></td>
-                                        
-                                    </tr> -->
                                     <tr>
                                       <th>Id</th>
                                       <th>barcode</th>
@@ -106,7 +94,7 @@
                       <div class="form-group"></div>
                       <div class="box-footer text-right">
                         <!--<a href="#myModal" class="btn btn-info" data-toggle="modal">Click for dialog</a>-->
-                        <button type="button" onclick="reset()" class="btn btn-warning">Batal</button>
+                        <button type="button" onclick="reset2()" class="btn btn-warning">Batal</button>
                         <button type="submit" class="btn btn-primary" <?php if(isset($c)) echo $c;?>>Simpan</button>
                       </div>
 
@@ -116,7 +104,7 @@
             </div>
         </div>
 
-        <div style="padding-top: 50px;" width="120%" class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel"
+         <div style="padding-top: 50px;" width="120%" class="modal fade" id="myModal" role="dialog" aria-labelledby="myModalLabel"
          aria-hidden="true" >
 
           <div class="modal-dialog" style="width: 50%;">
@@ -155,7 +143,7 @@
                                 </div>
                                 </div>
                                   <div class="box-footer text-right">
-                                    <button type="button" onclick="reset2()" class="btn btn-warning">Batal</button>
+                                    <button type="button" onclick="reset()" class="btn btn-warning">Batal</button>
                                     <button type="submit" class="btn btn-primary" <?php if(isset($c)) echo $c;?>>Simpan</button>
                                   </div>
                               </form>
@@ -186,12 +174,12 @@
                   </div>
                   <div class="modal-footer">
                       <a href="#" class="btn btn-warning" data-dismiss="modal">Selesai</a>
-                      <!--<a href="#" class="btn btn-primary btn-sm" data-dismiss="modal">Save changes</a>-->
+                      <!--<a href="#" class="btn btn-primary btn-sm" data-dismiss="modal">Save changes</a>
                   </div>
               </div>
           </form>
           </div>
-      </div>
+      </div> -->
 
     </div>
 </div>
@@ -384,7 +372,7 @@
           success:function(data){
             if(data.status=='200'){
               reset();
-              reset1();
+              reset2();
               search_data();
               search_data_detail(0);
               $('[href="#list"]').tab('show');
@@ -402,12 +390,29 @@
         });
     }
 
-    function reset1(){
+    function reset2(){
       $("#i_code option").remove();
       $("#i_warehouse option").remove();
+      $('input[name="i_code"]').val("");
+      $('input[name="i_date_reception"]').val("");
+      $('input[name="i_id"]').val("");
+      search_data_detail(0);
+      hapus();
+    }
+    function hapus() {
+           $.ajax({
+               url: '<?php echo base_url();?>Reception/hapus',
+               type: 'POST',
+               dataType: 'json',
+               success: function (data) {
+                 if (data.status=='200') {
+                 }
+               }
+           });
+    }
 
-      function save_detail(){
-        var id = document.getElementById("i_reception").value;
+      /*function save_detail(){
+        var id = document.getElementById("i_id").value;
         if (id) {
           var id_new = id;
         }else{
@@ -436,11 +441,10 @@
         $('input[name="i_item"]').val("");
         $('input[name="i_order"]').val("");
         $('input[name="i_Qty"]').val("");
-      }
-    }      
+      }*/
 
     function delete_data_detail(id_detail) {
-       var id = document.getElementById("i_detail_reception").value;
+       var id = document.getElementById("i_id").value;
        if (id) {
          var id_new = id;
        }else{
@@ -635,7 +639,7 @@
 
     function get_detail_reception(value,id){
      var qty =  $('input[name="i_sisa_qty"]').val();
-     if (value>qty) {
+     if (parseFloat(value)>parseFloat(qty)) {
       alert("Qty penerimaan tidak boleh lebih dari sisa");
       var value = 0;
 
