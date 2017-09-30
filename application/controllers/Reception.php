@@ -11,7 +11,7 @@ class Reception extends MY_Controller {
         parent::__construct();
         $this->check_user_access();
 
-        $akses = $this->g_mod->get_user_acces($this->user_id,90);
+        $akses = $this->g_mod->get_user_acces($this->user_id,76);
 		$this->permit = $akses['permit_acces'];
 	}
 
