@@ -89,4 +89,3 @@ $route['Transaksi/Retur-Customer']							= 'Retur_cus';
 $route['Transaksi/Stok-Opname']								= 'Stokopname';
 $route['Transaksi/Mutasi']									= 'Mutation';
 $route['Transaksi-Penerimaan-Mutasi']						= 'Mutation_recept';
-$route['Transaksi/Penerimaan-Barang']						= 'Reception';

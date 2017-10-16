@@ -3,7 +3,7 @@ defined('BASEPATH') OR exit('No direct script access allowed');
 
 class Reception extends MY_Controller {
 	private $any_error = array();
-	public $tbl = 'Receptions';
+	public $tbl = 'receptions';
 	public $tbl2 = 'purchases_details';
 	public $tbl3 = 'items';
 
@@ -11,7 +11,7 @@ class Reception extends MY_Controller {
         parent::__construct();
         $this->check_user_access();
 
-        $akses = $this->g_mod->get_user_acces($this->user_id,90);
+        $akses = $this->g_mod->get_user_acces($this->user_id,76);
 		$this->permit = $akses['permit_acces'];
 	}
 
@@ -46,7 +46,7 @@ class Reception extends MY_Controller {
 			'c'				=> $c
 			);
 
-		$this->open_page('Reception_v', $data);
+		$this->open_page('reception_v', $data);
 	}
 
 	
@@ -61,7 +61,7 @@ class Reception extends MY_Controller {
 		if (strpos($this->permit, 'd') !== false){
 			$d = '';
 		}
-		$tbl = 'Receptions a';
+		$tbl = 'receptions a';
 		$select = 'a.*,b.purchase_code,c.warehouse_name';
 		//LIMIT
 		$limit = array(
